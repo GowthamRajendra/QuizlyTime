@@ -1,0 +1,13 @@
+- server
+  - set up db (cloud mongodb)
+    - user collection
+      -  document names are usernames which stores hashed passwords
+      -  session questions collection (get questions from API per session) (replaced when new quiz is started) (DELETE) (GET)
+      -  (LOW PRIORITY) user created quizzes collection (POST) (DELETE) (PUT) (GET)
+  - authentication
+    - register and login routes (using JWT) (POST)
+    - implement persistent login using refresh tokens(?)  
+- client
+  - registration and login pages
+  - quiz selection page (choose parameters of quiz)
+  - quiz page 
