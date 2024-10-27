@@ -1,6 +1,6 @@
 from mongoengine import Document, StringField, EmailField, ListField, ReferenceField
 
-from .question_model import Question
+from question_model import Question
 
 class User(Document):
     name = StringField(required=True, max_length=20)
