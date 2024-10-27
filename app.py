@@ -15,8 +15,6 @@ load_dotenv()
 
 DATABASE_URI = os.getenv('DB_URI')
 
-app = Flask(__name__)
-
 URL = "https://opentdb.com/api.php?"
 
 # @app.route('/questions', methods=['GET'])
