@@ -1,17 +1,20 @@
 import { useState } from 'react'
-import './App.css'
-import Button from 'react-bootstrap/Button'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import MyNavbar from './components/MyNavbar'
+import { Routes, Route } from 'react-router-dom'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <div>
-        <Button onClick={() => setCount((count) => count + 1)}>
-          Clicked {count} times
-        </Button>
+      <MyNavbar />
+      <div className='d-flex justify-content-center'>
+        <Routes>
+          <Route path='/' element={<div>Home</div>} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
+        </Routes>
       </div>
     </>
   )
