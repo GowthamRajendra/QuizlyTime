@@ -59,5 +59,5 @@ def hash_password(password):
 
 # verify a user's entered password against the hashed password in the db.
 def verify_password(entered_password, hashed_password):
-    return bcrypt.checkpw(str.encode(entered_password), hashed_password)
+    return bcrypt.checkpw(str.encode(entered_password), str.encode(hashed_password))
 
