@@ -6,9 +6,9 @@ from flask import current_app as app, request
 
 # create a JWT token for a user that has successfully logged in.
 # keep user logged in 
-def create_jwt(username):
+def create_jwt(user_id):
     access_payload = {
-        'sub': username,
+        'sub': user_id,
         "type": "access",  # this field will prevent refresh tokens from being used in place of access tokens
         'iat': datetime.now(timezone.utc),
         'exp': datetime.now(timezone.utc) + timedelta(minutes=30) # expires in 30 minutes

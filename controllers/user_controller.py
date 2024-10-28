@@ -55,7 +55,7 @@ def login():
         return {"message": "Incorrect email or password."}, 401
 
     if verify_password(password, user.password):
-        access_token, refresh_token = create_jwt(user.username)
+        access_token, refresh_token = create_jwt(str(user.pk))
         return {"message": "Login successful.", "access_token": access_token, "refresh_token": refresh_token}, 200
     else:
         return {"message": "Incorrect email or password."}, 401
