@@ -2,13 +2,15 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Card from 'react-bootstrap/Card'
 import { useState} from 'react'
-import axios from '../api/axios'
+import useAxios from '../hooks/useAxios'
 import { useNavigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
 
 function Login() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+
+    const axios = useAxios()
 
     const { setAuth } = useAuth()
     const navigate = useNavigate()

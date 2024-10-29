@@ -5,6 +5,7 @@ from models.user_model import User
 
 users_bp = Blueprint('users_bp', __name__)
 
+# set CORS headers to allow json and cookies to be sent cross-origin
 @users_bp.after_request
 def cors_header(response):
     response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
@@ -69,17 +70,19 @@ def login():
         response = make_response(jsonify(response_data), 200)
 
         # set the tokens as httponly cookies guards against XSS attacks
-        response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=1800;')
-        response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=604800;')
+        response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=10;')
+        response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=20;')
         
         return response
     else:
         return {"message": "Incorrect email or password."}, 401
     
-# check if user is already logged in
-@users_bp.route("/auth/check", methods=["GET"])
+# Refresh tokens if user is still logged in and the refresh token is still valid.
+# Requested if the user did not log out the last time they visited the site.
+# Requested if the user is currently using the site and the access token expires.
+@users_bp.route("/auth/refresh", methods=["GET"])
 @refresh_token_required
-def is_logged_in(user_data):
+def refresh(user_data):
     # user_data from the refresh_token_required decorator
     user = User.objects(email=user_data.get('email')).first()
 
@@ -94,8 +97,8 @@ def is_logged_in(user_data):
     response = make_response(jsonify(response_data), 200)
 
     # set the tokens as httponly cookies guards against XSS attacks
-    response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=1800;')
-    response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=604800;')
+    response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=10;')
+    response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=20;')
     
     return response
 
@@ -107,7 +110,7 @@ def logout(_):
     # delete the tokens by setting their max-age to 0
     response.headers.add('Set-Cookie', 'access_token=; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=0;')
     response.headers.add('Set-Cookie', 'refresh_token=; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=0;')
-    
+
     return response
 
 # # testing token required decorator

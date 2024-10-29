@@ -12,7 +12,7 @@ def create_jwt(user):
         'email': user.email,
         "type": "access",  # this field will prevent refresh tokens from being used in place of access tokens
         'iat': datetime.now(timezone.utc),
-        'exp': datetime.now(timezone.utc) + timedelta(minutes=30) # expires in 30 minutes
+        'exp': datetime.now(timezone.utc) + timedelta(minutes=15) # expires in 15 minutes
     }
 
     refresh_payload = {
@@ -36,7 +36,7 @@ def access_token_required(f):
             access_token = request.cookies.get('access_token')
         
         if not access_token:
-            return {'message': 'Token is missing.'}, 401
+            return {'message': 'Access token is missing.'}, 401
         
         # Try to verify the access_token
         try:
@@ -44,13 +44,13 @@ def access_token_required(f):
 
             # prevent refresh tokens from being used in place of access tokens
             if user_data['type'] != 'access':
-                return {'message': 'Token is invalid.'}, 401
+                return {'message': 'Access token is invalid.'}, 401
             
             return f(user_data, *args, **kwargs)
         except jwt.ExpiredSignatureError:
-            return {'message': 'Token is expired.'}, 401
+            return {'message': 'Access token is expired.'}, 401
         except jwt.InvalidTokenError:
-            return {'message': 'Token is invalid.'}, 401
+            return {'message': 'Access token is invalid.'}, 401
     
     return decorated
 
@@ -63,7 +63,7 @@ def refresh_token_required(f):
             refresh_token = request.cookies.get('refresh_token')
         
         if not refresh_token:
-            return {'message': 'Token is missing.'}, 401
+            return {'message': 'Refresh token is missing.'}, 401
         
         # Try to verify the refresh_token
         try:
@@ -71,13 +71,13 @@ def refresh_token_required(f):
 
             # prevent access tokens from being used in place of refresh tokens
             if user_data['type'] != 'refresh':
-                return {'message': 'Token is invalid.'}, 401
+                return {'message': 'Refresh token is invalid.'}, 401
             
             return f(user_data, *args, **kwargs)
         except jwt.ExpiredSignatureError:
-            return {'message': 'Token is expired.'}, 401
+            return {'message': 'Refresh token is expired.'}, 401
         except jwt.InvalidTokenError:
-            return {'message': 'Token is invalid.'}, 401
+            return {'message': 'Refresh token is invalid.'}, 401
     
     return decorated
 

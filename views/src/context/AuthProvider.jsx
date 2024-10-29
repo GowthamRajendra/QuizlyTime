@@ -1,42 +1,21 @@
 import { createContext,  useState, useEffect } from "react";
-import axios from "../api/axios";
+import useRefresh from "../hooks/useRefresh";
 
 const AuthContext = createContext({})
 
 export const AuthProvider = ({children}) => {
     const [ auth, setAuth ] = useState(null)
+    const { refresh } = useRefresh()
 
-    // check if user is already logged in
+    // if the user did not log out and their refresh token is still valid,
+    // they will be automatically logged in
     useEffect(() => {
-        async function checkAuth() {
-            try {
-                const response = await axios.get(
-                    '/auth/check'
-                )
-
-                console.log(JSON.stringify(response?.data))
-
-                const email = response?.data?.email
-                const username = response?.data?.username
-
-                setAuth({email, username})
-
-            } catch (err) {
-                if (!err?.response) {
-                    console.error("No response")
-                }
-                else if (err.response) {
-                    console.error(err.response.data.message)
-                }
-                else {
-                    console.error(err)
-                }
-
-                setAuth(null)
-            }
+        async function handleRefresh() {
+            const data = await refresh()
+            setAuth(data)
         }
 
-        checkAuth()
+        handleRefresh()
 
         return () => {
             console.log('cleanup')

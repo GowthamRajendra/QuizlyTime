@@ -1,19 +1,22 @@
 import useAuth from "./useAuth";
-import useAxios from "./useAxios";
+import axios from "../api/axios";
 
-const useLogout = () => {
+const useRefresh = () => {
     const { setAuth } = useAuth()
-    const axios = useAxios()
 
-    const logout = async () => {
+    const refresh = async () => {
         try {
-            const response = await axios.post(
-                '/logout'
+            const response = await axios.get(
+                '/auth/refresh'
             )
-
+    
             console.log(JSON.stringify(response?.data))
-
-            setAuth(null)
+    
+            const email = response?.data?.email
+            const username = response?.data?.username
+    
+            return {email, username}
+    
         } catch (err) {
             if (!err?.response) {
                 console.error("No response")
@@ -24,10 +27,12 @@ const useLogout = () => {
             else {
                 console.error(err)
             }
+    
+            return null
         }
     }
 
-    return { logout }
+    return { refresh }
 }
 
-export default useLogout
+export default useRefresh

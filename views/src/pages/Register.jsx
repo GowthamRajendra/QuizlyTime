@@ -3,13 +3,17 @@ import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 
 import { useState } from 'react'
-import axios from '../api/axios'
+import useAxios from '../hooks/useAxios'
 import { useNavigate } from 'react-router-dom'
 
 function Register() {
     const [email, setEmail] = useState('')
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
+
+    const axios = useAxios()
+
+    const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
         e.preventDefault()

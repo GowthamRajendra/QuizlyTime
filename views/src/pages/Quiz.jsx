@@ -3,9 +3,10 @@
 // quiz game page
 
 import { useEffect } from "react"
-import axios from "../api/axios"
+import useAxios from "../hooks/useAxios"
 
 function Quiz() {
+    const axios = useAxios()
 
     useEffect(() => {
         async function testProtected() {

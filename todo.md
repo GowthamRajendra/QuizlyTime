@@ -1,13 +1,15 @@
 - server
   - set up db (cloud mongodb)
     - user collection
-      -  document names are usernames which stores hashed passwords
+      -  ~~individual user documents have a uid, email, username, hashed password and session questions.~~ (GET) (POST)
       -  session questions collection (get questions from API per session) (replaced when new quiz is started) (DELETE) (GET)
       -  (LOW PRIORITY) user created quizzes collection (POST) (DELETE) (PUT) (GET)
   - authentication
-    - register and login routes (using JWT) (POST)
-    - implement persistent login using refresh tokens(?)  
+    - ~~implement creation, handling and deletion of jwt access and refresh tokens~~
+    - ~~register and login routes (using JWT)~~ (POST)
+    - ~~implement persistent login using refresh tokens~~ 
 - client
-  - registration and login pages
+  - Home page
+  - ~~registration and login pages~~
   - quiz selection page (choose parameters of quiz)
   - quiz page 
