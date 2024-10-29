@@ -1,7 +1,7 @@
 from flask import request, Blueprint, make_response, jsonify
 from services.auth_service import create_jwt, access_token_required, refresh_token_required, hash_password, verify_password
 from models.user_model import User
-
+from datetime import datetime, timedelta, timezone
 
 users_bp = Blueprint('users_bp', __name__)
 
@@ -70,14 +70,14 @@ def login():
         response = make_response(jsonify(response_data), 200)
 
         # set the tokens as httponly cookies guards against XSS attacks
-        response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=10;')
-        response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=20;')
+        response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=900;')
+        response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=1209600;')
         
         return response
     else:
         return {"message": "Incorrect email or password."}, 401
     
-# Refresh tokens if user is still logged in and the refresh token is still valid.
+# Refresh access token if user is still logged in and the refresh token is still valid.
 # Requested if the user did not log out the last time they visited the site.
 # Requested if the user is currently using the site and the access token expires.
 @users_bp.route("/auth/refresh", methods=["GET"])
@@ -86,20 +86,28 @@ def refresh(user_data):
     # user_data from the refresh_token_required decorator
     user = User.objects(email=user_data.get('email')).first()
 
-    # issue new access and refresh tokens if the previous refresh token is still valid
+    # issue new access token if their refresh token is still valid
     access_token, refresh_token = create_jwt(user)
 
     response_data = {
-            "message": "Login successful.", 
+            "message": "Refresh successful.", 
             "email": user.email, 
             "username": user.username, 
             }
     response = make_response(jsonify(response_data), 200)
 
+    # if refresh token is close to expiring, issue a new one
+    exp_datetime = datetime.fromtimestamp(user_data.get('exp'), tz=timezone.utc)
+    current_datetime = datetime.now(timezone.utc)
+
+    time_remaining = exp_datetime - current_datetime
+
+    if time_remaining < timedelta(days=1):
+        response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=1209600;')
+
     # set the tokens as httponly cookies guards against XSS attacks
-    response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=10;')
-    response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=20;')
-    
+    response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=900;')
+
     return response
 
 @users_bp.route("/logout", methods=["POST"])

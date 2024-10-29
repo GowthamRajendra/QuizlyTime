@@ -12,7 +12,7 @@ def create_jwt(user):
         'email': user.email,
         "type": "access",  # this field will prevent refresh tokens from being used in place of access tokens
         'iat': datetime.now(timezone.utc),
-        'exp': datetime.now(timezone.utc) + timedelta(minutes=15) # expires in 15 minutes
+        'exp': datetime.now(timezone.utc) + timedelta(minutes=15)
     }
 
     refresh_payload = {
@@ -20,7 +20,7 @@ def create_jwt(user):
         'email': user.email,
         "type": "refresh",
         'iat': datetime.now(timezone.utc),
-        'exp': datetime.now(timezone.utc) + timedelta(days=7) # expires in 7 days
+        'exp': datetime.now(timezone.utc) + timedelta(days=14)
     }
     access_token = jwt.encode(access_payload, app.config["JWT_SECRET"], algorithm="HS256")
     refresh_token = jwt.encode(refresh_payload, app.config["JWT_SECRET"], algorithm="HS256")
