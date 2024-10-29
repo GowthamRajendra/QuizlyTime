@@ -1,47 +1,35 @@
-// TODO
-// quiz settings page
-// quiz game page
+import Button from 'react-bootstrap/Button'
+import Card from 'react-bootstrap/Card'
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
-import { useEffect } from "react"
-import useAxios from "../hooks/useAxios"
+import { useState } from 'react'
 
-function Quiz() {
-    const axios = useAxios()
+import QuizQuestion from '../components/QuizQuestion'
 
-    useEffect(() => {
-        async function testProtected() {
-            try {
-                const response = await axios.get(
-                    '/protected'
-                )
-    
-                console.log(JSON.stringify(response?.data))
-    
-            } catch (err) {
-                if (!err?.response) {
-                    console.error("No response")
-                }
-                else if (err.response) {
-                    console.error(err.response.data.message)
-                }
-                else {
-                    console.error(err)
-                }
-            }
+export default function Quiz(questions) {
+
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+    const [isAnswered, setIsAnswered] = useState(false)
+
+    const handleNextQuestion = () => {
+        if (currentQuestionIndex < questions.length - 1) {
+            setCurrentQuestionIndex(currentQuestionIndex + 1)
+            setIsAnswered(false)
         }
+    }
 
-        testProtected()
-
-        return () => {
-            console.log('cleanup')
-        }
-    }, [])
 
     return (
-        <div>
-            Quiz Page
-        </div>
+        <Card className='d-flex flex-row justify-content-center w-50 shadow-sm mt-3'>
+            {/* <QuizQuestion question={questions[currentQuestionIndex]} isAnswered={isAnswered} setIsAnswered={setIsAnswered}/> */}
+            <Container>
+                <Row className='d-flex flex-row justify-content-between'>
+                    <Col xs="auto">Question {currentQuestionIndex + 1} of {questions.length}</Col>
+                    <Col xs="auto"><Button variant='primary' onClick={handleNextQuestion}>Next Question</Button></Col>
+                </Row>
+            </Container>
+        </Card>
     )
 }
-
-export default Quiz

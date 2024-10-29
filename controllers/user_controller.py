@@ -21,22 +21,22 @@ def register():
     password = data.get('password')
 
     if not username or not email or not password:
-        return {"message": "Username, email and password are required."}, 400
+        return {"message": "Username, email and password are required."}, 401
     
     # email must be unique
     if User.objects(email=email).first():
-        return {"message": "Email already registered."}, 400
+        return {"message": "Email already registered."}, 401
     
     if len(username) > 20:
-        return {"message": "Username must be less than 20 characters long."}, 400
+        return {"message": "Username must be less than 20 characters long."}, 401
     
     if len(password) < 8:
-        return {"message": "Password must be at least 8 characters long."}, 400
+        return {"message": "Password must be at least 8 characters long."}, 401
     
     # bcrypt only supports inputs up to 72 bytes long
     # so limit to 70 to be safe.
     if len(password) > 70:
-        return {"message": "Password must be less than 70 characters long."}, 400
+        return {"message": "Password must be less than 70 characters long."}, 401
 
     new_user = User(username=username, email=email, password=hash_password(password))
     new_user.save()
@@ -51,7 +51,7 @@ def login():
     password = data.get('password')
 
     if not email or not password:
-        return {"message": "Missing email or password."}, 400
+        return {"message": "Incorrect email or password."}, 401
 
     user = User.objects(email=email).first()
 
