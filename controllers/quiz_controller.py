@@ -45,7 +45,7 @@ def cors_header(response):
     return response
 
 @quiz_bp.route("/quiz", methods=["POST"])
-@token_required
+@token_required # add way to take quiz without logging in?
 def get_quiz_questions(user_data):
     amount = request.json.get('amount', 10)
     type = request.json.get('type', "")
