@@ -1,4 +1,4 @@
-from flask import request, Blueprint, jsonify
+from flask import request, Blueprint, jsonify, make_response
 from html import unescape
 import requests
 
@@ -9,6 +9,7 @@ from services.auth_service import token_required
 
 quiz_bp = Blueprint('quiz_bp', __name__)
 
+# easiest way right now, might change later
 category_dict = {
     "General Knowledge": 9,
     "Entertainment: Books": 10,
@@ -36,6 +37,13 @@ category_dict = {
     "Entertainment: Cartoon & Animations": 32
 }
 
+@quiz_bp.after_request
+def cors_header(response):
+    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    return response
+
 @quiz_bp.route("/quiz", methods=["POST"])
 @token_required
 def get_quiz_questions(user_data):
@@ -43,6 +51,11 @@ def get_quiz_questions(user_data):
     type = request.json.get('type', "")
     difficulty = request.json.get('difficulty', "")
     category = request.json.get('category', "")
+
+    print('amount: ', amount)
+    print('type: ', type)
+    print('difficulty: ', difficulty)
+    print('category: ', category)
 
     # empty string for the query param are handled by the API, treats them as if they weren't included
     API_URL = f'https://opentdb.com/api.php?amount={amount}&type={type}&difficulty={difficulty}&category={category}'
@@ -71,7 +84,7 @@ def get_quiz_questions(user_data):
         question.save()
         questions.append(question)
     
-    print(response['results'])
+    # print(response['results'])
 
     user = User.objects(pk=user_data['sub']).first()
 
@@ -84,4 +97,4 @@ def get_quiz_questions(user_data):
     user.questions = questions
     user.save()
      
-    return jsonify(response)
+    return make_response(jsonify(response), 200)
