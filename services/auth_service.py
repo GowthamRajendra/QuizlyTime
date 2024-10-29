@@ -6,42 +6,71 @@ from flask import current_app as app, request
 
 # create a JWT token for a user that has successfully logged in.
 # keep user logged in 
-def create_jwt(username):
+def create_jwt(user):
     access_payload = {
-        'sub': username,
+        'sub': str(user.id),
+        'email': user.email,
         "type": "access",  # this field will prevent refresh tokens from being used in place of access tokens
         'iat': datetime.now(timezone.utc),
         'exp': datetime.now(timezone.utc) + timedelta(minutes=30) # expires in 30 minutes
     }
 
     refresh_payload = {
+        'sub': str(user.id),
+        'email': user.email,
         "type": "refresh",
         'iat': datetime.now(timezone.utc),
-        'exp': datetime.now(timezone.utc) + timedelta(days=30) # expires in 30 days
+        'exp': datetime.now(timezone.utc) + timedelta(days=7) # expires in 7 days
     }
     access_token = jwt.encode(access_payload, app.config["JWT_SECRET"], algorithm="HS256")
     refresh_token = jwt.encode(refresh_payload, app.config["JWT_SECRET"], algorithm="HS256")
     return access_token, refresh_token
 
 # decorator to protected routes
-def token_required(f):
+def access_token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = None
+        access_token = None
         
-        # check if token exists
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization'].split(" ")[1]  # Bearer <token>
+        if 'access_token' in request.cookies:
+            access_token = request.cookies.get('access_token')
         
-        if not token:
+        if not access_token:
             return {'message': 'Token is missing.'}, 401
         
-        # Try to verify the token
+        # Try to verify the access_token
         try:
-            user_data = jwt.decode(token, app.config['JWT_SECRET'], algorithms=["HS256"])
+            user_data = jwt.decode(access_token, app.config['JWT_SECRET'], algorithms=["HS256"])
 
             # prevent refresh tokens from being used in place of access tokens
             if user_data['type'] != 'access':
+                return {'message': 'Token is invalid.'}, 401
+            
+            return f(user_data, *args, **kwargs)
+        except jwt.ExpiredSignatureError:
+            return {'message': 'Token is expired.'}, 401
+        except jwt.InvalidTokenError:
+            return {'message': 'Token is invalid.'}, 401
+    
+    return decorated
+
+def refresh_token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        refresh_token = None
+        
+        if 'refresh_token' in request.cookies:
+            refresh_token = request.cookies.get('refresh_token')
+        
+        if not refresh_token:
+            return {'message': 'Token is missing.'}, 401
+        
+        # Try to verify the refresh_token
+        try:
+            user_data = jwt.decode(refresh_token, app.config['JWT_SECRET'], algorithms=["HS256"])
+
+            # prevent access tokens from being used in place of refresh tokens
+            if user_data['type'] != 'refresh':
                 return {'message': 'Token is invalid.'}, 401
             
             return f(user_data, *args, **kwargs)

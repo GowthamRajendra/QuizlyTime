@@ -1,12 +1,16 @@
-from flask import request, Blueprint
-from services.auth_service import create_jwt, token_required, hash_password, verify_password
+from flask import request, Blueprint, make_response, jsonify
+from services.auth_service import create_jwt, access_token_required, refresh_token_required, hash_password, verify_password
 from models.user_model import User
+
 
 users_bp = Blueprint('users_bp', __name__)
 
-## TODO
-## login route
-## register route
+@users_bp.after_request
+def cors_header(response):
+    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    return response
 
 @users_bp.route("/register", methods=["POST"])
 def register():
@@ -16,22 +20,22 @@ def register():
     password = data.get('password')
 
     if not username or not email or not password:
-        return {"message": "Username, email and password are required."}, 401
+        return {"message": "Username, email and password are required."}, 400
     
     # email must be unique
     if User.objects(email=email).first():
-        return {"message": "Email already registered."}, 401
+        return {"message": "Email already registered."}, 400
     
     if len(username) > 20:
-        return {"message": "Username must be less than 20 characters long."}, 401
+        return {"message": "Username must be less than 20 characters long."}, 400
     
     if len(password) < 8:
-        return {"message": "Password must be at least 8 characters long."}, 401
+        return {"message": "Password must be at least 8 characters long."}, 400
     
     # bcrypt only supports inputs up to 72 bytes long
     # so limit to 70 to be safe.
     if len(password) > 70:
-        return {"message": "Password must be less than 70 characters long."}, 401
+        return {"message": "Password must be less than 70 characters long."}, 400
 
     new_user = User(username=username, email=email, password=hash_password(password))
     new_user.save()
@@ -46,7 +50,7 @@ def login():
     password = data.get('password')
 
     if not email or not password:
-        return {"message": "Incorrect email or password."}, 401
+        return {"message": "Missing email or password."}, 400
 
     user = User.objects(email=email).first()
 
@@ -55,20 +59,48 @@ def login():
         return {"message": "Incorrect email or password."}, 401
 
     if verify_password(password, user.password):
-        access_token, refresh_token = create_jwt(user.username)
-        return {"message": "Login successful.", "access_token": access_token, "refresh_token": refresh_token}, 200
+        access_token, refresh_token = create_jwt(user)
+    
+        response_data = {
+            "message": "Login successful.", 
+            "email": user.email, 
+            "username": user.username, 
+            }
+        response = make_response(jsonify(response_data), 200)
+
+        # set the tokens as httponly cookies guards against XSS attacks
+        response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=1800;')
+        response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=604800;')
+        
+        return response
     else:
         return {"message": "Incorrect email or password."}, 401
+    
+# check if user is already logged in
+@users_bp.route("/auth/check", methods=["GET"])
+@refresh_token_required
+def is_logged_in(user_data):
+    # user_data from the refresh_token_required decorator
+    user = User.objects(email=user_data.get('email')).first()
 
-# @users_bp.route("/verify", methods=["POST"])
-# def verify():
-#     data = request.get_json()
-#     entered_password = data.get('entered_password')
-#     hashed_password = str.encode(data.get('hashed_password'))
-#     return {"message": "Password is correct." if verify_password(entered_password, hashed_password) else "Password is incorrect."}, 200
+    # issue new access and refresh tokens if the previous refresh token is still valid
+    access_token, refresh_token = create_jwt(user)
+
+    response_data = {
+            "message": "Login successful.", 
+            "email": user.email, 
+            "username": user.username, 
+            }
+    response = make_response(jsonify(response_data), 200)
+
+    # set the tokens as httponly cookies guards against XSS attacks
+    response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=1800;')
+    response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=604800;')
+    
+    return response
 
 # # testing token required decorator
-# @users_bp.route("/protected", methods=["GET"])
-# @token_required
-# def protected_route(user_data):
-#     return {"message": "This is a protected route.", "user_data": user_data}, 200
+@users_bp.route("/protected", methods=["GET"])
+@access_token_required
+def protected_route(user_data):
+    return {"message": "This is a protected route.", "user_data": user_data}, 200
