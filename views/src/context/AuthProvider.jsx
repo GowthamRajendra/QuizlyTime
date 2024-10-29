@@ -31,6 +31,8 @@ export const AuthProvider = ({children}) => {
                 else {
                     console.error(err)
                 }
+
+                setAuth(null)
             }
         }
 

@@ -2,9 +2,11 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { Link } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import useLogout from '../hooks/useLogout';
 
 function MyNavbar() {
     const { auth } = useAuth()
+    const { logout } = useLogout()
 
     return (
         <Navbar className='ms-3'>
@@ -14,7 +16,8 @@ function MyNavbar() {
                     !auth ?   
                     [<Link to="/login" className='nav-link'>Login</Link>,
                     <Link to="/register" className='nav-link'>Register</Link>]
-                    : <Link to="/quiz" className='nav-link'>Play</Link>
+                    : [<Link to="/quiz" className='nav-link'>Play</Link>,
+                    <Link to="/" className='nav-link' onClick={logout}>Logout</Link>]
                 }
             </Nav>
         </Navbar>

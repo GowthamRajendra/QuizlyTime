@@ -99,6 +99,17 @@ def is_logged_in(user_data):
     
     return response
 
+@users_bp.route("/logout", methods=["POST"])
+@access_token_required
+def logout(_):
+    response = make_response({"message": "Logout successful."}, 200)
+
+    # delete the tokens by setting their max-age to 0
+    response.headers.add('Set-Cookie', 'access_token=; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=0;')
+    response.headers.add('Set-Cookie', 'refresh_token=; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=0;')
+    
+    return response
+
 # # testing token required decorator
 @users_bp.route("/protected", methods=["GET"])
 @access_token_required
