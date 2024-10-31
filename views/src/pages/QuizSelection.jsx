@@ -23,17 +23,17 @@ export default function QuizSelection() {
                     "type": e.target.type.value
                 },
                 // testing only
-                {
-                    headers: {
-                        'Authorization' : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NzFlZmU1NWEzOTU1ZTIzZDhhODdjYjkiLCJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNzMwMjI3NzM3LCJleHAiOjE3MzA0MDc3Mzd9.oY7mj-Z-bpHfWvysYMy7iqpcGCJ88LZXSlNXJf-64pQ'
-                    }
-                }
+                // {
+                //     headers: {
+                //         'Authorization' : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NzFlZmU1NWEzOTU1ZTIzZDhhODdjYjkiLCJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNzMwMjI3NzM3LCJleHAiOjE3MzA0MDc3Mzd9.oY7mj-Z-bpHfWvysYMy7iqpcGCJ88LZXSlNXJf-64pQ'
+                //     }
+                // }
             )
             
-            console.log(response.data['results'])
-            console.log(response.data['results'].length)    
+            console.log(response.data)
+            console.log(response.data.length)    
             // navigate to the quiz page with the questions
-            navigate('/quiz', {state: response.data['results']})
+            navigate('/quiz', {state: response.data})
 
         } catch (error) {
             console.error(error)

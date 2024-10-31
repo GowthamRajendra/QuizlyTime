@@ -1,41 +1,51 @@
 from flask import request, Blueprint, jsonify, make_response
-from html import unescape
 import requests
+from flask_socketio import emit
 
+from datetime import datetime 
+
+# import models
 from models.user_model import User
+from models.quiz_model import Quiz
 from models.question_model import Question
 
+# import service functions
 from services.auth_service import access_token_required
+from services.quiz_service import store_questions, create_quiz_questions
+
+from models.quiz_model import AnsweredQuestion
+
+from app import socketio
 
 quiz_bp = Blueprint('quiz_bp', __name__)
 
-# easiest way right now, might change later
-category_dict = {
-    "General Knowledge": 9,
-    "Entertainment: Books": 10,
-    "Entertainment: Film": 11,
-    "Entertainment: Music": 12,
-    "Entertainment: Musicals & Theatres": 13,
-    "Entertainment: Television": 14,
-    "Entertainment: Video Games": 15,
-    "Entertainment: Board Games": 16,
-    "Science & Nature": 17,
-    "Science: Computers": 18,
-    "Science: Mathematics": 19,
-    "Mythology": 20,
-    "Sports": 21,
-    "Geography": 22,
-    "History": 23,
-    "Politics": 24,
-    "Art": 25,
-    "Celebrities": 26,
-    "Animals": 27,
-    "Vehicles": 28,
-    "Entertainment: Comics": 29,
-    "Science: Gadgets": 30,
-    "Entertainment: Japanese Anime & Manga": 31,
-    "Entertainment: Cartoon & Animations": 32
-}
+# dont need it for now
+# category_dict = {
+#     "General Knowledge": 9,
+#     "Entertainment: Books": 10,
+#     "Entertainment: Film": 11,
+#     "Entertainment: Music": 12,
+#     "Entertainment: Musicals & Theatres": 13,
+#     "Entertainment: Television": 14,
+#     "Entertainment: Video Games": 15,
+#     "Entertainment: Board Games": 16,
+#     "Science & Nature": 17,
+#     "Science: Computers": 18,
+#     "Science: Mathematics": 19,
+#     "Mythology": 20,
+#     "Sports": 21,
+#     "Geography": 22,
+#     "History": 23,
+#     "Politics": 24,
+#     "Art": 25,
+#     "Celebrities": 26,
+#     "Animals": 27,
+#     "Vehicles": 28,
+#     "Entertainment: Comics": 29,
+#     "Science: Gadgets": 30,
+#     "Entertainment: Japanese Anime & Manga": 31,
+#     "Entertainment: Cartoon & Animations": 32
+# }
 
 @quiz_bp.after_request
 def cors_header(response):
@@ -45,56 +55,76 @@ def cors_header(response):
     return response
 
 @quiz_bp.route("/quiz", methods=["POST"])
-@access_token_required # add way to take quiz without logging in?
+@access_token_required 
 def get_quiz_questions(user_data):
     amount = request.json.get('amount', 10)
     type = request.json.get('type', "")
     difficulty = request.json.get('difficulty', "")
     category = request.json.get('category', "")
 
-    print('amount: ', amount)
-    print('type: ', type)
-    print('difficulty: ', difficulty)
-    print('category: ', category)
-
     # empty string for the query param are handled by the API, treats them as if they weren't included
     API_URL = f'https://opentdb.com/api.php?amount={amount}&type={type}&difficulty={difficulty}&category={category}'
 
     response = requests.get(API_URL).json()
 
-    questions = []
-
-    for ques in response["results"]:
-        # unescape html entities
-        ques["question"] = unescape(ques["question"])
-        ques["correct_answer"] = unescape(ques["correct_answer"])
-        ques["category"] = unescape(ques["category"])
-        for i in range(len(ques["incorrect_answers"])):
-            ques["incorrect_answers"][i] = unescape(ques["incorrect_answers"][i])
-
-        question = Question(category_name=ques["category"], 
-                     category_id=category_dict[ques["category"]],
-                     difficulty=ques["difficulty"], 
-                     type=ques["type"], 
-                     question_text=ques["question"], 
-                     correct_answer=ques["correct_answer"], 
-                     incorrect_answers=ques["incorrect_answers"]
-                )
-        
-        question.save()
-        questions.append(question)
+    # store the questions in the database, and return the question objects as a list
+    questions = store_questions(response['results'])
     
-    # print(response['results'])
+    # create a new quiz object and store it in the database
+    # set timestamp to the current time since the quiz is just starting
+    quiz = Quiz(score=0, timestamp=datetime.now())
+    quiz.save()
 
+    # set the activeQuiz field of the user to the quiz object
     user = User.objects(pk=user_data['sub']).first()
-
-    # delete existing questions from questions collection
-    for question in user.questions:
-        print('deleting question: ', question.question_text)
-
-        question.delete()
-
-    user.questions = questions
+    user.activeQuiz = quiz
     user.save()
+
+    # # delete existing questions from questions collection
+    # for question in user.questions:
+    #     print('deleting question: ', question.prompt)
+
+    #     question.delete()
+
+    # user.questions = questions
+    # user.save()
+
+    quiz_questions = create_quiz_questions(questions)
      
-    return make_response(jsonify(response), 200)
+    # return the first question to start the quiz
+    return make_response(jsonify(quiz_questions), 200)
+
+
+@socketio.on('check_answer')
+def test(data):
+    print('checking answer')
+    print(data)
+    emit('answer_checked', data, broadcast=True)
+
+# @socketio.on('check_answer')
+# @access_token_required
+def check_answer(user_data, data):
+    print('checking answer')
+    user = User.objects(pk=user_data['sub']).first()
+    quiz = user.activeQuiz
+
+    # get the question object from the question id
+    question = Question.objects(pk=data['question_id']).first()
+
+    # check if the answer is correct
+    if data['user_answer'] == question.correct_answer:
+        quiz.score += 1
+
+    # store the question and user's answer in the answered_questions list
+    quiz.answered_questions.append(
+        AnsweredQuestion(question=question, user_answer=data['user_answer'])
+    )
+
+    quiz.save()
+
+    results = {
+        "score": quiz.score,
+        "is_correct_answer": data['user_answer'] == question.correct_answer
+    }
+
+    emit('answer_checked', results, broadcast=True)
