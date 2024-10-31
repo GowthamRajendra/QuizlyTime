@@ -20,9 +20,9 @@ export default function Quiz(questions) {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
     const [isAnswered, setIsAnswered] = useState(false)
 
-    socket.on("connect", () => {
-        console.log(socket.connected); // true
-      });
+    // socket.on("connect", () => {
+    //     console.log(socket.connected); // true
+    //   });
 
 
     useEffect(() => {
@@ -31,6 +31,11 @@ export default function Quiz(questions) {
             console.log('answer checked');
             console.log(data);
         })        
+
+        socket.on('quiz_completed', (data) => {
+            console.log('game over');
+            console.log(data);
+        });
 
         // Clean up. Remove the event listener when the component is unmounted
         return () => {
@@ -41,9 +46,7 @@ export default function Quiz(questions) {
     }, [])
 
     const handleNextQuestion = async () => {
-
-
-        socket.emit('check_answer', { "question_id": "6722d8fc1808cd2c7fbdfcde", "user_answer": "True" })
+        socket.emit('check_answer', { "email": "gowtham@gmail.com",  "question_id": "672304141406c1618549f329", "user_answer": "False" })
         console.log('emitted');
     }
 

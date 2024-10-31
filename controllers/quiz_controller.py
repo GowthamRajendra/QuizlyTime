@@ -15,7 +15,7 @@ from services.quiz_service import store_questions, create_quiz_questions
 
 from models.quiz_model import AnsweredQuestion
 
-from app import socketio
+from socket_manager import socketio 
 
 quiz_bp = Blueprint('quiz_bp', __name__)
 
@@ -72,7 +72,7 @@ def get_quiz_questions(user_data):
     
     # create a new quiz object and store it in the database
     # set timestamp to the current time since the quiz is just starting
-    quiz = Quiz(score=0, timestamp=datetime.now())
+    quiz = Quiz(score=0, timestamp=datetime.now(), total_questions=amount)
     quiz.save()
 
     # set the activeQuiz field of the user to the quiz object
@@ -95,24 +95,31 @@ def get_quiz_questions(user_data):
     return make_response(jsonify(quiz_questions), 200)
 
 
-@socketio.on('check_answer')
-def test(data):
-    print('checking answer')
-    print(data)
-    emit('answer_checked', data, broadcast=True)
-
 # @socketio.on('check_answer')
-# @access_token_required
-def check_answer(user_data, data):
-    print('checking answer')
-    user = User.objects(pk=user_data['sub']).first()
+# def test(data):
+#     print('checking answer')
+#     print(data)
+#     emit('answer_checked', data, broadcast=True)
+
+# TODO: fix the token issues
+@socketio.on('check_answer')
+def check_answer(data):
+    # using the user's email from the client side 
+    # while fixing the token issues
+    # user = User.objects(pk=user_data['sub']).first()
+    user = User.objects(email=data['email']).first()
     quiz = user.activeQuiz
+
+    # dont check the answer if the user doesn't have an active quiz
+    if not quiz:
+        return
 
     # get the question object from the question id
     question = Question.objects(pk=data['question_id']).first()
 
     # check if the answer is correct
     if data['user_answer'] == question.correct_answer:
+        print(question.correct_answer)
         quiz.score += 1
 
     # store the question and user's answer in the answered_questions list
@@ -120,11 +127,17 @@ def check_answer(user_data, data):
         AnsweredQuestion(question=question, user_answer=data['user_answer'])
     )
 
-    quiz.save()
+    quiz.save() 
 
     results = {
-        "score": quiz.score,
-        "is_correct_answer": data['user_answer'] == question.correct_answer
+        "correct_answer": question.correct_answer
     }
 
-    emit('answer_checked', results, broadcast=True)
+    emit('answer_checked', results)
+
+    # check if the quiz is completed
+    if len(quiz.answered_questions) == quiz.total_questions:
+        emit('quiz_completed', {"score": quiz.score})
+        user.activeQuiz = None
+        user.save()
+

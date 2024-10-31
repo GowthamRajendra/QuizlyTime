@@ -1,7 +1,8 @@
 from flask import Flask
 from mongoengine import connect
 from dotenv import load_dotenv
-from flask_socketio import SocketIO
+# from flask_socketio import SocketIO, emit
+from socket_manager import socketio
 
 import os
 
@@ -11,7 +12,7 @@ load_dotenv()
 
 DATABASE_URI = os.getenv('DB_URI')
 
-socketio = SocketIO()
+# socketio = SocketIO()
 
 def create_app():
     app = Flask(__name__)
@@ -34,6 +35,12 @@ def create_app():
     # initialize socketio
     # change cors_allowed_origins later
     socketio.init_app(app, cors_allowed_origins='*')
+
+    # @socketio.on('check_answer')
+    # def test(data):
+    #     print('checking answer')
+    #     print(data)
+    #     emit('answer_checked', data, broadcast=True)
 
     return app
 
