@@ -15,7 +15,7 @@ const useRefresh = () => {
             const email = response?.data?.email
             const username = response?.data?.username
     
-            return {email, username}
+            return {email: email,username: username}
     
         } catch (err) {
             if (!err?.response) {

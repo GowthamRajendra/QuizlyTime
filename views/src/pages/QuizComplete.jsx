@@ -10,15 +10,16 @@ import Col from 'react-bootstrap/Col'
 function QuizComplete() {
     const navigate = useNavigate()
     const { state } = useLocation()
-    const results = state?.results || []
+    const score = state?.score || null
+    const total = state?.total || 0
 
     const handlePlayAgain = () => {
         navigate('/quiz/setup')
     }
 
     return (
-        // if no results, redirect to quiz setup
-        (results.length === 0)
+        // if no score, redirect to quiz setup (because something went wrong)
+        (score === null)
         ? <Navigate to='/quiz/setup' replace />
         : <Card className="d-flex flex-row w-50 shadow-sm mt-3 bg-dark">
             <Container>
@@ -30,7 +31,7 @@ function QuizComplete() {
                 <hr />
                 <Row className="d-flex flex-row m-3">
                     <Col className="text-center">
-                        <h3>Score: 3/5</h3>
+                        <h3>Score: {score}/{total}</h3>
                     </Col>
                 </Row>
                 <Row className="d-flex flex-row m-3">
