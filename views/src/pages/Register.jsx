@@ -4,7 +4,9 @@ import Card from 'react-bootstrap/Card'
 
 import { useState } from 'react'
 import useAxios from '../hooks/useAxios'
-import { useNavigate } from 'react-router-dom'
+import useAuth from '../hooks/useAuth'
+import { useNavigate, Navigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 function Register() {
     const [email, setEmail] = useState('')
@@ -13,6 +15,7 @@ function Register() {
 
     const axios = useAxios()
 
+    const { auth } = useAuth()
     const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
@@ -43,7 +46,9 @@ function Register() {
     }
 
     return (
-        <Card className='d-flex flex-row justify-content-center w-50 shadow-sm mt-3'>
+        auth
+        ? <Navigate to='/' replace />
+        : <Card className='d-flex flex-row justify-content-center w-50 shadow-sm mt-3'>
             <Form className='pt-3 pb-3 w-75' onSubmit={handleSubmit}>
                 <Form.Group className='mb-3' controlId='formEmail'>
                     <Form.Label>Email address</Form.Label>
@@ -62,7 +67,7 @@ function Register() {
                 
                 <Button variant="primary" type="submit">Register</Button>
                 <hr />
-                <Form.Text>Already have an account? <a href='/login'>Sign In</a></Form.Text>
+                <Form.Text>Already have an account? <Link to="/login">Login</Link></Form.Text>
             </Form>
         </Card>
     )

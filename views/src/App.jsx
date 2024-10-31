@@ -4,7 +4,9 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import MyNavbar from './components/MyNavbar'
 import Quiz from './pages/Quiz'
-import QuizSelection from './pages/QuizSelection'
+import QuizSetup from './pages/QuizSetup'
+import QuizComplete from './pages/QuizComplete'
+import Protected from './components/Protected'
 import { Routes, Route } from 'react-router-dom'
 import useAuth from './hooks/useAuth'
 
@@ -19,8 +21,12 @@ function App() {
           <Route path='/' element={!auth ? <div>Home</div> : <div>Welcome {auth.username}!</div> } />
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
-          <Route path='/quiz-selection' element={<QuizSelection/>}/>
-          <Route path='/quiz' element={<Quiz/>}/>
+          {/* Protected routes */}
+          <Route element={<Protected/>}>
+            <Route path='/quiz/setup' element={<QuizSetup/>}/>
+            <Route path='/quiz/play' element={<Quiz/>}/>
+            <Route path='/quiz/results' element={<QuizComplete/>}/>
+          </Route>
         </Routes>
       </div>
     </>

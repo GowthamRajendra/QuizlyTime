@@ -10,14 +10,14 @@ function MyNavbar() {
 
     return (
         <Navbar className='ms-3'>
-            <Link to='/' className='navbar-brand'>Home</Link>
+            <Link to='/' className='navbar-brand' key={0}>Home</Link>
             <Nav>
                 {
-                    !auth ?   
-                    [<Link to="/login" className='nav-link'>Login</Link>,
-                    <Link to="/register" className='nav-link'>Register</Link>]
-                    : [<Link to="/quiz" className='nav-link'>Play</Link>,
-                    <Link to="/" className='nav-link' onClick={logout}>Logout</Link>]
+                    !auth   
+                    ? [<Link to="/login" className='nav-link' key={1}>Login</Link>,
+                    <Link to="/register" className='nav-link' key={2}>Register</Link>]
+                    : [<Link to="/quiz/setup" className='nav-link' key={3}>Play</Link>,
+                    <Link to="/" className='nav-link' onClick={logout} key={4}>Logout</Link>]
                 }
             </Nav>
         </Navbar>

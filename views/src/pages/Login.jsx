@@ -3,17 +3,20 @@ import Form from 'react-bootstrap/Form'
 import Card from 'react-bootstrap/Card'
 import { useState} from 'react'
 import useAxios from '../hooks/useAxios'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
+import { Link } from 'react-router-dom'
 
 function Login() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
     const axios = useAxios()
+    const { auth, setAuth } = useAuth()
 
-    const { setAuth } = useAuth()
     const navigate = useNavigate()
+    const location = useLocation()
+    const to = location.state?.to || '/'
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -31,8 +34,11 @@ function Login() {
             setAuth({email2, username})
             setEmail('')
             setPassword('')
-
-            navigate('/')
+            
+            // navigate to the page the user was trying to access before being redirected to the login page
+            // replace the current history entry so the user cannot go back to the login page
+            console.log(`Navigating to ${from}`)
+            navigate(to, {replace: true})
         } catch (err) {
             if (!err?.response) {
                 console.error("No response")
@@ -47,7 +53,9 @@ function Login() {
     }
 
     return (
-        <Card className='d-flex flex-row justify-content-center w-50 shadow-sm mt-3'>
+        auth
+        ? <Navigate to={to} replace />
+        : <Card className='d-flex flex-row justify-content-center w-50 shadow-sm mt-3'>
             <Form className='pt-3 pb-3 w-75' onSubmit={handleSubmit}>
                 <Form.Group className='mb-3' controlId='formEmail'>
                     <Form.Label>Email address</Form.Label>
@@ -77,7 +85,7 @@ function Login() {
                 
                 <Button variant="primary" type="submit">Login</Button>
                 <hr />
-                <Form.Text>Don't have an account? <a href='/register'>Sign Up</a></Form.Text>
+                <Form.Text>Don't have an account? <Link to="/register">Sign Up</Link></Form.Text>
             </Form>
         </Card>
     )

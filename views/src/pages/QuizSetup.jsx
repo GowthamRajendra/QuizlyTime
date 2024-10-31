@@ -4,40 +4,116 @@ import Card from 'react-bootstrap/Card'
 
 import { useNavigate } from 'react-router-dom'
 
-import axios from '../api/axios'
+import useAxios from '../hooks/useAxios'
 
-export default function QuizSelection() {
+// Page for user to select settings for the quiz
 
+const questions = [
+    {
+      question_id: 1,
+      number: 1,
+      prompt: "Placeholder question 1",
+      category: "General",
+      difficulty: "Easy",
+      type: "multiple choice",
+      choices: ["Option A", "Option B", "Option C", "Option D"],
+      total_questions: 10,
+      allotted_time: 30,
+    },
+    {
+      question_id: 2,
+      number: 2,
+      prompt: "Placeholder question 2",
+      category: "Science",
+      difficulty: "Medium",
+      type: "true/false",
+      choices: ["True", "False"],
+      total_questions: 10,
+      allotted_time: 20,
+    },
+    {
+      question_id: 3,
+      number: 3,
+      prompt: "Placeholder question 3",
+      category: "Math",
+      difficulty: "Hard",
+      type: "multiple choice",
+      choices: ["Option A", "Option B", "Option C", "Option D"],
+      total_questions: 10,
+      allotted_time: 40,
+    },
+    {
+      question_id: 4,
+      number: 4,
+      prompt: "Placeholder question 4",
+      category: "History",
+      difficulty: "Easy",
+      type: "multiple choice",
+      choices: ["Option A", "Option B", "Option C", "Option D"],
+      total_questions: 10,
+      allotted_time: 30,
+    },
+    {
+      question_id: 5,
+      number: 5,
+      prompt: "Placeholder question 5",
+      category: "Geography",
+      difficulty: "Medium",
+      type: "true/false",
+      choices: ["True", "False"],
+      total_questions: 10,
+      allotted_time: 25,
+    }
+]
+
+export default function QuizSetup() {
+    const axios = useAxios()
     const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        
-        try {
-            const response = await axios.post(
-                '/quiz', 
-                {
-                    "amount": e.target.amount.value,
-                    "category": e.target.category.value,
-                    "difficulty": e.target.difficulty.value,
-                    "type": e.target.type.value
-                },
-                // testing only
-                {
-                    headers: {
-                        'Authorization' : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NzFlZmU1NWEzOTU1ZTIzZDhhODdjYjkiLCJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNzMwMjI3NzM3LCJleHAiOjE3MzA0MDc3Mzd9.oY7mj-Z-bpHfWvysYMy7iqpcGCJ88LZXSlNXJf-64pQ'
-                    }
-                }
-            )
-            
-            console.log(response.data['results'])
-            console.log(response.data['results'].length)    
-            // navigate to the quiz page with the questions
-            navigate('/quiz', {state: response.data['results']})
 
-        } catch (error) {
-            console.error(error)
-        }        
+        console.log(`Amount: ${e.target.amount.value}`)
+        console.log(`Category: ${e.target.category.value}`)
+        console.log(`Difficulty: ${e.target.difficulty.value}`)
+        console.log(`Type: ${e.target.type.value}`)
+
+        const question = {
+            "number": 1,
+            "prompt": "What is the capital of France?",
+            "choices": ["Paris", "London", "Berlin", "Madrid"],
+            "category": "Geography",
+            "type": "multiple",
+            "total_questions": e.target.amount.value
+        }
+
+        navigate('/quiz/play', {state: {questions: questions}})
+        
+        // try {
+        //     const response = await axios.post(
+        //         '/quiz', 
+        //         {
+        //             "amount": e.target.amount.value,
+        //             "category": e.target.category.value,
+        //             "difficulty": e.target.difficulty.value,
+        //             "type": e.target.type.value
+        //         },
+        //         // testing only
+        //         {
+        //             headers: {
+        //                 'Authorization' : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NzFlZmU1NWEzOTU1ZTIzZDhhODdjYjkiLCJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNzMwMjI3NzM3LCJleHAiOjE3MzA0MDc3Mzd9.oY7mj-Z-bpHfWvysYMy7iqpcGCJ88LZXSlNXJf-64pQ'
+        //             }
+        //         }
+        //     )
+            
+        //     console.log(response.data['results'])
+        //     console.log(response.data['results'].length)    
+        //     // navigate to the quiz page with the questions
+        //     navigate('/quiz', {state: response.data['results']})
+
+        // } catch (error) {
+        //     console.error(error)
+        // }        
 
     }
 
@@ -46,7 +122,7 @@ export default function QuizSelection() {
             <Form className='pt-3 pb-3 w-75' onSubmit={handleSubmit}>
                 <Form.Group className='mb-3' controlId='amount'>
                     <Form.Label>Choose the number of questions</Form.Label>
-                    <Form.Control type="number" placeholder='10' min='1' max='50' required/>
+                    <Form.Control type="number" placeholder='10' defaultValue={10} min='1' max='50' required/>
                 </Form.Group>
 
                 <Form.Group className='mb-3' controlId='category'>
