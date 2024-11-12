@@ -11,7 +11,7 @@ from models.question_model import Question
 
 # import service functions
 from services.auth_service import access_token_required
-from services.quiz_service import store_questions, create_quiz_questions
+from services.quiz_service import store_questions, create_quiz_questions, start_timer
 
 from models.quiz_model import AnsweredQuestion
 
@@ -95,12 +95,6 @@ def get_quiz_questions(user_data):
     return make_response(jsonify(quiz_questions), 200)
 
 
-# @socketio.on('check_answer')
-# def test(data):
-#     print('checking answer')
-#     print(data)
-#     emit('answer_checked', data, broadcast=True)
-
 @socketio.on('connect')
 def test_connect():
     print('connected')
@@ -108,6 +102,32 @@ def test_connect():
 @socketio.on('disconnect')
 def test_disconnect():
     print('disconnected')
+
+# quiz has started, start the timer for the first question
+@socketio.on('start_quiz')
+def start_quiz(data):
+    start_timer(data)
+
+# ensure the timer is in sync with the client side
+@socketio.on('timer_update')
+def handle_timer_update(data):
+    user = User.objects(email=data['email']).first()
+    quiz = user.activeQuiz
+
+    elapsed_time = int((datetime.now() - quiz.current_question_start_time).total_seconds())
+
+    time_left = data['question_timer'] - elapsed_time
+
+    print('time left: ', time_left)
+
+    emit('timer_sync', {'time_left': time_left})
+
+    if time_left <= 0:
+        # start the timer for the next question
+        start_timer(data)
+
+        emit('timer_expired')
+        
 
 # TODO: fix the token issues
 @socketio.on('check_answer')
@@ -136,6 +156,9 @@ def check_answer(data):
         AnsweredQuestion(question=question, user_answer=data['user_answer'])
     )
 
+    # start the timer for the next question
+    start_timer(data)
+
     quiz.save() 
 
     results = {
@@ -149,5 +172,6 @@ def check_answer(data):
     if len(quiz.answered_questions) == quiz.total_questions:
         emit('quiz_completed', {"score": quiz.score})
         user.activeQuiz = None
+        user.completedQuizzes.append(quiz)
         user.save()
 

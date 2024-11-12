@@ -11,5 +11,6 @@ class Quiz(Document):
     timestamp = DateTimeField(required=True)
     answered_questions = ListField(EmbeddedDocumentField(AnsweredQuestion)) # questions answered by user
     total_questions = IntField(default=10)
+    current_question_start_time = DateTimeField() # start time of the current question
 
     meta = {'collection': 'quizzes'} # collection name in the database
