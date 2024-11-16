@@ -38,7 +38,10 @@ export default function Quiz() {
     const [correct, setCorrect] = useState(null)
 
     // Timer
-    const [timer, setTimer] = useState(-1)
+    // TODO: MAYBE
+    // fix issue of progress bar not updating when tab is switched
+    const [timer, setTimer] = useState(currQuestion.timer)
+    const [maxTime, setMaxTime] = useState(timer)
 
     const navigate = useNavigate()
 
@@ -48,25 +51,17 @@ export default function Quiz() {
         // setSocket(newSocket)
         socket.current = newSocket
 
-        newSocket.emit('start_quiz', {email: auth.email})
-        setTimer(currQuestion.timer)
-
-        newSocket.on('timer_sync', ({time_left}) => {
-            // console.log(`timer: ${time_left}`);
-            setTimer(time_left)
-        })
-
-        newSocket.on('timer_expired', () => {
-            console.log('timer expired');
-            handleSubmit()
-        })
-        
         newSocket.on('answer_checked', ({correct_answer, question_index}) => {
             console.log('answer checked');
             console.log(`correct: ${correct_answer}, ${question_index}`);
             console.log(questions[question_index].choices)
             setCorrect(questions[question_index].choices.indexOf(correct_answer))
-            setTimer(questions[question_index].timer)
+
+            // crude way of ensuring timer starts after questions show on screen
+            setTimeout(() => {
+                setTimer(questions[question_index].timer)
+                setMaxTime(questions[question_index].timer)
+            }, 2000)
         })        
 
         newSocket.on('quiz_completed', ({score}) => {
@@ -74,7 +69,7 @@ export default function Quiz() {
             console.log(`total questions: ${questions.length}`);
             setTimer(-1)
             setTimeout(() => {
-                console.log('navigating to results');
+                console.log('navigating to results', score);
                 navigate('/quiz/results', {state: {score: score, total: questions.length}})
             }, 2000)
         });
@@ -92,27 +87,15 @@ export default function Quiz() {
             if (timer >= 0)
             {
                 setTimer((prevTime) => prevTime - 1);
-
-                // check every 5 seconds
-                if (timer % 5 === 0) {
-                    if (socket.current !== null) {
-                        console.log('in timer', timer);
-                        socket.current.emit('timer_update', 
-                        {
-                            email: auth.email, 
-                            question_timer: currQuestion.timer
-                        })
-                        console.log('timer sync');     
-                    }
-                    else {
-                        console.log('socket not connected');
-                    }
-                }
+            } else {
+                clearInterval(interval);
+                handleSubmit()
             }
         }, 1000);
 
         return () => clearInterval(interval); // Cleanup on component unmount
     }, [timer])
+
 
     const handleSubmit = () => {
         let user_answer = ''
@@ -172,6 +155,18 @@ export default function Quiz() {
         }
     }
 
+    function getProgressBarColor(progress) {     
+        if (progress > 66) {
+            return 'success'
+        }
+        else if (progress > 33) {
+            return 'warning'
+        }
+        else {
+            return 'danger'
+        }
+    }
+
     function resultIcon(index) {
         if (correct !== null) {
             if (index === correct) {
@@ -185,7 +180,7 @@ export default function Quiz() {
 
     return (
         // If no questions, redirect to setup page.
-        (questions.length === 0 && timer === -2)
+        (questions.length === 0)
         ?
         <Navigate to='/quiz/setup' replace />
           // Question card, with prompt and choices.
@@ -196,9 +191,14 @@ export default function Quiz() {
                     <Col xs="auto">Time: {timer > 0 ? timer : 0}s</Col>
                 </Row>
                 <Row className='d-flex flex-row justify-content-center mx-3 mt-3'>
-                <Col xs={12}>
-                    <ProgressBar now={timer} max={currQuestion.timer}/>
-                </Col>
+                    <Col >
+                        <ProgressBar 
+                            now={timer} 
+                            max={maxTime} 
+                            animated 
+                            variant={getProgressBarColor((timer/maxTime)*100)}
+                        /> 
+                    </Col>
                 </Row>
                 <Row className='d-flex flex-row justify-content-center mx-3 mt-3'>
                     <h3>{questionIndex+1}. {currQuestion.prompt}</h3>
@@ -221,6 +221,11 @@ export default function Quiz() {
                     onClick={() => {handleSubmit()}} 
                     disabled={submitted}>Submit</Button></Col>
                 </Row>
+                {/* <Row className='d-flex flex-row justify-content-center mx-3 mt-3'>
+                    <Col xs={12}>
+                        <ProgressBar now={questionIndexRef.current} max={questions.length}/>
+                    </Col>
+                </Row> */}
             </Container>
         </Card>
     )

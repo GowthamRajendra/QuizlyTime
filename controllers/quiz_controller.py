@@ -103,32 +103,6 @@ def test_connect():
 def test_disconnect():
     print('disconnected')
 
-# quiz has started, start the timer for the first question
-@socketio.on('start_quiz')
-def start_quiz(data):
-    start_timer(data)
-
-# ensure the timer is in sync with the client side
-@socketio.on('timer_update')
-def handle_timer_update(data):
-    user = User.objects(email=data['email']).first()
-    quiz = user.activeQuiz
-
-    elapsed_time = int((datetime.now() - quiz.current_question_start_time).total_seconds())
-
-    time_left = data['question_timer'] - elapsed_time
-
-    print('time left: ', time_left)
-
-    emit('timer_sync', {'time_left': time_left})
-
-    if time_left <= 0:
-        # start the timer for the next question
-        start_timer(data)
-
-        emit('timer_expired')
-        
-
 # TODO: fix the token issues
 @socketio.on('check_answer')
 def check_answer(data):
@@ -157,7 +131,7 @@ def check_answer(data):
     )
 
     # start the timer for the next question
-    start_timer(data)
+    # start_timer(data)
 
     quiz.save() 
 
@@ -170,6 +144,7 @@ def check_answer(data):
 
     # check if the quiz is completed
     if len(quiz.answered_questions) == quiz.total_questions:
+        print('quiz completed', quiz.score)
         emit('quiz_completed', {"score": quiz.score})
         user.activeQuiz = None
         user.completedQuizzes.append(quiz)

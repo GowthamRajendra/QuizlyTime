@@ -10,8 +10,8 @@ import Col from 'react-bootstrap/Col'
 function QuizComplete() {
     const navigate = useNavigate()
     const { state } = useLocation()
-    const score = state?.score || null
-    const total = state?.total || 0
+    const score = state?.score ?? null
+    const total = state?.total ?? 0
 
     const handlePlayAgain = () => {
         navigate('/quiz/setup')
