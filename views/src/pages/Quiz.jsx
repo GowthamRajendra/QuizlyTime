@@ -3,9 +3,9 @@ import Card from 'react-bootstrap/Card'
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import ProgressBar from 'react-bootstrap/ProgressBar';
+import ProgressBar from 'react-bootstrap/ProgressBar'
 import 'bootstrap-icons/font/bootstrap-icons.css'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, Navigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth';
 
@@ -18,17 +18,14 @@ export default function Quiz() {
 
     // Get questions from setup page
     const location = useLocation()
-    const questions = location.state.questions
+    const questions = location.state.questions ?? []
 
     // server connection
-    // const [socket, setSocket] = useState(null)
-    const socket = useRef(null)
+    const [socket, setSocket] = useState(null)
 
     // Display current question
     const [questionIndex, setQuestionIndex] = useState(0)
-    const questionIndexRef = useRef()
-    questionIndexRef.current = questionIndex
-    const currQuestion = questions[questionIndexRef.current]
+    const currQuestion = questions[questionIndex]
 
     // User selected answer
     const [selected, setSelected] = useState(null)
@@ -37,66 +34,13 @@ export default function Quiz() {
     // Correct answer
     const [correct, setCorrect] = useState(null)
 
-    // Timer
-    // TODO: MAYBE
-    // fix issue of progress bar not updating when tab is switched
+    // Timer for question
     const [timer, setTimer] = useState(currQuestion.timer)
     const [maxTime, setMaxTime] = useState(timer)
 
     const navigate = useNavigate()
 
-    useEffect(() => {
-        // Connect to the server
-        const newSocket = io('http://localhost:5000')
-        // setSocket(newSocket)
-        socket.current = newSocket
-
-        newSocket.on('answer_checked', ({correct_answer, question_index}) => {
-            console.log('answer checked');
-            console.log(`correct: ${correct_answer}, ${question_index}`);
-            console.log(questions[question_index].choices)
-            setCorrect(questions[question_index].choices.indexOf(correct_answer))
-
-            // crude way of ensuring timer starts after questions show on screen
-            setTimeout(() => {
-                setTimer(questions[question_index].timer)
-                setMaxTime(questions[question_index].timer)
-            }, 2000)
-        })        
-
-        newSocket.on('quiz_completed', ({score}) => {
-            console.log(`quiz completed: ${score}`);
-            console.log(`total questions: ${questions.length}`);
-            setTimer(-1)
-            setTimeout(() => {
-                console.log('navigating to results', score);
-                navigate('/quiz/results', {state: {score: score, total: questions.length}})
-            }, 2000)
-        });
-
-        // Clean up. Remove the event listener when the component is unmounted
-        return () => {
-            console.log('cleaning up');
-            newSocket.disconnect()
-        }
-    }, [])
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-
-            if (timer >= 0)
-            {
-                setTimer((prevTime) => prevTime - 1);
-            } else {
-                clearInterval(interval);
-                handleSubmit()
-            }
-        }, 1000);
-
-        return () => clearInterval(interval); // Cleanup on component unmount
-    }, [timer])
-
-
+    // Handle answer submission
     const handleSubmit = () => {
         let user_answer = ''
 
@@ -107,35 +51,27 @@ export default function Quiz() {
         else {
             setSubmitted(true)
             if (selected !== null) {
-                user_answer = questions[questionIndexRef.current].choices[selected]
+                user_answer = currQuestion.choices[selected]
             }
         }
-        // else {
-        //     setSelected(null)
-        // }
 
         // Check if answer is correct
         // Display correct/incorrect
         // socket event to server
-        console.log('before emit', questionIndexRef.current);
-        console.log(`email: ${auth.email}, question_id: ${questions[questionIndexRef.current].question_id}, user_answer: ${user_answer} question_index: ${questionIndexRef.current}`);
-        socket.current.emit('check_answer', { "email": auth.email,  "question_id": questions[questionIndexRef.current].question_id, "user_answer": user_answer, "question_index": questionIndexRef.current})
+        console.log(`email: ${auth.email}, question_id: ${currQuestion.question_id}, user_answer: ${user_answer}, time left: ${timer}, max time: ${maxTime}`);
+        socket.emit('check_answer', { "email": auth.email,  "question_id": currQuestion.question_id, "user_answer": user_answer, "question_index": questionIndex})
         console.log('emitted');
 
         setTimeout(() => {
             console.log('displaying correct answer...');
             setSubmitted(false)
+            setSelected(null)
 
             // Move to next question
-            setQuestionIndex(prevIndex => {
-                if (prevIndex < questions.length - 1) {
-                    console.log('next question', prevIndex);
-                    return prevIndex + 1;
-                }
-
-                return prevIndex;
-            });
-            setSelected(null)
+            // If last question, move to results page
+            if (questionIndex < questions.length - 1) {
+                setQuestionIndex(questionIndex + 1)
+            }
             setCorrect(null)
         }, 2000)
     }
@@ -167,6 +103,69 @@ export default function Quiz() {
         }
     }
 
+    // Set up socket connection and events
+    useEffect(() => {
+        // Connect to the server
+        const newSocket = io('http://localhost:5000')
+        setSocket(newSocket)
+
+        console.log(`${auth.email}, ${auth.username} connected to quiz`);
+        
+        newSocket.on('answer_checked', ({correct_answer, question_index}) => {
+            console.log('answer checked');
+            console.log(`correct: ${correct_answer}, ${question_index}`);
+            console.log(questions[question_index].choices)
+            setCorrect(questions[question_index].choices.indexOf(correct_answer))
+
+            // crude way of ensuring timer starts after questions show on screen
+            setTimeout(() => {
+                setTimer(questions[question_index].timer)
+                setMaxTime(questions[question_index].timer)
+            }, 2000)
+        })        
+        
+        // Event listener for when quiz is completed
+        // get score and navigate to results page
+        newSocket.on('quiz_completed', ({score}) => {
+            console.log(`quiz completed: ${score}`);
+            console.log(`total questions: ${questions.length}`);
+            // setTimer(-1)
+
+            // wait 2 seconds before navigating to results page
+            // to show result of final question
+            setTimeout(() => {
+                console.log('navigating to results', score);
+                navigate('/quiz/results', {state: {score: score, total: questions.length}})
+            }, 2000)
+        });
+
+        // Clean up. Remove the event listener when the component is unmounted
+        return () => {
+            console.log('cleaning up');
+            newSocket.disconnect()
+        }
+    }, [])
+
+    // useEffect to handle question timer
+    useEffect(() => {
+        const interval = setInterval(() => {
+
+            if (timer >= 0)
+            {   
+                // Pause timer if question is submitted
+                if (!submitted) {
+                    setTimer((prevTime) => prevTime - 1);
+                }
+            } else {
+                clearInterval(interval);
+                handleSubmit()
+            }
+        }, 1000);
+
+        return () => clearInterval(interval); // Cleanup on component unmount
+    }, [timer])
+
+    // Display correct/incorrect icons after question is submitted
     function resultIcon(index) {
         if (correct !== null) {
             if (index === correct) {
@@ -179,13 +178,11 @@ export default function Quiz() {
     }
 
     return (
-        // If no questions, redirect to setup page.
+        // If no questions, redirect to setup page. Either error or user tried to access quiz page directly.
         (questions.length === 0)
-        ?
-        <Navigate to='/quiz/setup' replace />
+        ? <Navigate to='/quiz/setup' replace />
           // Question card, with prompt and choices.
-        : 
-        <Card className='d-flex flex-row justify-content-center w-50 shadow-sm mt-3 bg-dark'>
+        : <Card className='d-flex flex-row justify-content-center w-50 shadow-sm mt-3 bg-dark'>
             <Container>
                 <Row className='d-flex flex-row justify-content-end align-items-center mx-3 mt-3'>
                     <Col xs="auto">Time: {timer > 0 ? timer : 0}s</Col>
@@ -221,11 +218,6 @@ export default function Quiz() {
                     onClick={() => {handleSubmit()}} 
                     disabled={submitted}>Submit</Button></Col>
                 </Row>
-                {/* <Row className='d-flex flex-row justify-content-center mx-3 mt-3'>
-                    <Col xs={12}>
-                        <ProgressBar now={questionIndexRef.current} max={questions.length}/>
-                    </Col>
-                </Row> */}
             </Container>
         </Card>
     )

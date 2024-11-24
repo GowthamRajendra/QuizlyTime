@@ -13,6 +13,7 @@ export const AuthProvider = ({children}) => {
         async function handleRefresh() {
             const data = await refresh()
             setAuth(data)
+            console.log(`refreshed: ${data.email}, ${data.username}`)
         }
 
         handleRefresh()

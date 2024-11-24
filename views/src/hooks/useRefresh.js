@@ -14,6 +14,8 @@ const useRefresh = () => {
     
             const email = response?.data?.email
             const username = response?.data?.username
+
+            console.log(`refreshed: email: ${email}, username: ${username}`)
     
             return {email: email,username: username}
     
