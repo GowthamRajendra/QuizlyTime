@@ -43,7 +43,7 @@ function Profile() {
     return (
         <div className="w-100">
             <Row className="d-flex flex-row justify-content-start">
-                <Col>
+                <Col class="d-flex col justify-content-end">
                     <div className="d-flex justify-content-center align-items-center bg-primary text-white rounded-circle"
                     style={{
                         width: '150px',
@@ -59,14 +59,16 @@ function Profile() {
                     <h1>{auth.username}</h1>
                 </Col>
 
-                <Col>
-                      <h3>Games played: {gamesPlayed}</h3>
-                      <h3>Avg score: {avgScore}%</h3>
+                <Col className="d-flex align-items-center">
+                    <div>
+                        <h3>Games played: {gamesPlayed}</h3>
+                        <h3>Avg score: {avgScore}%</h3>
+                    </div>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <h2>Quizzes Played</h2>
+                    <h2 class="mx-5 mt-3">Quizzes Played</h2>
                     <ul>
                         {
                             quizzes.map((quiz, index) => {

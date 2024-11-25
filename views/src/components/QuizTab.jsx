@@ -2,7 +2,10 @@ import Card from 'react-bootstrap/Card'
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-function QuizTab({title, score, total_questions, timestamp}) {
+// Display a quiz tab with the title, score, total questions, and timestamp
+// Used in profile page to display play history
+// Used in play page to display user created quizzes
+function QuizTab({title, score=null, total_questions, timestamp}) {
     return (
         <Card>
             <Card.Body>
@@ -18,7 +21,10 @@ function QuizTab({title, score, total_questions, timestamp}) {
                             {total_questions} Questions
                         </Card.Title>
                     </Col>
-                    <Col>
+                    { // score is null for quizzes in play page
+                    (score == null)
+                    ? null
+                    :<Col>
                         <Card.Title>
                             {Math.round(score / (total_questions * 10) * 100)}%
                         </Card.Title>
@@ -26,6 +32,7 @@ function QuizTab({title, score, total_questions, timestamp}) {
                             {score} / {total_questions * 10}
                         </Card.Text>
                     </Col>
+                    }
                 </Row>
             </Card.Body>
         </Card>
