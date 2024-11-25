@@ -19,34 +19,37 @@ from socket_manager import socketio
 
 quiz_bp = Blueprint('quiz_bp', __name__)
 
-# dont need it for now
-# category_dict = {
-#     "General Knowledge": 9,
-#     "Entertainment: Books": 10,
-#     "Entertainment: Film": 11,
-#     "Entertainment: Music": 12,
-#     "Entertainment: Musicals & Theatres": 13,
-#     "Entertainment: Television": 14,
-#     "Entertainment: Video Games": 15,
-#     "Entertainment: Board Games": 16,
-#     "Science & Nature": 17,
-#     "Science: Computers": 18,
-#     "Science: Mathematics": 19,
-#     "Mythology": 20,
-#     "Sports": 21,
-#     "Geography": 22,
-#     "History": 23,
-#     "Politics": 24,
-#     "Art": 25,
-#     "Celebrities": 26,
-#     "Animals": 27,
-#     "Vehicles": 28,
-#     "Entertainment: Comics": 29,
-#     "Science: Gadgets": 30,
-#     "Entertainment: Japanese Anime & Manga": 31,
-#     "Entertainment: Cartoon & Animations": 32
-# }
+# dictionary to map category id to category name
+# needed for title of random quizzes
+category_dict = {
+    '': 'Any Category',
+    '9': "General Knowledge",
+    '10': "Entertainment: Books",
+    '11': "Entertainment: Film",
+    '12': "Entertainment: Music",
+    '13': "Entertainment: Musicals & Theatres",
+    '14': "Entertainment: Television",
+    '15': "Entertainment: Video Games",
+    '16': "Entertainment: Board Games",
+    '17': "Science & Nature",
+    '18': "Science: Computers",
+    '19': "Science: Mathematics",
+    '20': "Mythology",
+    '21': "Sports",
+    '22': "Geography",
+    '23': "History",
+    '24': "Politics",
+    '25': "Art",
+    '26': "Celebrities",
+    '27': "Animals",
+    '28': "Vehicles",
+    '29': "Entertainment: Comics",
+    '30': "Science: Gadgets",
+    '31': "Entertainment: Japanese Anime & Manga",
+    '32': "Entertainment: Cartoon & Animations"
+}
 
+# CORS headers, needed for jwt to work
 @quiz_bp.after_request
 def cors_header(response):
     response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
@@ -54,6 +57,7 @@ def cors_header(response):
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     return response
 
+# get quiz questions from the API
 @quiz_bp.route("/quiz", methods=["POST"])
 @access_token_required 
 def get_quiz_questions(user_data):
@@ -65,6 +69,8 @@ def get_quiz_questions(user_data):
     # empty string for the query param are handled by the API, treats them as if they weren't included
     API_URL = f'https://opentdb.com/api.php?amount={amount}&type={type}&difficulty={difficulty}&category={category}'
 
+    print(API_URL)
+
     response = requests.get(API_URL).json()
 
     # store the questions in the database, and return the question objects as a list
@@ -72,12 +78,12 @@ def get_quiz_questions(user_data):
     
     # create a new quiz object and store it in the database
     # set timestamp to the current time since the quiz is just starting
-    quiz = Quiz(score=0, timestamp=datetime.now(), total_questions=amount)
+    quiz = Quiz(score=0, timestamp=datetime.now(), total_questions=amount, title=category_dict[category])
     quiz.save()
 
-    # set the activeQuiz field of the user to the quiz object
+    # set the active_quiz field of the user to the quiz object
     user = User.objects(pk=user_data['sub']).first()
-    user.activeQuiz = quiz
+    user.active_quiz = quiz
     user.save()
 
     # # delete existing questions from questions collection
@@ -109,15 +115,17 @@ def test_connect():
 def test_disconnect():
     print('disconnected')
 
-# TODO: fix the token issues
+# check the user's answer and send result back to the client
 @socketio.on('check_answer')
 def check_answer(data):
     # using the user's email from the client side 
     # while fixing the token issues
     # user = User.objects(pk=user_data['sub']).first()
     user = User.objects(email=data['email']).first()
-    quiz = user.activeQuiz
+    quiz = user.active_quiz
     question_index = data['question_index']
+
+    print(data)
 
     # dont check the answer if the user doesn't have an active quiz
     if not quiz:
@@ -125,11 +133,17 @@ def check_answer(data):
 
     # get the question object from the question id
     question = Question.objects(pk=data['question_id']).first()
+    print(question.category)
 
     # check if the answer is correct
     if data['user_answer'] == question.correct_answer:
         print(question.correct_answer)
-        quiz.score += 1
+        
+        # scale points to time left
+        if data["time_left"] / data["max_time"] > 0.75:
+            quiz.score += 10
+        else:
+            quiz.score += 10 * (data["time_left"] / data["max_time"])
 
     # store the question and user's answer in the answered_questions list
     quiz.answered_questions.append(
@@ -146,8 +160,11 @@ def check_answer(data):
     emit('answer_checked', results)
 
     # check if the quiz is completed
+    # send the score back to the client and store results in the database
     if len(quiz.answered_questions) == quiz.total_questions:
+        print('quiz completed', quiz.score)
         emit('quiz_completed', {"score": quiz.score})
-        user.activeQuiz = None
+        user.active_quiz = None
+        user.completed_quizzes.append(quiz)
         user.save()
 

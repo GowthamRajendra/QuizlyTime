@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import Profile from './pages/Profile'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import MyNavbar from './components/MyNavbar'
@@ -18,7 +19,7 @@ function App() {
       <MyNavbar />
       <div className='d-flex justify-content-center'>
         <Routes>
-          <Route path='/' element={!auth ? <div>Home</div> : <div>Welcome {auth.username}!</div> } />
+          <Route path='/' element={!auth ? <div>Home</div> : <Profile /> } />
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
           {/* Protected routes */}

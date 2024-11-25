@@ -121,8 +121,24 @@ def logout(_):
 
     return response
 
-# # testing token required decorator
-@users_bp.route("/protected", methods=["GET"])
+# get previously played quizzes for profile page
+@users_bp.route("/profile/retrieve_quizzes", methods=["GET"])
 @access_token_required
-def protected_route(user_data):
-    return {"message": "This is a protected route.", "user_data": user_data}, 200
+def retrieve_quizzes(user_data):
+    user = User.objects(pk=user_data['sub']).first()
+    quizzes = user.completed_quizzes
+
+    results = [
+        {
+            "title": quiz.title,
+            "score": quiz.score,
+            "timestamp": quiz.timestamp,
+            "total_questions": quiz.total_questions
+        } for quiz in quizzes
+    ]
+
+    response_data = {
+        "quizzes": results
+    }
+
+    return make_response(jsonify(response_data), 200)
