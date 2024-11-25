@@ -7,9 +7,9 @@ import Col from 'react-bootstrap/Col';
 // Used in play page to display user created quizzes
 function QuizTab({title, score=null, total_questions, timestamp}) {
     return (
-        <Card>
+        <Card className='w-75'>
             <Card.Body>
-                <Row>
+                <Row className="align-items-center justify-content-between">
                     <Col>
                         <Card.Title>{title}</Card.Title>
                         <Card.Subtitle className='text-muted'>
@@ -24,7 +24,7 @@ function QuizTab({title, score=null, total_questions, timestamp}) {
                     { // score is null for quizzes in play page
                     (score == null)
                     ? null
-                    :<Col>
+                    :<Col xs="auto">
                         <Card.Title>
                             {Math.round(score / (total_questions * 10) * 100)}%
                         </Card.Title>

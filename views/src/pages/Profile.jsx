@@ -41,24 +41,24 @@ function Profile() {
     }, []);
 
     return (
-        <div className="w-100">
-            <Row className="d-flex align-items-center ms-4">
-                <Col xs="auto" className="d-flex align-items-center w-auto">
-                    <div className="d-flex justify-content-center align-items-center bg-primary text-white rounded-circle"
-                    style={{
-                        width: '150px',
-                        height: '150px',
-                        fontSize: '50px',
-                        fontWeight: 'bold',
-                      }}
-                      >
+        <div className="w-100 d-flex flex-column align-items-center" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <Row className="w-100 d-flex align-items-center">
+                <Col xs="auto" className="d-flex align-items-center">
+                    <div
+                        className="d-flex justify-content-center align-items-center bg-primary text-white rounded-circle"
+                        style={{
+                            width: '150px',
+                            height: '150px',
+                            fontSize: '50px',
+                            fontWeight: 'bold',
+                        }}
+                    >
                         <h1>{initial}</h1>
                     </div>
                 </Col>
                 <Col className="d-flex align-items-center">
                     <h1 className="m-0">{auth.username}</h1>
                 </Col>
-
                 <Col className="d-flex justify-content-start">
                     <div>
                         <h3>Games played: {gamesPlayed}</h3>
@@ -66,24 +66,20 @@ function Profile() {
                     </div>
                 </Col>
             </Row>
-            <Row>
+            <Row className="w-100">
                 <Col>
-                    <h2 class="mx-5 mt-3">Quizzes Played</h2>
+                    <h2 className="mx-5 mt-3">Quizzes Played</h2>
                     <ul>
-                        {
-                            quizzes.map((quiz, index) => {
-                                return (
-                                    <li key={index}>
-                                        <QuizTab 
-                                            title={quiz.title} 
-                                            score={quiz.score} 
-                                            total_questions={quiz.total_questions} 
-                                            timestamp={quiz.timestamp}
-                                        />
-                                    </li>
-                                );
-                            })
-                        }
+                        {quizzes.map((quiz, index) => (
+                            <li key={index}>
+                                <QuizTab
+                                    title={quiz.title}
+                                    score={quiz.score}
+                                    total_questions={quiz.total_questions}
+                                    timestamp={quiz.timestamp}
+                                />
+                            </li>
+                        ))}
                     </ul>
                 </Col>
             </Row>
