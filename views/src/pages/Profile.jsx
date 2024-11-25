@@ -42,8 +42,8 @@ function Profile() {
 
     return (
         <div className="w-100">
-            <Row className="d-flex flex-row justify-content-start">
-                <Col class="d-flex col justify-content-end">
+            <Row className="d-flex align-items-center ms-4">
+                <Col xs="auto" className="d-flex align-items-center w-auto">
                     <div className="d-flex justify-content-center align-items-center bg-primary text-white rounded-circle"
                     style={{
                         width: '150px',
@@ -56,10 +56,10 @@ function Profile() {
                     </div>
                 </Col>
                 <Col className="d-flex align-items-center">
-                    <h1>{auth.username}</h1>
+                    <h1 className="m-0">{auth.username}</h1>
                 </Col>
 
-                <Col className="d-flex align-items-center">
+                <Col className="d-flex justify-content-start">
                     <div>
                         <h3>Games played: {gamesPlayed}</h3>
                         <h3>Avg score: {avgScore}%</h3>
