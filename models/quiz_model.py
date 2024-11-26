@@ -13,5 +13,6 @@ class Quiz(Document):
     questions = ListField(ReferenceField(Question)) # questions in the quiz
     answered_questions = ListField(EmbeddedDocumentField(AnsweredQuestion)) # questions answered by user
     total_questions = IntField(default=10)
+    title = StringField(required=True)
 
     meta = {'collection': 'quizzes'} # collection name in the database

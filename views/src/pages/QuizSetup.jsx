@@ -8,87 +8,12 @@ import useAxios from '../hooks/useAxios'
 
 // Page for user to select settings for the quiz
 
-// placeholder questions
-// const questions = [
-//     {
-//       question_id: 1,
-//       number: 1,
-//       prompt: "Placeholder question 1",
-//       category: "General",
-//       difficulty: "Easy",
-//       type: "multiple choice",
-//       choices: ["Option A", "Option B", "Option C", "Option D"],
-//       total_questions: 10,
-//       allotted_time: 30,
-//     },
-//     {
-//       question_id: 2,
-//       number: 2,
-//       prompt: "Placeholder question 2",
-//       category: "Science",
-//       difficulty: "Medium",
-//       type: "true/false",
-//       choices: ["True", "False"],
-//       total_questions: 10,
-//       allotted_time: 20,
-//     },
-//     {
-//       question_id: 3,
-//       number: 3,
-//       prompt: "Placeholder question 3",
-//       category: "Math",
-//       difficulty: "Hard",
-//       type: "multiple choice",
-//       choices: ["Option A", "Option B", "Option C", "Option D"],
-//       total_questions: 10,
-//       allotted_time: 40,
-//     },
-//     {
-//       question_id: 4,
-//       number: 4,
-//       prompt: "Placeholder question 4",
-//       category: "History",
-//       difficulty: "Easy",
-//       type: "multiple choice",
-//       choices: ["Option A", "Option B", "Option C", "Option D"],
-//       total_questions: 10,
-//       allotted_time: 30,
-//     },
-//     {
-//       question_id: 5,
-//       number: 5,
-//       prompt: "Placeholder question 5",
-//       category: "Geography",
-//       difficulty: "Medium",
-//       type: "true/false",
-//       choices: ["True", "False"],
-//       total_questions: 10,
-//       allotted_time: 25,
-//     }
-// ]
-
 export default function QuizSetup() {
     const axios = useAxios()
     const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-
-        // console.log(`Amount: ${e.target.amount.value}`)
-        // console.log(`Category: ${e.target.category.value}`)
-        // console.log(`Difficulty: ${e.target.difficulty.value}`)
-        // console.log(`Type: ${e.target.type.value}`)
-
-        // const question = {
-        //     "number": 1,
-        //     "prompt": "What is the capital of France?",
-        //     "choices": ["Paris", "London", "Berlin", "Madrid"],
-        //     "category": "Geography",
-        //     "type": "multiple",
-        //     "total_questions": e.target.amount.value
-        // }
-
-        // navigate('/quiz/play', {state: {questions: questions}})
         
         try {
             const response = await axios.post(

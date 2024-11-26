@@ -59,7 +59,14 @@ export default function Quiz() {
         // Display correct/incorrect
         // socket event to server
         console.log(`email: ${auth.email}, question_id: ${currQuestion.question_id}, user_answer: ${user_answer}, time left: ${timer}, max time: ${maxTime}`);
-        socket.emit('check_answer', { "email": auth.email,  "question_id": currQuestion.question_id, "user_answer": user_answer, "question_index": questionIndex})
+        socket.emit('check_answer', { 
+            "email": auth.email,  
+            "question_id": currQuestion.question_id, 
+            "user_answer": user_answer, 
+            "question_index": questionIndex,
+            "time_left": timer,
+            "max_time": maxTime
+        })
         console.log('emitted');
 
         setTimeout(() => {
@@ -135,7 +142,7 @@ export default function Quiz() {
             // to show result of final question
             setTimeout(() => {
                 console.log('navigating to results', score);
-                navigate('/quiz/results', {state: {score: score, total: questions.length}})
+                navigate('/quiz/results', {state: {score: score, total: questions.length*10}})
             }, 2000)
         });
 

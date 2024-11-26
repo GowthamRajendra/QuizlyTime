@@ -12,8 +12,8 @@ export const AuthProvider = ({children}) => {
     useEffect(() => {
         async function handleRefresh() {
             const data = await refresh()
+            console.log(`refreshed: ${data?.email ?? "Not logged in"}, ${data?.username ?? "Not logged in"}`)
             setAuth(data)
-            console.log(`refreshed: ${data.email}, ${data.username}`)
         }
 
         handleRefresh()

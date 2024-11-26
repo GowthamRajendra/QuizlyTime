@@ -48,6 +48,7 @@ category_dict = {
     '32': "Entertainment: Cartoon & Animations"
 }
 
+# CORS headers, needed for jwt to work
 @quiz_bp.after_request
 def cors_header(response):
     response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
@@ -55,6 +56,7 @@ def cors_header(response):
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     return response
 
+# get quiz questions from the API
 @quiz_bp.route("/quiz", methods=["POST"])
 @access_token_required 
 def create_random_quiz(user_data):
@@ -65,6 +67,8 @@ def create_random_quiz(user_data):
 
     # empty string for the query param are handled by the API, treats them as if they weren't included
     API_URL = f'https://opentdb.com/api.php?amount={amount}&type={type}&difficulty={difficulty}&category={category}'
+
+    print(API_URL)
 
     response = requests.get(API_URL).json()
 
@@ -95,7 +99,7 @@ def test_connect():
 def test_disconnect():
     print('disconnected')
 
-# TODO: fix the token issues
+# check the user's answer and send result back to the client
 @socketio.on('check_answer')
 def check_answer(data):
     # using the user's email from the client side 
@@ -105,17 +109,25 @@ def check_answer(data):
     quiz = user.active_quiz
     question_index = data['question_index']
 
+    print(data)
+
     # dont check the answer if the user doesn't have an active quiz
     if not quiz:
         return
 
     # get the question object from the question id
     question = Question.objects(pk=data['question_id']).first()
+    print(question.category)
 
     # check if the answer is correct
     if data['user_answer'] == question.correct_answer:
         print(question.correct_answer)
-        quiz.score += 1
+        
+        # scale points to time left
+        if data["time_left"] / data["max_time"] > 0.75:
+            quiz.score += 10
+        else:
+            quiz.score += 10 * (data["time_left"] / data["max_time"])
 
     # store the question and user's answer in the answered_questions list
     quiz.answered_questions.append(
@@ -132,6 +144,7 @@ def check_answer(data):
     emit('answer_checked', results)
 
     # check if the quiz is completed
+    # send the score back to the client and store results in the database
     if len(quiz.answered_questions) == quiz.total_questions:
         print('quiz completed', quiz.score)
         emit('quiz_completed', {"score": quiz.score})

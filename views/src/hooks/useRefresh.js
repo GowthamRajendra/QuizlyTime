@@ -17,7 +17,7 @@ const useRefresh = () => {
 
             console.log(`refreshed: email: ${email}, username: ${username}`)
     
-            return {email: email,username: username}
+            return {email: email, username: username}
     
         } catch (err) {
             if (!err?.response) {

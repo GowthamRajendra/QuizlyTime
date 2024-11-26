@@ -1,7 +1,7 @@
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Card from 'react-bootstrap/Card'
-import { useState} from 'react'
+import { useState } from 'react'
 import useAxios from '../hooks/useAxios'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
@@ -31,7 +31,7 @@ function Login() {
             const email2 = response?.data?.email
             const username = response?.data?.username
 
-            setAuth({"email": email2, "username": username})
+            setAuth({email: email2, username: username})
             setEmail('')
             setPassword('')
             
