@@ -99,12 +99,6 @@ export default function QuizSetup() {
                     "difficulty": e.target.difficulty.value,
                     "type": e.target.type.value
                 },
-                // testing only
-                // {
-                //     headers: {
-                //         'Authorization' : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NzFlZmU1NWEzOTU1ZTIzZDhhODdjYjkiLCJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNzMwMjI3NzM3LCJleHAiOjE3MzA0MDc3Mzd9.oY7mj-Z-bpHfWvysYMy7iqpcGCJ88LZXSlNXJf-64pQ'
-                //     }
-                // }
             )
             
             console.log(response.data)

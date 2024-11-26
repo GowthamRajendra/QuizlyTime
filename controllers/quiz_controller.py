@@ -8,44 +8,45 @@ from datetime import datetime
 from models.user_model import User
 from models.quiz_model import Quiz
 from models.question_model import Question
+from models.quiz_model import AnsweredQuestion
 
 # import service functions
 from services.auth_service import access_token_required
-from services.quiz_service import store_questions, create_quiz_questions, start_timer
-
-from models.quiz_model import AnsweredQuestion
+from services.quiz_service import store_questions, create_quiz_questions
 
 from socket_manager import socketio 
 
 quiz_bp = Blueprint('quiz_bp', __name__)
 
-# dont need it for now
-# category_dict = {
-#     "General Knowledge": 9,
-#     "Entertainment: Books": 10,
-#     "Entertainment: Film": 11,
-#     "Entertainment: Music": 12,
-#     "Entertainment: Musicals & Theatres": 13,
-#     "Entertainment: Television": 14,
-#     "Entertainment: Video Games": 15,
-#     "Entertainment: Board Games": 16,
-#     "Science & Nature": 17,
-#     "Science: Computers": 18,
-#     "Science: Mathematics": 19,
-#     "Mythology": 20,
-#     "Sports": 21,
-#     "Geography": 22,
-#     "History": 23,
-#     "Politics": 24,
-#     "Art": 25,
-#     "Celebrities": 26,
-#     "Animals": 27,
-#     "Vehicles": 28,
-#     "Entertainment: Comics": 29,
-#     "Science: Gadgets": 30,
-#     "Entertainment: Japanese Anime & Manga": 31,
-#     "Entertainment: Cartoon & Animations": 32
-# }
+# dictionary to map category id to category name
+# needed for title of random quizzes
+category_dict = {
+    '': 'Any Category',
+    '9': "General Knowledge",
+    '10': "Entertainment: Books",
+    '11': "Entertainment: Film",
+    '12': "Entertainment: Music",
+    '13': "Entertainment: Musicals & Theatres",
+    '14': "Entertainment: Television",
+    '15': "Entertainment: Video Games",
+    '16': "Entertainment: Board Games",
+    '17': "Science & Nature",
+    '18': "Science: Computers",
+    '19': "Science: Mathematics",
+    '20': "Mythology",
+    '21': "Sports",
+    '22': "Geography",
+    '23': "History",
+    '24': "Politics",
+    '25': "Art",
+    '26': "Celebrities",
+    '27': "Animals",
+    '28': "Vehicles",
+    '29': "Entertainment: Comics",
+    '30': "Science: Gadgets",
+    '31': "Entertainment: Japanese Anime & Manga",
+    '32': "Entertainment: Cartoon & Animations"
+}
 
 @quiz_bp.after_request
 def cors_header(response):
@@ -56,7 +57,7 @@ def cors_header(response):
 
 @quiz_bp.route("/quiz", methods=["POST"])
 @access_token_required 
-def get_quiz_questions(user_data):
+def create_random_quiz(user_data):
     amount = request.json.get('amount', 10)
     type = request.json.get('type', "")
     difficulty = request.json.get('difficulty', "")
@@ -72,26 +73,18 @@ def get_quiz_questions(user_data):
     
     # create a new quiz object and store it in the database
     # set timestamp to the current time since the quiz is just starting
-    quiz = Quiz(score=0, timestamp=datetime.now(), total_questions=amount)
+    quiz = Quiz(title=category_dict[category], score=0, timestamp=datetime.now(), total_questions=amount, questions=questions)
+    quiz._meta['collection'] = 'quizzes'
     quiz.save()
 
-    # set the activeQuiz field of the user to the quiz object
+    # set the active_quiz field of the user to the quiz object
     user = User.objects(pk=user_data['sub']).first()
-    user.activeQuiz = quiz
+    user.active_quiz = quiz
     user.save()
-
-    # # delete existing questions from questions collection
-    # for question in user.questions:
-    #     print('deleting question: ', question.prompt)
-
-    #     question.delete()
-
-    # user.questions = questions
-    # user.save()
 
     quiz_questions = create_quiz_questions(questions)
      
-    # return the first question to start the quiz
+    # return the quiz
     return make_response(jsonify(quiz_questions), 200)
 
 
@@ -110,7 +103,7 @@ def check_answer(data):
     # while fixing the token issues
     # user = User.objects(pk=user_data['sub']).first()
     user = User.objects(email=data['email']).first()
-    quiz = user.activeQuiz
+    quiz = user.active_quiz
     question_index = data['question_index']
 
     # dont check the answer if the user doesn't have an active quiz
@@ -130,9 +123,6 @@ def check_answer(data):
         AnsweredQuestion(question=question, user_answer=data['user_answer'])
     )
 
-    # start the timer for the next question
-    # start_timer(data)
-
     quiz.save() 
 
     results = {
@@ -146,7 +136,7 @@ def check_answer(data):
     if len(quiz.answered_questions) == quiz.total_questions:
         print('quiz completed', quiz.score)
         emit('quiz_completed', {"score": quiz.score})
-        user.activeQuiz = None
-        user.completedQuizzes.append(quiz)
+        user.active_quiz = None
+        user.completed_quizzes.append(quiz)
         user.save()
 

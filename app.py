@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from mongoengine import connect
 from dotenv import load_dotenv
 # from flask_socketio import SocketIO, emit
@@ -20,6 +21,8 @@ def create_app():
     # set up config
     app.config["JWT_SECRET"] = os.environ.get("JWT_SECRET")
     app.config['MONGO_URI'] = DATABASE_URI
+
+    # CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://localhost:5173"}})
 
     # import blueprints
     from controllers.user_controller import users_bp    

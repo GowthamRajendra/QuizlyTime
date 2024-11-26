@@ -1,9 +1,7 @@
 from html import unescape
 import random
-from datetime import datetime
 
 from models.question_model import Question
-from models.user_model import User
 
 def create_quiz_questions(questions_list):
     quiz_questions = []
@@ -62,11 +60,3 @@ def store_questions(questions):
         questions_list.append(question)
     
     return questions_list
-
-def start_timer(data):
-    print('starting timer')
-    user = User.objects(email=data['email']).first()
-    quiz = user.activeQuiz
-
-    quiz.current_question_start_time = datetime.now()
-    quiz.save()

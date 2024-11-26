@@ -1,4 +1,4 @@
-from mongoengine import Document, IntField, StringField, ReferenceField, ListField, DateTimeField, EmbeddedDocument, EmbeddedDocumentField, BooleanField
+from mongoengine import Document, IntField, StringField, ReferenceField, ListField, DateTimeField, EmbeddedDocument, EmbeddedDocumentField
 
 from models.question_model import Question
 
@@ -7,10 +7,16 @@ class AnsweredQuestion(EmbeddedDocument):
     user_answer = StringField()
 
 class Quiz(Document):
+    title = StringField(required=True)
     score = IntField(required=True)
     timestamp = DateTimeField(required=True)
+    questions = ListField(ReferenceField(Question)) # questions in the quiz
     answered_questions = ListField(EmbeddedDocumentField(AnsweredQuestion)) # questions answered by user
     total_questions = IntField(default=10)
-    current_question_start_time = DateTimeField() # start time of the current question
 
     meta = {'collection': 'quizzes'} # collection name in the database
+
+
+# quiz = Quiz(score=10, timestamp=datetime.now())
+# quiz._meta['collection'] = 'custom_quiz_collection'  # Dynamically changing collection
+# quiz.save()

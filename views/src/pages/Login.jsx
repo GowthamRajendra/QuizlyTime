@@ -31,17 +31,17 @@ function Login() {
             const email2 = response?.data?.email
             const username = response?.data?.username
 
-            setAuth({email2, username})
+            setAuth({"email": email2, "username": username})
             setEmail('')
             setPassword('')
             
             // navigate to the page the user was trying to access before being redirected to the login page
             // replace the current history entry so the user cannot go back to the login page
-            console.log(`Navigating to ${from}`)
+            console.log(`Navigating to ${to}`)
             navigate(to, {replace: true})
         } catch (err) {
             if (!err?.response) {
-                console.error("No response")
+                console.error("No error response")
             }
             else if (err.response) {
                 console.error(err.response.data.message)

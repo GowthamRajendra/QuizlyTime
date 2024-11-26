@@ -6,6 +6,8 @@ import MyNavbar from './components/MyNavbar'
 import Quiz from './pages/Quiz'
 import QuizSetup from './pages/QuizSetup'
 import QuizComplete from './pages/QuizComplete'
+import CreateQuizSetup from './pages/CreateQuizSetup'
+import CreateQuiz from './pages/CreateQuiz'
 import Protected from './components/Protected'
 import { Routes, Route } from 'react-router-dom'
 import useAuth from './hooks/useAuth'
@@ -26,6 +28,8 @@ function App() {
             <Route path='/quiz/setup' element={<QuizSetup/>}/>
             <Route path='/quiz/play' element={<Quiz/>}/>
             <Route path='/quiz/results' element={<QuizComplete/>}/>
+            <Route path='/quiz/create/setup' element={<CreateQuizSetup/>}/>
+            <Route path='/quiz/create/questions' element={<CreateQuiz/>}/>
           </Route>
         </Routes>
       </div>
