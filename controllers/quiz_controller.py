@@ -74,7 +74,6 @@ def create_random_quiz(user_data):
     # create a new quiz object and store it in the database
     # set timestamp to the current time since the quiz is just starting
     quiz = Quiz(title=category_dict[category], score=0, timestamp=datetime.now(), total_questions=amount, questions=questions)
-    quiz._meta['collection'] = 'quizzes'
     quiz.save()
 
     # set the active_quiz field of the user to the quiz object

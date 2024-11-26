@@ -15,8 +15,3 @@ class Quiz(Document):
     total_questions = IntField(default=10)
 
     meta = {'collection': 'quizzes'} # collection name in the database
-
-
-# quiz = Quiz(score=10, timestamp=datetime.now())
-# quiz._meta['collection'] = 'custom_quiz_collection'  # Dynamically changing collection
-# quiz.save()

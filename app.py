@@ -1,12 +1,10 @@
 from flask import Flask
-from flask_cors import CORS
 from mongoengine import connect
 from dotenv import load_dotenv
 # from flask_socketio import SocketIO, emit
 from socket_manager import socketio
 
 import os
-
 
 # load environment variables from the .env file
 load_dotenv()
@@ -22,15 +20,15 @@ def create_app():
     app.config["JWT_SECRET"] = os.environ.get("JWT_SECRET")
     app.config['MONGO_URI'] = DATABASE_URI
 
-    # CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://localhost:5173"}})
-
     # import blueprints
     from controllers.user_controller import users_bp    
     from controllers.quiz_controller import quiz_bp
+    from controllers.custom_quiz_controller import custom_quiz_bp
 
     # register blueprints
     app.register_blueprint(users_bp)
     app.register_blueprint(quiz_bp)
+    app.register_blueprint(custom_quiz_bp)
 
     # connect to the database
     connect('QuizAppDB', host=app.config['MONGO_URI'])

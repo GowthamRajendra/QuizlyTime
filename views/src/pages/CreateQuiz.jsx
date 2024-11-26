@@ -4,12 +4,12 @@ import Card from 'react-bootstrap/Card'
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, Navigate } from 'react-router-dom'
 
 import useAxios from '../hooks/useAxios'
 
-// Page for user to create a custom quiz
+// Page for user to create the questions for custom quiz
 
 export default function CreateQuiz() {
     const axios = useAxios()
@@ -23,6 +23,9 @@ export default function CreateQuiz() {
 
     const [questionIndex, setQuestionIndex] = useState(0)
     const currQuestion = questions[questionIndex]
+
+    // when user has finished creating all questions
+    const [isSubmited, setIsSubmited] = useState(false)
     
     // for radio buttons
     const [isCategorySelect, setIsCategorySelect] = useState(true) // true = select, false = create
@@ -30,7 +33,7 @@ export default function CreateQuiz() {
 
     // current values for category, difficulty, true/false
     // used to set default values in the select elements  
-    // because it seems defaultValue does not work with dynamic values
+    // because it seems defaultValue attribute does not work with dynamic values
     const [currentDifficulty, setCurrentDifficulty] = useState('easy')
     const [currentCategory, setCurrentCategory] = useState('9')
     const [currentTrueFalse, setCurrentTrueFalse] = useState('True')
@@ -63,24 +66,29 @@ export default function CreateQuiz() {
         }
         
         // update questions array
-        const newQuestions = [...questions]
+        const newQuestions = [...questions] // shallow copy
         newQuestions[questionIndex] = newQuestion
         setQuestions(newQuestions)
 
-        console.log(questions);
-
         // if not last question, increment index 
+        // else, set isSubmited to true so we can navigate to the next page
         if (questionIndex < questions.length - 1) {
             setQuestionIndex(questionIndex + 1)
-            setIsCategorySelect(questions[questionIndex + 1].categorySelect)
-            setIsMultiple(questions[questionIndex + 1].multiple)
-            setCurrentCategory(questions[questionIndex + 1].category)
-            setCurrentDifficulty(questions[questionIndex + 1].difficulty)
-            setCurrentTrueFalse(questions[questionIndex + 1].answer)
-        } else {
-            // navigate to quiz page
-            // navigate('/quiz/play', {state: {questions: questions}})
-          
+        }  else {
+            setIsSubmited(true)
+        }
+    }
+
+     // Navigate back to the previous question
+     const handlePrevious = () => {
+        // clear current form
+        document.getElementById('question-form').reset()
+
+        setQuestionIndex((prev) => Math.max(prev - 1, 0))
+    };
+
+    useEffect(() => {
+        if (isSubmited) {
             let questionsFormatted = questions.map((question, index) => {
                 return {
                     question: question.prompt,    
@@ -92,56 +100,25 @@ export default function CreateQuiz() {
                 }
             })
 
-            console.log(questionsFormatted);
-
-            // try {
-            //     const response = await axios.post(
-            //         '/custom-quiz', 
-            //         {
-            //             "title": quizDetails.title,
-            //             "questions": questionsFormatted
-            //         },
-            //     )
-                
-            //     console.log(response.data)
-            //     navigate('/quiz/play', {state: {quiz: response.data}})
-            // } catch (error) {
-            //     console.error(error)
-            // }  
-
             axios.post('/custom-quiz', {
                 title: quizDetails.title,
                 questions: questionsFormatted
             }).then(response => {
                 console.log(response.data)
-                navigate('/quiz/play', {state: {quiz: response.data}})
+                navigate('/quiz/create/complete', {state: {questions: response.data}})
             }).catch(error => {
                 console.error(error)
             })
         }
-    }
 
-     // Navigate back to the previous question
-     const handlePrevious = () => {
-
-        // clear current form
-        document.getElementById('question-form').reset()
-
-        console.log(questions);
-
-        setQuestionIndex((prev) => Math.max(prev - 1, 0))
-        
         // set current values for category, difficulty, true/false
-        // setState for question index is async, so this is to ensure the correct values are set
+        setIsCategorySelect(questions[questionIndex].categorySelect)
+        setIsMultiple(questions[questionIndex].multiple)
+        setCurrentCategory(questions[questionIndex].category)
+        setCurrentDifficulty(questions[questionIndex].difficulty)
+        setCurrentTrueFalse(questions[questionIndex].answer)
 
-        let index = Math.max(questionIndex - 1, 0)
-
-        setIsCategorySelect(questions[index].categorySelect)
-        setIsMultiple(questions[index].multiple)
-        setCurrentCategory(questions[index].category)
-        setCurrentDifficulty(questions[index].difficulty)
-        setCurrentTrueFalse(questions[index].answer)
-    };
+    }, [questionIndex, questions, isSubmited])
 
     return (
         // if no questions, redirect to setup page
@@ -154,7 +131,8 @@ export default function CreateQuiz() {
                         Question {questionIndex + 1} of {questions.length} 
                     </Col>
                     <Col className='d-flex flex-row justify-content-end align-items-center'>
-                        <Button variant='info' size='sm'>Get Random Question</Button>
+                        {/* did not implement random questions feature. leaving it for potential future use/}
+                        {/* <Button variant='info' size='sm'>Get Random Question</Button> */}
                     </Col>
                 </Row>
             </Card.Header>
@@ -295,10 +273,10 @@ export default function CreateQuiz() {
                     
                     <div className='d-flex justify-content-between'>
                         <Button variant="primary" type="button" onClick={handlePrevious} disabled={questionIndex === 0}>
-                            Previous
+                            Back
                         </Button>
                         <Button variant="primary" type="submit">
-                            {questionIndex < questions.length - 1 ? 'Next' : 'Finish'}
+                            {questionIndex < questions.length - 1 ? 'Next' : 'Save'}
                         </Button>
                     </div>
                 </Form>
