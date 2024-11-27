@@ -1,6 +1,6 @@
 from mongoengine import Document, IntField, StringField, ReferenceField, ListField, DateTimeField, EmbeddedDocument, EmbeddedDocumentField
 
-from src.models.question_model import Question
+from models.question_model import Question
 
 class AnsweredQuestion(EmbeddedDocument):
     question = ReferenceField(Question)

@@ -1,6 +1,6 @@
 from mongoengine import Document, StringField, EmailField, ListField, ReferenceField
 
-from src.models.quiz_model import Quiz
+from models.quiz_model import Quiz
 
 class User(Document):
     username = StringField(required=True, max_length=20)

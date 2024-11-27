@@ -2,7 +2,7 @@ from flask import Flask
 from mongoengine import connect
 from dotenv import load_dotenv
 # from flask_socketio import SocketIO, emit
-from src.socket_manager import socketio
+from socket_manager import socketio
 
 import os
 
@@ -21,9 +21,9 @@ def create_app():
     app.config['MONGO_URI'] = DATABASE_URI
 
     # import blueprints
-    from src.controllers.user_controller import users_bp    
-    from src.controllers.quiz_controller import quiz_bp
-    from src.controllers.custom_quiz_controller import custom_quiz_bp
+    from controllers.user_controller import users_bp    
+    from controllers.quiz_controller import quiz_bp
+    from controllers.custom_quiz_controller import custom_quiz_bp
 
     # register blueprints
     app.register_blueprint(users_bp)

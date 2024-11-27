@@ -4,14 +4,14 @@ import requests
 from datetime import datetime 
 
 # import models
-from src.models.user_model import User
-from src.models.quiz_model import Quiz
-from src.models.question_model import Question
-from src.models.quiz_model import AnsweredQuestion
+from models.user_model import User
+from models.quiz_model import Quiz
+from models.question_model import Question
+from models.quiz_model import AnsweredQuestion
 
 # import service functions
-from src.services.auth_service import access_token_required
-from src.services.quiz_service import store_questions, create_quiz_questions
+from services.auth_service import access_token_required
+from services.quiz_service import store_questions, create_quiz_questions
 
 custom_quiz_bp = Blueprint('custom_quiz_bp', __name__)
 

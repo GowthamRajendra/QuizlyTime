@@ -1,6 +1,6 @@
 from flask import request, Blueprint, make_response, jsonify
-from src.services.auth_service import create_jwt, access_token_required, refresh_token_required, hash_password, verify_password
-from src.models.user_model import User
+from services.auth_service import create_jwt, access_token_required, refresh_token_required, hash_password, verify_password
+from models.user_model import User
 from datetime import datetime, timedelta, timezone
 
 users_bp = Blueprint('users_bp', __name__)

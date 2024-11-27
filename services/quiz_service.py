@@ -1,7 +1,7 @@
 from html import unescape
 import random
 
-from src.models.question_model import Question
+from models.question_model import Question
 
 def create_quiz_questions(questions_list):
     quiz_questions = []

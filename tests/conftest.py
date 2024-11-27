@@ -4,7 +4,7 @@ from mongoengine import connect, disconnect
 from mongomock import MongoClient
 import mongomock
 
-from src.app import create_app
+from app import create_app
 
 @pytest.fixture
 def app():
