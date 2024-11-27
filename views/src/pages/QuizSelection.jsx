@@ -22,7 +22,7 @@ export default function QuizSelection (){
         const getCustomQuizzes = async () => {
             try {
                 const response = await axios.get('/get-custom-quizzes');
-                console.log(`Retrieved: ${JSON.stringify(response.data)}`);
+                // console.log(`Retrieved: ${JSON.stringify(response.data)}`);
                 setQuizzes(response.data.quizzes.reverse());
             } catch (error) {
                 console.error(error);
@@ -36,6 +36,16 @@ export default function QuizSelection (){
         }
     }, []);
 
+    const playQuiz = async (index) => {
+        try {
+            const response = await axios.post('/begin-quiz', {quiz_id: quizzes[index].id});
+            console.log(`Retrieved: ${JSON.stringify(response.data)}`);
+            navigate('/quiz/play', {state: {questions: quizzes[index].questions}});
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     return (
         <div className="w-100 d-flex flex-column align-items-center" style={{ maxWidth: '1200px', margin: '0 auto' }}>
             <Row className="w-100">
@@ -44,7 +54,7 @@ export default function QuizSelection (){
                         <ul>
                             {quizzes.map((quiz, index) => (
                                 <li key={index} className="mb-1 clickable-card w-75"
-                                        onClick={() => navigate('/quiz/play', {state: {questions: quiz.questions}})}>
+                                        onClick={() => playQuiz(index)}>
                                         <QuizTab
                                             title={quiz.title}
                                             total_questions={quiz.total_questions}

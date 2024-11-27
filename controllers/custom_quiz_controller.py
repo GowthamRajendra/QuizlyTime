@@ -1,13 +1,10 @@
 from flask import request, Blueprint, jsonify, make_response
-import requests
 
 from datetime import datetime 
 
 # import models
 from models.user_model import User
 from models.quiz_model import Quiz
-from models.question_model import Question
-from models.quiz_model import AnsweredQuestion
 
 # import service functions
 from services.auth_service import access_token_required
@@ -56,6 +53,7 @@ def get_custom_quizzes(user_data):
 
     results = [
         {
+            "id": str(quiz.id),
             "title": quiz.title,
             "timestamp": quiz.timestamp,
             "total_questions": quiz.total_questions,
@@ -69,25 +67,20 @@ def get_custom_quizzes(user_data):
 
     return make_response(jsonify(response_data), 200)
 
-# @custom_quiz_bp.route("/delete-custom-quiz", methods=["DELETE"])
-# @access_token_required
-# def delete_custom_quiz(user_data):    
-#     quiz_id = request.json.get('quiz_id', "")
+@custom_quiz_bp.route("/delete-custom-quiz", methods=["DELETE"])
+@access_token_required
+def delete_custom_quiz(user_data):    
+    quiz_id = request.json.get('quiz_id', "")
 
-#     user = User.objects(pk=user_data['sub']).first()
-    
-#     user_created_quizzes = user.created_quizzes
-#     for i in range(len(user_created_quizzes)):
-#         if str(user_created_quizzes[i].id) == quiz_id:
-#             user_created_quizzes.pop(i)
-#             break
-#     user.save()
+    user = User.objects(pk=user_data['sub']).first()
+    quiz = Quiz.objects(pk=quiz_id).first()
 
+    user.created_quizzes.remove(quiz)
+    user.save()
 
-#     quiz = Quiz.objects(pk=quiz_id).first()
-#     quiz.delete()
+    quiz.delete()
 
-#     return make_response(jsonify({"message": "Quiz deleted"}), 200)
+    return make_response(jsonify({"message": "Quiz deleted"}), 200)
     
 # put request to update quiz
 @custom_quiz_bp.route("/edit-custom-quiz", methods=["PUT"])
@@ -101,3 +94,16 @@ def edit_custom_quiz(user_data):
     quiz.save()
 
     return make_response(jsonify({"message": "Quiz updated"}), 200)
+
+@custom_quiz_bp.route("/begin-quiz", methods=["POST"])
+@access_token_required
+def begin_quiz(user_data):
+    quiz_id = request.json.get('quiz_id', "")
+
+    # setting user's active quiz
+    quiz = Quiz.objects(pk=quiz_id).first()
+    user = User.objects(pk=user_data['sub']).first()
+    user.active_quiz = quiz
+    user.save()
+
+    return make_response(jsonify({"message": "Quiz started"}), 200)

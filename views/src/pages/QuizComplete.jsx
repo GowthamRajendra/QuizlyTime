@@ -13,10 +13,6 @@ function QuizComplete() {
     const score = state?.score ?? null
     const total = state?.total ?? 0
 
-    const handlePlayAgain = () => {
-        navigate('/quiz/setup')
-    }
-
     return (
         // if no score, redirect to quiz setup (because something went wrong)
         (score === null)
@@ -36,7 +32,7 @@ function QuizComplete() {
                 </Row>
                 <Row className="d-flex flex-row m-3">
                     <Col className="d-flex flex-row justify-content-center">
-                        <Button onClick={() => {handlePlayAgain()}}>Play Again</Button>
+                        <Button onClick={() => {navigate('/quiz')}}>Play Again</Button>
                     </Col>
                 </Row>
             </Container>

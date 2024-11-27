@@ -2,7 +2,8 @@ import useAuth from "../hooks/useAuth";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
+import Form from "react-bootstrap/Form";
+import Modal from "react-bootstrap/Modal";
 import useAxios from "../hooks/useAxios";
 import { useEffect, useState } from "react";
 import QuizTab from "../components/QuizTab";
@@ -26,6 +27,16 @@ function Profile() {
     // Player stats
     const [ gamesPlayed, setGamesPlayed ] = useState(0);
     const [ avgScore, setAvgScore ] = useState(0);
+
+    // for editing quiz
+    const [index, setIndex] = useState(0);
+    const [newTitle, setNewTitle] = useState('');
+
+    // modal
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
 
     // Get history and creations
     useEffect(() => {
@@ -69,22 +80,42 @@ function Profile() {
         }
     }, []);
 
-    const editQuiz = async (index) => {
+    const editQuiz = async () => {
         console.log(`Edit quiz: ${JSON.stringify(creations[index])}`);
-
-        let new_title = 'bingbong';
 
         try {
             const response = await axios.put(`/edit-custom-quiz`, {
                 quiz_id: creations[index].id,
-                title: new_title,
+                title: newTitle,
             });
 
             console.log(`Response: ${JSON.stringify(response.data)}`);
 
             // Update the quiz in the state
             let newCreations = [...creations];
-            newCreations[index].title = new_title;
+            newCreations[index].title = newTitle;
+            setCreations(newCreations);
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const deleteQuiz = async (index) => {
+        console.log(`Delete quiz: ${JSON.stringify(creations[index])}`);
+
+        try {
+            const response = await axios.delete(`/delete-custom-quiz`, {
+                data: {
+                    quiz_id: creations[index].id,
+                }
+            });
+
+            console.log(`Response: ${JSON.stringify(response.data)}`);
+
+            // Update the quiz in the state
+            let newCreations = [...creations];
+            newCreations.splice(index, 1);
             setCreations(newCreations);
 
         } catch (error) {
@@ -93,6 +124,36 @@ function Profile() {
     }
 
     return (
+
+        <>
+        <Modal show={show} onHide={() => {handleClose(); setNewTitle('')}}>
+            <Modal.Header closeButton>
+                <Modal.Title>Change Quiz Title</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form>
+                    <Form.Group className="mb-3" controlId="newTitleForm">
+                    <Form.Label>New Title</Form.Label>
+                    <Form.Control
+                        type="text"
+                        placeholder="Quiz 1"
+                        autoFocus
+                        value={newTitle}
+                        onChange={(e) => setNewTitle(e.target.value)}
+                    />
+                    </Form.Group>
+                </Form>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={() => {handleClose(); setNewTitle('')}}>
+                    Close
+                </Button>
+                <Button variant="primary" onClick={() => {handleClose(); editQuiz()}}>
+                    Save
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    
         <div className="w-100 d-flex flex-column align-items-center" style={{ maxWidth: '1200px', margin: '0 auto' }}>
             {/* Profile header */}
             <Row className="w-100 d-flex align-items-center">
@@ -150,7 +211,7 @@ function Profile() {
                     <Tab eventKey={"Your Creations"} title="Your Creations">
                         <Row className="w-100">
                             <Col>
-                                <h2 className="mx-5 mt-3">Quizzes Created</h2>
+                                <h2 className="mx-5 mt-3">Created Quizzes</h2>
                                 <ul>
                                     {creations.map((quiz, index) => (
                                         <li key={index} className="mb-1 w-75">
@@ -163,35 +224,17 @@ function Profile() {
                                                             timestamp={quiz.timestamp}
                                                         />
                                                         <div style={{ position: 'absolute', top: '15px', right: '70px', zIndex: 10 }}>
-                                                            <Button variant="dark" onClick={() => editQuiz(index)}>
+                                                            <Button variant="dark" onClick={() => {handleShow(); setIndex(index)}}>
                                                                 <i className="bi bi-pencil-square h3"></i>
                                                             </Button>
                                                         </div>
                                                         <div style={{ position: 'absolute', top: '15px', right: '10px', zIndex: 10 }}>
-                                                            <Button variant="dark">
+                                                            <Button variant="dark" onClick={() => deleteQuiz(index)}>
                                                                 <i className="bi bi-trash h3"></i>
                                                             </Button>
                                                         </div>
                                                     </div>
                                                 </Col>
-                                                {/* <Col xs="auto">
-                                                    <Card className='w-100'>
-                                                        <Card.Body>
-                                                            <Button variant="dark" >
-                                                                <i className="bi bi-pencil-square clickable-icon h3"></i>
-                                                            </Button>
-                                                        </Card.Body>
-                                                    </Card>
-                                                </Col>
-                                                <Col xs="auto">
-                                                    <Card className='w-100'>
-                                                        <Card.Body>
-                                                            <Button variant="dark">
-                                                                <i className="bi bi-trash clickable-icon h3"></i>
-                                                            </Button>
-                                                        </Card.Body>
-                                                    </Card>
-                                                </Col> */}
                                             </Row>
                                         </li>
                                     ))}
@@ -202,6 +245,8 @@ function Profile() {
                 </Tabs>
             </Row>
         </div>
+
+    </>
     );
 }
 

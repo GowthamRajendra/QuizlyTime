@@ -1,7 +1,9 @@
 from flask import request, Blueprint, make_response, jsonify
-from services.auth_service import create_jwt, access_token_required, refresh_token_required, hash_password, verify_password
-from models.user_model import User
 from datetime import datetime, timedelta, timezone
+
+from services.auth_service import create_jwt, access_token_required, refresh_token_required, hash_password, verify_password
+
+from models.user_model import User
 
 users_bp = Blueprint('users_bp', __name__)
 
@@ -121,8 +123,9 @@ def logout(_):
 
     return response
 
-# format quizzes for profile page history and creations
-def formatQuizzes(quizzes):
+
+# format quizzes for profile page history/creations and quiz selection page
+def format_quizzes(quizzes):
     results = [
         {
             "id": str(quiz.id),
@@ -146,7 +149,7 @@ def get_history(user_data):
     user = User.objects(pk=user_data['sub']).first()
     quizzes = user.completed_quizzes
 
-    return make_response(jsonify(formatQuizzes(quizzes)), 200)
+    return make_response(jsonify(format_quizzes(quizzes)), 200)
 
 # get quizzes that this user has created
 @users_bp.route("/profile/creations", methods=["GET"])
@@ -155,4 +158,4 @@ def get_creations(user_data):
     user = User.objects(pk=user_data['sub']).first()
     quizzes = user.created_quizzes
 
-    return make_response(jsonify(formatQuizzes(quizzes)), 200)
+    return make_response(jsonify(format_quizzes(quizzes)), 200)

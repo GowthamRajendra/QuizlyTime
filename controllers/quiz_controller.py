@@ -110,6 +110,7 @@ def check_answer(data):
     question_index = data['question_index']
 
     print(data)
+    print('quiz', quiz.id, 'for user', user.username)
 
     # dont check the answer if the user doesn't have an active quiz
     if not quiz:
@@ -145,10 +146,33 @@ def check_answer(data):
 
     # check if the quiz is completed
     # send the score back to the client and store results in the database
+    print(len(quiz.answered_questions), quiz.total_questions)
     if len(quiz.answered_questions) == quiz.total_questions:
         print('quiz completed', quiz.score)
         emit('quiz_completed', {"score": quiz.score})
+
+        if quiz.user_created:
+            # create copy of quiz for user
+            quiz_history = Quiz(
+                title=quiz.title, 
+                score=quiz.score, 
+                timestamp=datetime.now(), 
+                total_questions=quiz.total_questions, 
+                questions=quiz.questions,
+                answered_questions=quiz.answered_questions
+            )
+            quiz_history.save()
+            user.completed_quizzes.append(quiz_history)
+        
+            # reset original quiz
+            quiz.answered_questions = []
+            quiz.score = 0
+            quiz.save()
+
+        else:
+            # add quiz to user's completed quizzes
+            user.completed_quizzes.append(quiz)
+
         user.active_quiz = None
-        user.completed_quizzes.append(quiz)
         user.save()
 
