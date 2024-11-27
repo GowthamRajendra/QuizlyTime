@@ -121,13 +121,8 @@ def logout(_):
 
     return response
 
-# get previously played quizzes for profile page
-@users_bp.route("/profile/retrieve_quizzes", methods=["GET"])
-@access_token_required
-def retrieve_quizzes(user_data):
-    user = User.objects(pk=user_data['sub']).first()
-    quizzes = user.completed_quizzes
-
+# format quizzes for profile page history and creations
+def formatQuizzes(quizzes):
     results = [
         {
             "title": quiz.title,
@@ -141,4 +136,22 @@ def retrieve_quizzes(user_data):
         "quizzes": results
     }
 
-    return make_response(jsonify(response_data), 200)
+    return response_data
+
+# get previously played quizzes for profile page
+@users_bp.route("/profile/history", methods=["GET"])
+@access_token_required
+def get_history(user_data):
+    user = User.objects(pk=user_data['sub']).first()
+    quizzes = user.completed_quizzes
+
+    return make_response(jsonify(formatQuizzes(quizzes)), 200)
+
+# get quizzes that this user has created
+@users_bp.route("/profile/creations", methods=["GET"])
+@access_token_required
+def get_creations(user_data):
+    user = User.objects(pk=user_data['sub']).first()
+    quizzes = user.created_quizzes
+
+    return make_response(jsonify(formatQuizzes(quizzes)), 200)

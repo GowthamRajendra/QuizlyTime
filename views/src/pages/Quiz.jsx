@@ -175,6 +175,7 @@ export default function Quiz() {
     // Display correct/incorrect icons after question is submitted
     function resultIcon(index) {
         if (correct !== null) {
+            console.log("result Icon", correct, index, selected);
             if (index === correct) {
                 return <i className="bi bi-check-circle-fill position-absolute end-0 me-5"></i>
             }

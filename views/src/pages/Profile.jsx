@@ -15,34 +15,52 @@ function Profile() {
     // Tab control
     const [ activeTab, setActiveTab ] = useState('History');
 
-    // Quizzes played
-    const [ quizzes, setQuizzes ] = useState([]);
+    // Quizzes played history
+    const [ history, setHistory ] = useState([]);
+
+    // Quizzes created by this user
+    const [ creations, setCreations ] = useState([]);
 
     // Player stats
     const [ gamesPlayed, setGamesPlayed ] = useState(0);
     const [ avgScore, setAvgScore ] = useState(0);
 
-    // Get previously played quizzes
+    // Get history and creations
     useEffect(() => {
-        const getQuizzes = async () => {
+        const getHistory = async () => {
             try {
-                const response = await axios.get('/profile/retrieve_quizzes');
+                const response = await axios.get('/profile/history');
                 console.log(`Retrieved: ${JSON.stringify(response.data)}`);
-                setQuizzes(response.data.quizzes.reverse());
-
+                setHistory(response.data.quizzes.reverse());
+                
+                // Calculate player stats
                 setGamesPlayed(response.data.quizzes.length);
                 let totalScore = 0;
                 response.data.quizzes.forEach(quiz => {
                     totalScore += quiz.score / (quiz.total_questions * 10);
                 });
-                setAvgScore(Math.round(100*totalScore / response.data.quizzes.length));
+
+                if (response.data.quizzes.length !== 0) {
+                    setAvgScore(Math.round(100*totalScore / response.data.quizzes.length));
+                }
                 
             } catch (error) {
                 console.error(error);
             }
         }
 
-        getQuizzes();
+        const getCreations = async () => {
+            try {
+                const response = await axios.get('/profile/creations');
+                console.log(`Retrieved: ${JSON.stringify(response.data)}`);
+                setCreations(response.data.quizzes.reverse());
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        getHistory();
+        getCreations();
 
         return () => {
             console.log('cleaning up');
@@ -90,8 +108,8 @@ function Profile() {
                             <Col>
                                 <h2 className="mx-5 mt-3">Quizzes Played</h2>
                                 <ul>
-                                    {quizzes.map((quiz, index) => (
-                                        <li key={index}>
+                                    {history.map((quiz, index) => (
+                                        <li key={index} className="mb-1">
                                             <QuizTab
                                                 title={quiz.title}
                                                 score={quiz.score}
@@ -104,10 +122,21 @@ function Profile() {
                             </Col>
                         </Row>
                     </Tab>
-                    <Tab eventKey={"Creations"} title="Creations">
+                    <Tab eventKey={"Your Creations"} title="Your Creations">
                         <Row className="w-100">
                             <Col>
                                 <h2 className="mx-5 mt-3">Quizzes Created</h2>
+                                <ul>
+                                    {creations.map((quiz, index) => (
+                                        <li key={index} className="mb-1">
+                                            <QuizTab
+                                                title={quiz.title}
+                                                total_questions={quiz.total_questions}
+                                                timestamp={quiz.timestamp}
+                                            />
+                                        </li>
+                                    ))}
+                                </ul>
                             </Col>
                         </Row>
                     </Tab>

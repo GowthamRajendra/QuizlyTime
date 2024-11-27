@@ -7,7 +7,7 @@ import Col from 'react-bootstrap/Col';
 // Used in play page to display user created quizzes
 function QuizTab({title, score=null, total_questions, timestamp}) {
     return (
-        <Card className='w-75'>
+        <Card className='w-100'>
             <Card.Body>
                 <Row className="align-items-center justify-content-between">
                     <Col>

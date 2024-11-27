@@ -1,5 +1,6 @@
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
 
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom'
@@ -42,12 +43,13 @@ export default function QuizSelection (){
                     <h2>Select Quiz To Play</h2>
                         <ul>
                             {quizzes.map((quiz, index) => (
-                                <li key={index} className="clickable-card mb-1" onClick={() => navigate('/quiz/play', {state: {questions: quiz.questions}})}>
-                                    <QuizTab
-                                        title={quiz.title}
-                                        total_questions={quiz.total_questions}
-                                        timestamp={quiz.timestamp}
-                                    />
+                                <li key={index} className="mb-1 clickable-card"
+                                        onClick={() => navigate('/quiz/play', {state: {questions: quiz.questions}})}>
+                                        <QuizTab
+                                            title={quiz.title}
+                                            total_questions={quiz.total_questions}
+                                            timestamp={quiz.timestamp}
+                                        />
                                 </li>
                             ))}
                         </ul>

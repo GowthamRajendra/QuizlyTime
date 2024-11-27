@@ -1,6 +1,7 @@
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Card from 'react-bootstrap/Card'
+import Alert from 'react-bootstrap/Alert'
 import { useState } from 'react'
 import useAxios from '../hooks/useAxios'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
@@ -8,6 +9,7 @@ import useAuth from '../hooks/useAuth'
 import { Link } from 'react-router-dom'
 
 function Login() {
+    // user inputs
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
@@ -16,7 +18,11 @@ function Login() {
 
     const navigate = useNavigate()
     const location = useLocation()
-    const to = location.state?.to || '/'
+    const to = location.state?.to ?? '/'
+
+    // popup alert, initialize with successful registration message if redirected from registration
+    const [message, setMessage] = useState(location.state?.message ?? '') // e.g. "Invalid email or password"
+    const [variant, setVariant] = useState(location.state?.variant ?? '') // e.g. "danger"
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -42,12 +48,18 @@ function Login() {
         } catch (err) {
             if (!err?.response) {
                 console.error("No error response")
+                setMessage('Network error. Try again later.')
+                setVariant('danger')
             }
             else if (err.response) {
                 console.error(err.response.data.message)
+                setMessage(err.response.data.message)
+                setVariant('danger')
             }
             else {
                 console.error(err)
+                setMessage('Unexpected error. Try again later.')
+                setVariant('danger')
             }
         }
     }
@@ -57,6 +69,11 @@ function Login() {
         ? <Navigate to={to} replace />
         : <Card className='d-flex flex-row justify-content-center w-50 shadow-sm mt-3'>
             <Form className='pt-3 pb-3 w-75' onSubmit={handleSubmit}>
+                {
+                    (message == '')
+                    ? null
+                    : <Alert variant={variant} dismissible>{message}</Alert>
+                }
                 <Form.Group className='mb-3' controlId='formEmail'>
                     <Form.Label>Email address</Form.Label>
                     <Form.Control 
