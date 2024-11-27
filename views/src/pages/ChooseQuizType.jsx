@@ -24,7 +24,7 @@ export default function ChooseQuizType() {
                 <Col md={6} className="d-flex justify-content-center">
                     <Card className="text-center clickable-card" style={{width: "18rem"}} onClick={() => navigate('/quiz/select')}>
                         <Card.Body>
-                            <i class="bi bi-archive-fill" style={{fontSize: '10rem'}}></i>
+                            <i className="bi bi-archive-fill" style={{fontSize: '10rem'}}></i>
                             <Card.Title>Choose a Quiz</Card.Title>
                         </Card.Body>
                     </Card>

@@ -1,6 +1,8 @@
 import useAuth from "../hooks/useAuth";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
 import useAxios from "../hooks/useAxios";
 import { useEffect, useState } from "react";
 import QuizTab from "../components/QuizTab";
@@ -67,6 +69,29 @@ function Profile() {
         }
     }, []);
 
+    const editQuiz = async (index) => {
+        console.log(`Edit quiz: ${JSON.stringify(creations[index])}`);
+
+        let new_title = 'bingbong';
+
+        try {
+            const response = await axios.put(`/edit-custom-quiz`, {
+                quiz_id: creations[index].id,
+                title: new_title,
+            });
+
+            console.log(`Response: ${JSON.stringify(response.data)}`);
+
+            // Update the quiz in the state
+            let newCreations = [...creations];
+            newCreations[index].title = new_title;
+            setCreations(newCreations);
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     return (
         <div className="w-100 d-flex flex-column align-items-center" style={{ maxWidth: '1200px', margin: '0 auto' }}>
             {/* Profile header */}
@@ -109,7 +134,7 @@ function Profile() {
                                 <h2 className="mx-5 mt-3">Quizzes Played</h2>
                                 <ul>
                                     {history.map((quiz, index) => (
-                                        <li key={index} className="mb-1">
+                                        <li key={index} className="mb-1 w-75">
                                             <QuizTab
                                                 title={quiz.title}
                                                 score={quiz.score}
@@ -128,12 +153,46 @@ function Profile() {
                                 <h2 className="mx-5 mt-3">Quizzes Created</h2>
                                 <ul>
                                     {creations.map((quiz, index) => (
-                                        <li key={index} className="mb-1">
-                                            <QuizTab
-                                                title={quiz.title}
-                                                total_questions={quiz.total_questions}
-                                                timestamp={quiz.timestamp}
-                                            />
+                                        <li key={index} className="mb-1 w-75">
+                                            <Row>
+                                                <Col>
+                                                    <div style={{ position: 'relative' }}>
+                                                        <QuizTab
+                                                            title={quiz.title}
+                                                            total_questions={quiz.total_questions}
+                                                            timestamp={quiz.timestamp}
+                                                        />
+                                                        <div style={{ position: 'absolute', top: '15px', right: '70px', zIndex: 10 }}>
+                                                            <Button variant="dark" onClick={() => editQuiz(index)}>
+                                                                <i className="bi bi-pencil-square h3"></i>
+                                                            </Button>
+                                                        </div>
+                                                        <div style={{ position: 'absolute', top: '15px', right: '10px', zIndex: 10 }}>
+                                                            <Button variant="dark">
+                                                                <i className="bi bi-trash h3"></i>
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </Col>
+                                                {/* <Col xs="auto">
+                                                    <Card className='w-100'>
+                                                        <Card.Body>
+                                                            <Button variant="dark" >
+                                                                <i className="bi bi-pencil-square clickable-icon h3"></i>
+                                                            </Button>
+                                                        </Card.Body>
+                                                    </Card>
+                                                </Col>
+                                                <Col xs="auto">
+                                                    <Card className='w-100'>
+                                                        <Card.Body>
+                                                            <Button variant="dark">
+                                                                <i className="bi bi-trash clickable-icon h3"></i>
+                                                            </Button>
+                                                        </Card.Body>
+                                                    </Card>
+                                                </Col> */}
+                                            </Row>
                                         </li>
                                     ))}
                                 </ul>

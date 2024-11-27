@@ -125,6 +125,7 @@ def logout(_):
 def formatQuizzes(quizzes):
     results = [
         {
+            "id": str(quiz.id),
             "title": quiz.title,
             "score": quiz.score,
             "timestamp": quiz.timestamp,

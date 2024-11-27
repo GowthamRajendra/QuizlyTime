@@ -43,7 +43,7 @@ export default function QuizSelection (){
                     <h2>Select Quiz To Play</h2>
                         <ul>
                             {quizzes.map((quiz, index) => (
-                                <li key={index} className="mb-1 clickable-card"
+                                <li key={index} className="mb-1 clickable-card w-75"
                                         onClick={() => navigate('/quiz/play', {state: {questions: quiz.questions}})}>
                                         <QuizTab
                                             title={quiz.title}

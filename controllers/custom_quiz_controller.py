@@ -20,6 +20,8 @@ def cors_header(response):
     response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     response.headers['Access-Control-Allow-Credentials'] = 'true'
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+
     return response
 
 @custom_quiz_bp.route("/custom-quiz", methods=["POST"])
@@ -66,4 +68,36 @@ def get_custom_quizzes(user_data):
     }
 
     return make_response(jsonify(response_data), 200)
+
+# @custom_quiz_bp.route("/delete-custom-quiz", methods=["DELETE"])
+# @access_token_required
+# def delete_custom_quiz(user_data):    
+#     quiz_id = request.json.get('quiz_id', "")
+
+#     user = User.objects(pk=user_data['sub']).first()
     
+#     user_created_quizzes = user.created_quizzes
+#     for i in range(len(user_created_quizzes)):
+#         if str(user_created_quizzes[i].id) == quiz_id:
+#             user_created_quizzes.pop(i)
+#             break
+#     user.save()
+
+
+#     quiz = Quiz.objects(pk=quiz_id).first()
+#     quiz.delete()
+
+#     return make_response(jsonify({"message": "Quiz deleted"}), 200)
+    
+# put request to update quiz
+@custom_quiz_bp.route("/edit-custom-quiz", methods=["PUT"])
+@access_token_required
+def edit_custom_quiz(user_data):
+    quiz_id = request.json.get('quiz_id', "")
+    title = request.json.get('title', "")
+
+    quiz = Quiz.objects(pk=quiz_id).first()
+    quiz.title = title
+    quiz.save()
+
+    return make_response(jsonify({"message": "Quiz updated"}), 200)
