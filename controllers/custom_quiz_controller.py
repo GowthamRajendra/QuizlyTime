@@ -33,7 +33,7 @@ def custom_quiz(user_data):
     questions = store_questions(questions)
 
     # create quiz
-    quiz = Quiz(title=title, score=0, timestamp=datetime.now(), total_questions=len(questions), questions=questions)
+    quiz = Quiz(title=title, score=0, timestamp=datetime.now(), total_questions=len(questions), questions=questions, user_created=True)
     quiz.save()
 
     # add quiz to user's created_quizzes
@@ -46,3 +46,24 @@ def custom_quiz(user_data):
     quiz_questions = create_quiz_questions(questions)
 
     return make_response(jsonify(quiz_questions), 200)
+
+@custom_quiz_bp.route("/get-custom-quizzes", methods=["GET"])
+@access_token_required
+def get_custom_quizzes(user_data):
+    quizzes = Quiz.objects(user_created=True)
+
+    results = [
+        {
+            "title": quiz.title,
+            "timestamp": quiz.timestamp,
+            "total_questions": quiz.total_questions,
+            "questions": create_quiz_questions(quiz.questions)
+        } for quiz in quizzes
+    ]
+
+    response_data = {
+        "quizzes": results
+    }
+
+    return make_response(jsonify(response_data), 200)
+    

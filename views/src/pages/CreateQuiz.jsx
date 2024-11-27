@@ -38,7 +38,7 @@ export default function CreateQuiz() {
     const [currentCategory, setCurrentCategory] = useState('9')
     const [currentTrueFalse, setCurrentTrueFalse] = useState('True')
     
-    const handleNext = async (e) => {
+    const handleNext = (e) => {
         e.preventDefault()
 
         const prompt = e.target.prompt.value
@@ -87,6 +87,19 @@ export default function CreateQuiz() {
         setQuestionIndex((prev) => Math.max(prev - 1, 0))
     };
 
+    const saveCustomQuiz = async (questionsFormatted) => {
+        try {
+            const response = await axios.post('/custom-quiz', {
+                title: quizDetails.title,
+                questions: questionsFormatted
+            })
+            console.log(response.data)
+            navigate('/quiz/create/complete', {state: {questions: response.data}})
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     useEffect(() => {
         if (isSubmited) {
             let questionsFormatted = questions.map((question, index) => {
@@ -100,15 +113,7 @@ export default function CreateQuiz() {
                 }
             })
 
-            axios.post('/custom-quiz', {
-                title: quizDetails.title,
-                questions: questionsFormatted
-            }).then(response => {
-                console.log(response.data)
-                navigate('/quiz/create/complete', {state: {questions: response.data}})
-            }).catch(error => {
-                console.error(error)
-            })
+            saveCustomQuiz(questionsFormatted)
         }
 
         // set current values for category, difficulty, true/false
