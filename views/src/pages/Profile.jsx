@@ -1,18 +1,24 @@
-import useAuth from "../hooks/useAuth";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import useAxios from "../hooks/useAxios";
-import { useEffect, useState } from "react";
 import QuizTab from "../components/QuizTab";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
 
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import useAuth from "../hooks/useAuth";
+
+
 function Profile() {
     const { auth } = useAuth();
     const axios = useAxios();
+    const navigate = useNavigate();
+
     const initial = auth.username.charAt(0).toUpperCase();
 
     // Tab control
@@ -80,11 +86,11 @@ function Profile() {
         }
     }, []);
 
-    const editQuiz = async () => {
+    const editQuiz = async (edit) => {
         console.log(`Edit quiz: ${JSON.stringify(creations[index])}`);
 
         try {
-            const response = await axios.put(`/edit-custom-quiz`, {
+            const response = await axios.put(`/edit-custom-quiz-title`, {
                 quiz_id: creations[index].id,
                 title: newTitle,
             });
@@ -95,6 +101,28 @@ function Profile() {
             let newCreations = [...creations];
             newCreations[index].title = newTitle;
             setCreations(newCreations);
+
+            let new_questions = []
+
+            // format questions
+            response.data.questions.forEach((question) => {
+                new_questions.push({
+                    prompt: question.prompt,
+                    categorySelect: false,
+                    category: question.category,
+                    difficulty: question.difficulty,
+                    multiple: true ? question.type === "multiple" : false,
+                    choices: question.incorrect_answers,
+                    answer: question.correct_answer,
+                    question_id: question.question_id
+                })
+            })
+
+            console.log(`New questions: ${JSON.stringify(new_questions)}`);
+
+            if (edit) {
+                navigate('/quiz/create/questions', {state: {title: newTitle, questions: new_questions, quiz_id: creations[index].id}});
+            }
 
         } catch (error) {
             console.error(error);
@@ -128,7 +156,7 @@ function Profile() {
         <>
         <Modal show={show} onHide={() => {handleClose(); setNewTitle('')}}>
             <Modal.Header closeButton>
-                <Modal.Title>Change Quiz Title</Modal.Title>
+                <Modal.Title>Edit Quiz</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form>
@@ -138,18 +166,20 @@ function Profile() {
                         type="text"
                         placeholder="Quiz 1"
                         autoFocus
-                        value={newTitle}
-                        onChange={(e) => setNewTitle(e.target.value)}
+                        defaultValue={newTitle}
+                        onChange={(e) => e.target.value.length > 0 ? setNewTitle(e.target.value) : setNewTitle(newTitle)}
+                        maxLength={37}
+                        required
                     />
                     </Form.Group>
                 </Form>
             </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={() => {handleClose(); setNewTitle('')}}>
-                    Close
+            <Modal.Footer className="d-flex justify-content-between">
+                <Button variant="success" onClick={() => {handleClose(); editQuiz(false)}}>
+                    Save Title and Exit
                 </Button>
-                <Button variant="primary" onClick={() => {handleClose(); editQuiz()}}>
-                    Save
+                <Button variant="primary" onClick={() => {handleClose(); editQuiz(true)}}>
+                    Continue to Edit Questions
                 </Button>
             </Modal.Footer>
         </Modal>
@@ -224,7 +254,7 @@ function Profile() {
                                                             timestamp={quiz.timestamp}
                                                         />
                                                         <div style={{ position: 'absolute', top: '15px', right: '70px', zIndex: 10 }}>
-                                                            <Button variant="dark" onClick={() => {handleShow(); setIndex(index)}}>
+                                                            <Button variant="dark" onClick={() => {handleShow(); setIndex(index); setNewTitle(quiz.title)}}>
                                                                 <i className="bi bi-pencil-square h3"></i>
                                                             </Button>
                                                         </div>
