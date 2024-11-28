@@ -1,11 +1,9 @@
 import pytest
-from flask import Flask
 from mongoengine import connect, disconnect
 from mongomock import MongoClient
-import mongomock
 from socket_manager import socketio
 from app import create_app
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 from models.question_model import Question
 from models.quiz_model import Quiz
 from models.user_model import User
