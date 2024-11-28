@@ -3,8 +3,12 @@ from flask import Flask
 from mongoengine import connect, disconnect
 from mongomock import MongoClient
 import mongomock
-
+from socket_manager import socketio
 from app import create_app
+from unittest.mock import patch, MagicMock
+from models.question_model import Question
+from models.quiz_model import Quiz
+from models.user_model import User
 
 @pytest.fixture
 def app():
@@ -28,3 +32,152 @@ def client(app):
     # Create a test client
     with app.test_client() as client:
         yield client
+
+# Add a fixture to register and log in a test user for testing protected routes
+@pytest.fixture
+def authenticated_client(client):
+    # Register and log in a test user
+    register_data = {
+        "email": "test@test.com",
+        "username": "test_user",
+        "password": "password123"
+    }
+    client.post("/register", json=register_data)
+    
+    login_data = {
+        "email": "test@test.com",
+        "password": "password123"
+    }
+    # login to be assigned jwt tokens as cookies
+    login_response = client.post("/login", json=login_data)
+    
+    # Extract cookies from the login response
+    cookies = login_response.headers.getlist("Set-Cookie")
+    
+    # Extract both access and refresh tokens
+    access_token_cookie = next((cookie for cookie in cookies if "access_token" in cookie), None)
+    refresh_token_cookie = next((cookie for cookie in cookies if "refresh_token" in cookie), None)
+    
+    # Assert that both cookies are set
+    assert access_token_cookie, "Access token cookie not set"
+    assert refresh_token_cookie, "Refresh token cookie not set"
+
+    return client
+
+@pytest.fixture
+def socketio_client(app):
+    # Create a test client for socket.io
+    client = socketio.test_client(app, flask_test_client=app.test_client())
+    yield client
+    client.disconnect()
+
+@pytest.fixture
+def mock_user(mocker):
+    # Create a mock user object
+    mock_user = MagicMock(spec=User)
+    mock_user.pk = "user_id"
+    mock_user.id = "user_id"
+    mock_user.username = "test_user"
+    mock_user.email = "test@test.com"
+    mock_user.password = "password123"
+    mock_user.completed_quizzes = []
+    mock_user.created_quizzes = []
+
+    # Patch the User.objects.get method to return the mock user
+    mocker.patch("models.user_model.User.objects", return_value=MagicMock(first=MagicMock(return_value=mock_user)))
+    
+    return mock_user
+
+@pytest.fixture
+def mock_question(mocker):
+    # Create a mock question object
+    mock_question = MagicMock(spec=Question)
+    mock_question.pk = "question_id"
+    mock_question.prompt = "Test question"
+    mock_question.category = "Test category"
+    mock_question.difficulty = "Test difficulty"
+    mock_question.type = "Test type"
+    mock_question.correct_answer = "Test choice 1"
+    mock_question.incorrect_answers = ["Test choice 2", "Test choice 3", "Test choice 4"]
+    mock_question.timer = 10
+
+    mocker.patch("models.question_model.Question.objects", return_value=MagicMock(first=MagicMock(return_value=mock_question)))
+
+    return mock_question
+
+@pytest.fixture
+def mock_quiz(mocker, mock_user, mock_question):
+    # Create a mock quiz object
+    mock_quiz = MagicMock(spec=Quiz)
+    mock_quiz.id = "quiz_id"
+    mock_quiz.title = "Test quiz"
+    mock_quiz.score = 0
+    mock_quiz.timestamp = "2021-01-01T00:00:00"
+    mock_quiz.questions = [mock_question]
+    mock_quiz.answered_questions = []
+    mock_quiz.total_questions = 1
+    mock_quiz.user_created = False
+    mock_quiz.save = MagicMock()
+
+    return mock_quiz
+
+@pytest.fixture
+def mock_user_history(mock_user, mock_quiz):
+    mock_user.completed_quizzes = [mock_quiz, mock_quiz, mock_quiz, mock_quiz, mock_quiz, mock_quiz]
+
+@pytest.fixture
+def mock_user_creations(mock_user, mock_quiz):
+    mock_user.created_quizzes = [mock_quiz, mock_quiz, mock_quiz]
+
+# Fixture to create custom quizzes for testing
+@pytest.fixture
+def mock_user_created_quizzes(authenticated_client):
+    quiz1 = {
+        "title": "Test Custom Quiz 1",
+        "questions": [
+            {
+                "question": "What is the capital of France?",
+                "correct_answer": "Paris",
+                "incorrect_answers": ["London", "Berlin", "Madrid"],
+                "category": "15",
+                "type": "multiple",
+                "difficulty": "easy"
+            },
+            {
+                "question": "What is the capital of Spain?",
+                "correct_answer": "Madrid",
+                "incorrect_answers": ["Paris", "Berlin", "London"],
+                "category": "15",
+                "type": "multiple",
+                "difficulty": "easy"
+            }
+        ]
+    }
+
+    quiz2 = {
+        "title": "Test Custom Quiz 2",
+        "questions": [
+            {
+                "question": "What is the capital of Germany?",
+                "correct_answer": "Berlin",
+                "incorrect_answers": ["London", "Paris", "Madrid"],
+                "category": "15",
+                "type": "multiple",
+                "difficulty": "easy"
+            },
+            {
+                "question": "What is the capital of Italy?",
+                "correct_answer": "Rome",
+                "incorrect_answers": ["London", "Paris", "Madrid"],
+                "category": "15",
+                "type": "multiple",
+                "difficulty": "easy"
+            }
+        ]
+    }
+
+    authenticated_client.post("/custom-quiz", json=quiz1)
+    authenticated_client.post("/custom-quiz", json=quiz2)
+
+    assert len(User.objects(email="test@test.com").first().created_quizzes) == 2
+    

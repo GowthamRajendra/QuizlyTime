@@ -51,6 +51,8 @@ def custom_quiz(user_data):
 def get_custom_quizzes(user_data):
     quizzes = Quiz.objects(user_created=True)
 
+    print(quizzes)
+
     results = [
         {
             "id": str(quiz.id),

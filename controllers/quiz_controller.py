@@ -72,6 +72,8 @@ def create_random_quiz(user_data):
 
     response = requests.get(API_URL).json()
 
+    print(response)
+
     # store the questions in the database, and return the question objects as a list
     questions = store_questions(response['results'])
     
@@ -86,6 +88,8 @@ def create_random_quiz(user_data):
     user.save()
 
     quiz_questions = create_quiz_questions(questions)
+
+    print(quiz_questions)
      
     # return the quiz
     return make_response(jsonify(quiz_questions), 200)
@@ -109,11 +113,16 @@ def check_answer(data):
     quiz = user.active_quiz
     question_index = data['question_index']
 
-    print(data)
-    print('quiz', quiz.id, 'for user', user.username)
+    # print(data)
+    # print('quiz', quiz.id, 'for user', user.username)
+    # print("active quiz", user.active_quiz)
+    # print(f"Type of quiz: {type(quiz)}")
+    # print(f"Quiz before the if check: {quiz}")
+    # print(f"Is quiz falsy? {not quiz}")
 
     # dont check the answer if the user doesn't have an active quiz
-    if not quiz:
+    if quiz is None:
+        print("no active quiz")
         return
 
     # get the question object from the question id
@@ -142,11 +151,13 @@ def check_answer(data):
         "question_index": question_index,
     }
 
+    # print("results", results)
+
     emit('answer_checked', results)
 
     # check if the quiz is completed
     # send the score back to the client and store results in the database
-    print(len(quiz.answered_questions), quiz.total_questions)
+    print("in controller", len(quiz.answered_questions), quiz.total_questions)
     if len(quiz.answered_questions) == quiz.total_questions:
         print('quiz completed', quiz.score)
         emit('quiz_completed', {"score": quiz.score})
