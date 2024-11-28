@@ -5,6 +5,7 @@ from datetime import datetime
 # import models
 from models.user_model import User
 from models.quiz_model import Quiz
+from models.question_model import Question
 
 # import service functions
 from services.auth_service import access_token_required
@@ -21,10 +22,9 @@ def cors_header(response):
 
     return response
 
-@custom_quiz_bp.route("/custom-quiz", methods=["POST"])
+@custom_quiz_bp.route("/save-custom-quiz", methods=["POST"])
 @access_token_required 
-def custom_quiz(user_data):
-    print(request.method)
+def save_custom_quiz(user_data):
     questions = request.json.get('questions', [])
     title = request.json.get('title', "")
 
@@ -84,7 +84,7 @@ def delete_custom_quiz(user_data):
 
     return make_response(jsonify({"message": "Quiz deleted"}), 200)
     
-# put request to update quiz
+# put request to update quiz title and questions
 @custom_quiz_bp.route("/edit-custom-quiz", methods=["PUT"])
 @access_token_required
 def edit_custom_quiz(user_data):
@@ -93,9 +93,57 @@ def edit_custom_quiz(user_data):
 
     quiz = Quiz.objects(pk=quiz_id).first()
     quiz.title = title
+
+    new_questions = request.json.get('questions', [])
+
+    for question in new_questions:
+        question_id = question.get('id', "")
+
+        question_old = Question.objects(pk=question_id).first()
+
+        question_old.prompt = question.get('question', "")
+        question_old.category = question.get('category', "")
+        question_old.difficulty = question.get('difficulty', "")
+        question_old.type = question.get('type', "")
+        question_old.correct_answer = question.get('correct_answer', "")
+        question_old.incorrect_answers = question.get('incorrect_answers', [])
+        question_old.save()
+
     quiz.save()
 
-    return make_response(jsonify({"message": "Quiz updated"}), 200)
+    return make_response(jsonify({"questions": create_quiz_questions(quiz.questions)}), 200)
+
+
+# put request to update quiz title and send back questions
+@custom_quiz_bp.route("/edit-custom-quiz-title", methods=["PUT"])
+@access_token_required
+def edit_custom_quiz_title(user_data):
+    quiz_id = request.json.get('quiz_id', "")
+    title = request.json.get('title', "")
+
+    quiz = Quiz.objects(pk=quiz_id).first()
+    quiz.title = title
+    quiz.save()
+
+    new_questions = []
+
+    for question in quiz.questions:
+        question_id = str(question.id)
+
+        question_old = Question.objects(pk=question_id).first()
+
+        new_questions.append({
+            "question_id": question_id,
+            "prompt": question_old.prompt,
+            "category": question_old.category,
+            "difficulty": question_old.difficulty,
+            "type": question_old.type,
+            "correct_answer": question_old.correct_answer,
+            "incorrect_answers": question_old.incorrect_answers
+        })
+    
+
+    return make_response(jsonify({"questions": new_questions}), 200)
 
 @custom_quiz_bp.route("/begin-quiz", methods=["POST"])
 @access_token_required

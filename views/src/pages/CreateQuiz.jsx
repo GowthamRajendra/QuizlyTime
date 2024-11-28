@@ -17,7 +17,7 @@ export default function CreateQuiz() {
 
     // Get quiz details from setup page
     const location = useLocation()
-    const quizDetails = location.state ?? {title: 'My Quiz', questions: []}
+    const quizDetails = location.state ?? {title: 'My Quiz', questions: [], quiz_id: null}
 
     const [questions, setQuestions] = useState(quizDetails.questions)
 
@@ -28,8 +28,8 @@ export default function CreateQuiz() {
     const [isSubmited, setIsSubmited] = useState(false)
     
     // for radio buttons
-    const [isCategorySelect, setIsCategorySelect] = useState(true) // true = select, false = create
-    const [isMultiple, setIsMultiple] = useState(true) // true = mc, false = t/f
+    const [isCategorySelect, setIsCategorySelect] = useState(quizDetails.questions[0].categorySelect) // true = select, false = create
+    const [isMultiple, setIsMultiple] = useState(quizDetails.questions[0].multiple)  // true = mc, false = t/f
 
     // current values for category, difficulty, true/false
     // used to set default values in the select elements  
@@ -56,6 +56,7 @@ export default function CreateQuiz() {
         e.target.reset() // clear form
 
         const newQuestion = {
+            question_id: currQuestion.question_id ?? null,
             prompt,
             categorySelect: isCategorySelect,
             category,
@@ -87,11 +88,25 @@ export default function CreateQuiz() {
         setQuestionIndex((prev) => Math.max(prev - 1, 0))
     };
 
-    const saveCustomQuiz = async (questionsFormatted) => {
+    const saveNewCustomQuiz = async (questionsFormatted) => {
         try {
-            const response = await axios.post('/custom-quiz', {
+            const response = await axios.post('/save-custom-quiz', {
                 title: quizDetails.title,
                 questions: questionsFormatted
+            })
+            console.log(response.data)
+            navigate('/quiz/create/complete', {state: {questions: response.data}})
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const saveEdittedCustomQuiz = async (questionsFormatted) => {
+        try {
+            const response = await axios.put(`/edit-custom-quiz`, {
+                title: quizDetails.title,
+                questions: questionsFormatted,
+                quiz_id: quizDetails.quiz_id
             })
             console.log(response.data)
             navigate('/quiz/create/complete', {state: {questions: response.data}})
@@ -104,6 +119,7 @@ export default function CreateQuiz() {
         if (isSubmited) {
             let questionsFormatted = questions.map((question, index) => {
                 return {
+                    id: question.question_id ?? null,
                     question: question.prompt,    
                     category: question.category,
                     difficulty: question.difficulty,
@@ -113,7 +129,12 @@ export default function CreateQuiz() {
                 }
             })
 
-            saveCustomQuiz(questionsFormatted)
+            // if quiz_id is not null, we are editing an existing quiz
+            if (quizDetails.quiz_id !== null) {
+                saveEdittedCustomQuiz(questionsFormatted)
+            } else {
+                saveNewCustomQuiz(questionsFormatted)
+            }
         }
 
         // set current values for category, difficulty, true/false

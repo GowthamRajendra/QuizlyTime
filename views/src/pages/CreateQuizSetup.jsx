@@ -37,7 +37,7 @@ export default function CreateQuizSetup() {
             <Form className='pt-3 pb-3 w-75' onSubmit={handleContinue}>
                 <Form.Group className='mb-3' controlId='title'>
                     <Form.Label>Choose a title for your quiz</Form.Label>
-                    <Form.Control type="text" placeholder='My Quiz' required/>
+                    <Form.Control type="text" placeholder='My Quiz' required maxLength={37}/>
                 </Form.Group>
 
                 <Form.Group className='mb-3' controlId='amount'>
