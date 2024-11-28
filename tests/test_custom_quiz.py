@@ -28,7 +28,7 @@ def test_create_custom_quiz(authenticated_client, mock_user):
         ]
     }
 
-    response = authenticated_client.post("/custom-quiz", json=quiz_data)
+    response = authenticated_client.post("/save-custom-quiz", json=quiz_data)
     data = response.get_json()
     
     # Assert that the response is successful
@@ -88,7 +88,7 @@ def test_get_custom_quizzes(client, mock_user_created_quizzes):
         ]
     }
 
-    response = client.post("/custom-quiz", json=quiz)
+    response = client.post("/save-custom-quiz", json=quiz)
 
     assert response.status_code == 200
     assert len(User.objects(email="test2@test2.com").first().created_quizzes) == 1 # 1 custom quiz created
@@ -114,17 +114,17 @@ def test_delete_custom_quiz(authenticated_client, mock_user_created_quizzes):
 
     assert len(User.objects(email="test@test.com").first().created_quizzes) == 1 # 1 custom quiz left
 
-def test_edit_custom_quiz(authenticated_client, mock_user_created_quizzes):
+def test_edit_custom_quiz_title(authenticated_client, mock_user_created_quizzes):
     assert User.objects(email="test@test.com").first().created_quizzes[0].title == "Test Custom Quiz 1" # Check the title of the first custom quiz
     
     # get the id of the first custom quiz
     quiz_id = User.objects(email="test@test.com").first().created_quizzes[0].id
 
     # edit the title of the first custom quiz
-    response = authenticated_client.put("/edit-custom-quiz", json={"quiz_id": str(quiz_id), "title": "Edited Custom Quiz 1"})
+    response = authenticated_client.put("/edit-custom-quiz-title", json={"quiz_id": str(quiz_id), "title": "Edited Custom Quiz 1"})
 
     assert response.status_code == 200
-    assert response.json["message"] == "Quiz updated"
+    assert "questions" in response.json # these questions would then be sent to the edit questions route
 
     assert User.objects(email="test@test.com").first().created_quizzes[0].title == "Edited Custom Quiz 1" # Check that the title was updated
 

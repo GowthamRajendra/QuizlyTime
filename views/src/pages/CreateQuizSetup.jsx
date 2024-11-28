@@ -29,7 +29,7 @@ export default function CreateQuizSetup() {
 
 
         // navigate to questions creation
-        navigate('/quiz/create/questions', {state: {title, questions: newQuestions}})
+        navigate('/quiz/create/questions', {state: {title, questions: newQuestions, quiz_id: null}})
     }
 
     return  (

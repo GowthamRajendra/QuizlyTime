@@ -176,8 +176,8 @@ def mock_user_created_quizzes(authenticated_client):
         ]
     }
 
-    authenticated_client.post("/custom-quiz", json=quiz1)
-    authenticated_client.post("/custom-quiz", json=quiz2)
+    authenticated_client.post("/save-custom-quiz", json=quiz1)
+    authenticated_client.post("/save-custom-quiz", json=quiz2)
 
     assert len(User.objects(email="test@test.com").first().created_quizzes) == 2
     

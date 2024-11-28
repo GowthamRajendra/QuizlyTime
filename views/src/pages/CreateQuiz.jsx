@@ -130,6 +130,7 @@ export default function CreateQuiz() {
             })
 
             // if quiz_id is not null, we are editing an existing quiz
+            console.log("quiz_id", quizDetails.quiz_id)
             if (quizDetails.quiz_id !== null) {
                 saveEdittedCustomQuiz(questionsFormatted)
             } else {
