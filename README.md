@@ -30,4 +30,4 @@
 13. Both the frontend and backend should now be running. The frontend will be accessible on http://localhost:5173
 
 ## UML Diagram
-- picture
+![uml](https://github.com/user-attachments/assets/c555ad1f-d6ef-4581-80d8-5bddc960127d)
