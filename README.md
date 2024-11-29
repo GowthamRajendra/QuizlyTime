@@ -55,5 +55,8 @@
 - Controllers (./controllers):
     - user_controller: handles requests regarding account creation, authetication and user statistics.
     - quiz_controller: handles requests regarding random quiz creation and quiz gameplay loop via sockets.
-    - custom_quiz_controller: handles requests regarding user-created quiz creation, retrieval, editting and deletion. 
+    - custom_quiz_controller: handles requests regarding user-created quiz creation, retrieval, editting and deletion.
+- Services (./services):
+    - auth_service: responsible for creating and validating jwts and passwords.
+    - quiz_service: responsible for mapping retrieved questions from api into questions stored in our db.
   
