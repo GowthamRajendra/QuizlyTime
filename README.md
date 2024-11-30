@@ -26,7 +26,7 @@ docker-compose build
 ```
 docker-compose up
 ```
-6. The frontend and backend should be up and running. The frontend will be accessible on http://localhost:5173
+5. The frontend and backend should be up and running. The frontend will be accessible on http://localhost:5173
 
 ## How to setup without Docker
 1. Pull the main branch
