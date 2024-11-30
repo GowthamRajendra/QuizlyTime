@@ -1,6 +1,6 @@
 from flask import request, Blueprint, make_response, jsonify
 from datetime import datetime, timedelta, timezone
-
+import os
 from services.auth_service import create_jwt, access_token_required, refresh_token_required, hash_password, verify_password
 
 from models.user_model import User
@@ -10,7 +10,7 @@ users_bp = Blueprint('users_bp', __name__)
 # set CORS headers to allow json and cookies to be sent cross-origin
 @users_bp.after_request
 def cors_header(response):
-    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
+    response.headers['Access-Control-Allow-Origin'] = os.getenv("FRONT_END_URL", 'http://localhost:5173')
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     return response
