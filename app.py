@@ -1,27 +1,24 @@
-from gevent import monkey
-monkey.patch_all()
+import os
+
+# only patch in production, pytests wont work when patched
+if os.environ.get('ENV') == 'production':
+    from gevent import monkey
+    monkey.patch_all()
 
 from flask import Flask
 from mongoengine import connect
 from dotenv import load_dotenv
-# from flask_socketio import SocketIO, emit
 from socket_manager import socketio
-
-import os
 
 # load environment variables from the .env file
 load_dotenv()
 
-DATABASE_URI = os.getenv('DB_URI')
-
-# socketio = SocketIO()
-
-def create_app():
+def create_app(testing=False):
     app = Flask(__name__)
 
     # set up config
     app.config["JWT_SECRET"] = os.environ.get("JWT_SECRET")
-    app.config['MONGO_URI'] = DATABASE_URI
+    app.config['MONGO_URI'] = os.environ.get('DB_URI')
 
     # import blueprints
     from controllers.user_controller import users_bp    

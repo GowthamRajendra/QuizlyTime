@@ -16,7 +16,7 @@ def app():
     # Disconnect any existing database connections
     disconnect()
 
-    # Connect to a mock database
+    # Connect to a local db for testing
     connect('QuizAppDB', mongo_client_class=MongoClient, uuidRepresentation="standard")
 
     # Yield the app for testing
