@@ -13,12 +13,12 @@ from socket_manager import socketio
 # load environment variables from the .env file
 load_dotenv()
 
-def create_app(testing=False):
+def create_app():
     app = Flask(__name__)
 
     # set up config
-    app.config["JWT_SECRET"] = os.environ.get("JWT_SECRET")
-    app.config['MONGO_URI'] = os.environ.get('DB_URI')
+    app.config["JWT_SECRET"] = os.getenv("JWT_SECRET")
+    app.config['MONGO_URI'] = os.getenv('DB_URI')
 
     # import blueprints
     from controllers.user_controller import users_bp    
@@ -48,4 +48,10 @@ def create_app(testing=False):
 app = create_app()
 
 if __name__ == '__main__':
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    debug = True
+    if os.environ.get('ENV') == 'production':
+        debug = False
+
+    port = os.getenv('PORT', 5000)
+
+    socketio.run(app, host="0.0.0.0", port=port , debug=debug)
