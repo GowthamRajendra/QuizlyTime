@@ -2,6 +2,9 @@
 ## Hosted on render.com
 https://quizlytime.onrender.com/quiz
 
+## Page Speed Insights
+https://pagespeed.web.dev/analysis/https-quizlytime-onrender-com/d7n2l3nz6s?form_factor=desktop
+
 ## How to setup with Docker
 1. Pull the main branch
 2. create a .env file in the root directory of the project and do the following:
