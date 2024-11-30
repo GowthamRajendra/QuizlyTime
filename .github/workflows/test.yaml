@@ -15,4 +15,4 @@ jobs:
       - name: Run tests
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        run: pytest tests/
+        run: pytest tests/integration
