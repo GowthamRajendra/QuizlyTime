@@ -1,5 +1,5 @@
-import eventlet
-eventlet.monkey_patch() # exception thrown if not done before other imports
+from gevent import monkey
+monkey.patch_all()
 
 from flask import Flask
 from mongoengine import connect
@@ -34,8 +34,7 @@ def create_app():
     app.register_blueprint(custom_quiz_bp)
 
     # connect to the database
-    with app.app_context():
-        connect('QuizAppDB', host=app.config['MONGO_URI'], uuidRepresentation="standard")
+    connect('QuizAppDB', host=app.config['MONGO_URI'], uuidRepresentation="standard")
 
     # initialize socketio
     # change cors_allowed_origins later
@@ -49,8 +48,7 @@ def create_app():
 
     return app
 
-# create the app here so gunincorn can find it
 app = create_app()
 
 if __name__ == '__main__':
-    socketio.run(app, host="0.0.0.0", port=5000)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
