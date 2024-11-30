@@ -11,12 +11,10 @@ unique_email = f"user-{time.time()}@test.com"
 def pause(seconds=2):
     time.sleep(seconds)
 
-def test_register(driver, setup_app):
-    driver.get("http://127.0.0.1:5173/register")
+def test_register(driver):
+    driver.get("https://quizlytime.onrender.com/register")
     wait = WebDriverWait(driver, 10)
-    userame_elem = wait.until(EC.presence_of_element_located((By.ID, "formUsername")))
-    userame_elem.send_keys("testUser")
-    # driver.find_element(By.ID, "formUsername").send_keys("testUser")
+    driver.find_element(By.ID, "formUsername").send_keys("testUser")
     driver.find_element(By.ID, "formEmail").send_keys(unique_email)
     driver.find_element(By.ID, "formPassword").send_keys("password")
     pause(2)
@@ -32,8 +30,8 @@ def test_register(driver, setup_app):
         assert False, "Request not found"
 
 
-def test_login(driver, setup_app):
-    driver.get("http://127.0.0.1:5173/login")
+def test_login(driver):
+    driver.get("https://quizlytime.onrender.com/login")
     driver.find_element(By.ID, "formEmail").send_keys(unique_email)
     driver.find_element(By.ID, "formPassword").send_keys("password")
     pause(2)
