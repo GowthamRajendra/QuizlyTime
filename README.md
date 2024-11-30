@@ -1,38 +1,74 @@
 # QuizlyTime - Online Quiz App
-## Hosted on render.com
+
+## Live App Hosted on render.com
 https://quizlytime.onrender.com/quiz
 
 ## Page Speed Insights
 https://pagespeed.web.dev/analysis/https-quizlytime-onrender-com/6ctswqeanh?form_factor=mobile
 
+## How to set up cloud database (MongoDB Atlas)
+1. Register/Login for a Mongo account
+2. Create a cluster with a name of your choice (free tier offers one cluster for free)
+3. Click connect, select 'Drivers' and choose the correct Python version to get your URI
+4. After copying the URI, go to the "Clusters" tab on the left side of the page
+5. Go to "Browse Collections" to inspect the collections that will be created once the app is ran
+  
 ## How to setup with Docker
 1. Pull the main branch
-2. create a .env file in the root directory of the project and do the following:
-    - create a DB_URI env variable with a URI to your mongodb collection
-    - create a JWT_SECRET env variable with a string. This will be used to generate JWTs so create a secure secret (You could use a uuid creation library).
+2. create a `.env` file in the root directory of the project and do the following:
+    - create a `DB_URI` env variable with a URI to your mongodb collection
+    - create a `JWT_SECRET` env variable with a string. This will be used to generate JWTs so create a secure secret (You could use a uuid creation library).
 3. Download and open Docker Desktop, if you don't already have it.
-4. In your terminal of choice while in the root directory of the project run the following commands:
-    - docker-compose build
-    - docker-compose up
-5. The frontend and backend should be up and running. The frontend will be accessible on http://localhost:5173
+4. In your terminal of choice while in the root directory of the project run the following commands:<br>
+```
+docker-compose build
+```
+```
+docker-compose up
+```
+6. The frontend and backend should be up and running. The frontend will be accessible on http://localhost:5173
 
 ## How to setup without Docker
 1. Pull the main branch
-2. create a .env file in the root directory of the project and do the following:
-    - create a DB_URI env variable with a URI to your mongodb collection
-    - create a JWT_SECRET env variable with a string. This will be used to generate JWTs so create a secure secret (You could use a uuid creation library).
+2. create a `.env` file in the root directory of the project and do the following:
+    - create a `DB_URI` env variable with a URI to your mongodb collection
+    - create a `JWT_SECRET` env variable with a string. This will be used to generate JWTs so create a secure secret (You could use a uuid creation library).
 3. cd into the root directory of the project
 4. Create a python virtual environment in the root directory of the project by running the following:
-    - python -m venv .venv
+```
+python -m venv .venv
+```
 5. Activate the venv
-    - (On windows): .venv\Scripts\Activate
-6. pip install -r requirements.txt
-7. cd views
-8. npm i (You will need to install node.js to do this if you don't already have it)
-9. npm run dev
+    - (On windows):
+        ```
+        .venv\Scripts\Activate
+        ```
+    - (Linux/Mac):
+        ```
+        source venv/bin/activate
+        ```
+6. Run this command to install the requirements
+```    
+pip install -r requirements.txt
+```
+7. Navigate to the frontend directory
+```
+cd views
+```
+8. Install node packages (You will need to install node.js to do this if you don't already have it)
+```
+npm i 
+```
+9. Start the front end
+```
+npm run dev
+```
 10. Open a second terminal
 11. cd into the root directory of the project (where app.py is)
-12. python app.py
+12. Run the server with this command 
+```
+python app.py
+```
 13. Both the frontend and backend should now be running. The frontend will be accessible on http://localhost:5173
 
 ## UML Diagram
