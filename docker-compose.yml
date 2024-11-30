@@ -1,0 +1,33 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./controllers:/app/controllers
+      - ./models:/app/models
+      - ./services:/app/services
+      - ./app.py:/app/app.py
+      - ./socket_manager.py:/app/socket_manager.py
+      - ./requirements.txt:/app/requirements.txt
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - DB_URI=${DB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+  
+  frontend:
+    build:
+      context: ./views
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./views:/app
+      - node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+volumes: # needed to avoid missing module error
+  node_modules: {}
