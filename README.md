@@ -3,7 +3,7 @@
 https://quizlytime.onrender.com/quiz
 
 ## Page Speed Insights
-https://pagespeed.web.dev/analysis/https-quizlytime-onrender-com/d7n2l3nz6s?form_factor=desktop
+https://pagespeed.web.dev/analysis/https-quizlytime-onrender-com/6ctswqeanh?form_factor=mobile
 
 ## How to setup with Docker
 1. Pull the main branch
