@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch() # exception thrown if not done before other imports
+
 from flask import Flask
 from mongoengine import connect
 from dotenv import load_dotenv
@@ -31,7 +34,8 @@ def create_app():
     app.register_blueprint(custom_quiz_bp)
 
     # connect to the database
-    connect('QuizAppDB', host=app.config['MONGO_URI'], uuidRepresentation="standard")
+    with app.app_context():
+        connect('QuizAppDB', host=app.config['MONGO_URI'], uuidRepresentation="standard")
 
     # initialize socketio
     # change cors_allowed_origins later
