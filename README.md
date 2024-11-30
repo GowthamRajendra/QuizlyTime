@@ -1,4 +1,7 @@
 # QuizlyTime - Online Quiz App
+## Hosted on render.com
+https://quizlytime.onrender.com/quiz
+
 ## How to setup with Docker
 1. Pull the main branch
 2. create a .env file in the root directory of the project and do the following:
