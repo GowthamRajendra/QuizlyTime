@@ -1,3 +1,4 @@
 from flask_socketio import SocketIO
 
-socketio = SocketIO()
+# gevent needed for sockets to work on gunincorn
+socketio = SocketIO(async_mode='gevent')

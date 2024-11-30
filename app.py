@@ -1,24 +1,24 @@
+import os
+
+# only patch in production, pytests wont work when patched
+if os.environ.get('ENV') == 'production':
+    from gevent import monkey
+    monkey.patch_all()
+
 from flask import Flask
 from mongoengine import connect
 from dotenv import load_dotenv
-# from flask_socketio import SocketIO, emit
 from socket_manager import socketio
-
-import os
 
 # load environment variables from the .env file
 load_dotenv()
-
-DATABASE_URI = os.getenv('DB_URI')
-
-# socketio = SocketIO()
 
 def create_app():
     app = Flask(__name__)
 
     # set up config
-    app.config["JWT_SECRET"] = os.environ.get("JWT_SECRET")
-    app.config['MONGO_URI'] = DATABASE_URI
+    app.config["JWT_SECRET"] = os.getenv("JWT_SECRET")
+    app.config['MONGO_URI'] = os.getenv('DB_URI')
 
     # import blueprints
     from controllers.user_controller import users_bp    
@@ -45,8 +45,13 @@ def create_app():
 
     return app
 
-# create the app here so gunincorn can find it
 app = create_app()
 
 if __name__ == '__main__':
-    socketio.run(app, host="0.0.0.0", port=5000)
+    debug = True
+    if os.environ.get('ENV') == 'production':
+        debug = False
+
+    port = os.getenv('PORT', 5000)
+
+    socketio.run(app, host="0.0.0.0", port=port , debug=debug)

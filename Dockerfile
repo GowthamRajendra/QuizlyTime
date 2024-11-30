@@ -27,4 +27,5 @@ EXPOSE 5000
 WORKDIR /app
 
 # Run the backend on a gunicorn server port 5000. evenlet needed for socketio
-CMD ["gunicorn", "-w", "1", "-k", "eventlet", "-b", "0.0.0.0:5000", "app:app"]
+# gevent needed for gunicorn to work with flask-socketio
+CMD ["gunicorn", "-w", "1", "-k", "geventwebsocket.gunicorn.workers.GeventWebSocketWorker", "-b", "0.0.0.0:5000", "app:app"]

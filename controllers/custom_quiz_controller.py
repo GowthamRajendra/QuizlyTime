@@ -1,6 +1,7 @@
 from flask import request, Blueprint, jsonify, make_response
 
 from datetime import datetime 
+import os
 
 # import models
 from models.user_model import User
@@ -15,7 +16,7 @@ custom_quiz_bp = Blueprint('custom_quiz_bp', __name__)
 
 @custom_quiz_bp.after_request
 def cors_header(response):
-    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
+    response.headers['Access-Control-Allow-Origin'] = os.getenv("FRONT_END_URL", 'http://localhost:5173')
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')

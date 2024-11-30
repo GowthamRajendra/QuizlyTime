@@ -1,7 +1,7 @@
 from flask import request, Blueprint, jsonify, make_response
 import requests
 from flask_socketio import emit
-
+import os
 from datetime import datetime 
 
 # import models
@@ -51,7 +51,7 @@ category_dict = {
 # CORS headers, needed for jwt to work
 @quiz_bp.after_request
 def cors_header(response):
-    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
+    response.headers['Access-Control-Allow-Origin'] = os.getenv("FRONT_END_URL", 'http://localhost:5173')
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     return response
