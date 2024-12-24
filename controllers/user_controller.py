@@ -4,7 +4,7 @@ import os
 from services.auth_service import create_jwt, access_token_required, refresh_token_required, hash_password, verify_password
 
 from models.user_model import User
-from services.user_service import register_user, RegisterUserResult
+from services.user_service import register_user, RegisterUserResult, login_user, LoginUserResult, refresh_tokens, get_user_history, get_user_creations
 
 users_bp = Blueprint('users_bp', __name__)
 
@@ -46,32 +46,31 @@ def login():
     email = data.get('email')
     password = data.get('password')
 
-    if not email or not password:
-        return {"message": "Incorrect email or password."}, 401
+    result, data = login_user(email=email, password=password)
 
-    user = User.objects(email=email).first()
-
-    # no user with that email
-    if not user:
-        return {"message": "Incorrect email or password."}, 401
-
-    if verify_password(password, user.password):
-        access_token, refresh_token = create_jwt(user)
-    
-        response_data = {
-            "message": "Login successful.", 
-            "email": user.email, 
-            "username": user.username, 
+    match result:
+        # on successful login, return the user's email and username 
+        # and set the access and refresh tokens as httpOnly cookies
+        case LoginUserResult.SUCCESS:
+            response_data = {
+                "message": "Login successful.",
+                "email": data.get('email'),
+                "username": data.get('username')
             }
-        response = make_response(jsonify(response_data), 200)
+            response = make_response(jsonify(response_data), 200)
 
-        # set the tokens as httponly cookies guards against XSS attacks
-        response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=900;')
-        response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=1209600;')
-        
-        return response
-    else:
-        return {"message": "Incorrect email or password."}, 401
+            access_token = data.get('access_token')
+            refresh_token = data.get('refresh_token')
+
+            # set the tokens as httponly cookies guards against XSS attacks
+            response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=900;')
+            response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=1209600;')
+            
+            return response
+        case LoginUserResult.MISSING_FIELDS:
+            return {"message": "Email and Password are required."}, 400
+        case LoginUserResult.INCORRECT_EMAIL_OR_PASSWORD:
+            return {"message": "Incorrect email or password."}, 401
     
 # Refresh access token if user is still logged in and the refresh token is still valid.
 # Requested if the user did not log out the last time they visited the site.
@@ -79,30 +78,29 @@ def login():
 @users_bp.route("/auth/refresh", methods=["GET"])
 @refresh_token_required
 def refresh(user_data):
-    # user_data from the refresh_token_required decorator
-    user = User.objects(email=user_data.get('email')).first()
-
-    # issue new access token if their refresh token is still valid
-    access_token, refresh_token = create_jwt(user)
+    # user's email and refresh token expiration time
+    email = user_data.get('email')
+    ref_exp = user_data.get('exp')
+    
+    data = refresh_tokens(email, ref_exp)
 
     response_data = {
             "message": "Refresh successful.", 
-            "email": user.email, 
-            "username": user.username, 
+            "email": data.get('email'), 
+            "username": data.get('username') 
             }
+    
     response = make_response(jsonify(response_data), 200)
 
-    # if refresh token is close to expiring, issue a new one
-    exp_datetime = datetime.fromtimestamp(user_data.get('exp'), tz=timezone.utc)
-    current_datetime = datetime.now(timezone.utc)
+    access_token = data.get('access_token')
+    refresh_token = data.get('refresh_token')
 
-    time_remaining = exp_datetime - current_datetime
-
-    if time_remaining < timedelta(days=1):
+    if refresh_token:
         response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=1209600;')
 
     # set the tokens as httponly cookies guards against XSS attacks
     response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=900;')
+
 
     return response
 
@@ -140,16 +138,18 @@ def format_quizzes(quizzes):
 @users_bp.route("/profile/history", methods=["GET"])
 @access_token_required
 def get_history(user_data):
-    user = User.objects(pk=user_data['sub']).first()
-    quizzes = user.completed_quizzes
+    id = user_data['sub']
 
-    return make_response(jsonify(format_quizzes(quizzes)), 200)
+    history = get_user_history(id)
+
+    return make_response(jsonify(format_quizzes(history)), 200)
 
 # get quizzes that this user has created
 @users_bp.route("/profile/creations", methods=["GET"])
 @access_token_required
 def get_creations(user_data):
-    user = User.objects(pk=user_data['sub']).first()
-    quizzes = user.created_quizzes
+    id = user_data['sub']
+    
+    creations = get_user_creations(id)
 
-    return make_response(jsonify(format_quizzes(quizzes)), 200)
+    return make_response(jsonify(format_quizzes(creations)), 200)

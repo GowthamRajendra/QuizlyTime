@@ -166,8 +166,8 @@ def test_login_user_missing_data(client):
         json=data
         )
     
-    assert response.status_code == 401
-    assert response.json["message"] == "Incorrect email or password."
+    assert response.status_code == 400
+    assert response.json["message"] == "Email and Password are required."
 
 def test_login_user_not_existing(client):
     data = {
