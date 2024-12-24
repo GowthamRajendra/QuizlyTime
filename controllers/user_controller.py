@@ -33,11 +33,11 @@ def register():
         case RegisterUserResult.EMAIL_EXISTS:
             return {"message": "Email already registered."}, 403
         case RegisterUserResult.USERNAME_TOO_LONG:
-            return {"message": "Username must be 20 characters or less."}, 401
+            return {"message": "Username must be less than 20 characters long."}, 401
         case RegisterUserResult.PASSWORD_TOO_SHORT:
-            return {"message": "Password must be at least 8 characters."}, 401
+            return {"message": "Password must be at least 8 characters long."}, 401
         case RegisterUserResult.PASSWORD_TOO_LONG:
-            return {"message": "Password must be 70 characters or less."}, 401
+            return {"message": "Password must be less than 70 characters long."}, 401
 
 
 @users_bp.route("/login", methods=["POST"])
