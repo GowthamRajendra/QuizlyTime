@@ -20,10 +20,3 @@ jobs:
           PYTHONPATH: .
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: pytest tests/integration
-      
-      # Extra steps to debug ModuleNotFoundError
-      - name: List Files
-        run: ls -R
-
-      - name: Show Python Path
-        run: python -c "import sys; print(sys.path)"
