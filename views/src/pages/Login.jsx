@@ -100,7 +100,7 @@ function Login() {
                     <Form.Check type="checkbox" label="Keep me logged in"/>
                 </Form.Group>
                 
-                <Button variant="primary" type="submit">Login</Button>
+                <Button id="loginButton" variant="primary" type="submit">Login</Button>
                 <hr />
                 <Form.Text>Don't have an account? <Link to="/register">Sign Up</Link></Form.Text>
             </Form>
