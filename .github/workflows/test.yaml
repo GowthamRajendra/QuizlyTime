@@ -6,13 +6,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Install dependencies
         run: pip install -r requirements.txt
+
       - name: Run tests
         env:
+          PYTHONPATH: .
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: pytest tests/integration
+      
+      # Extra steps to debug ModuleNotFoundError
+      - name: List Files
+        run: ls -R
+
+      - name: Show Python Path
+        run: python -c "import sys; print(sys.path)"
