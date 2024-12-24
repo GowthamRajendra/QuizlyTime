@@ -9,7 +9,7 @@ from models.quiz_model import Quiz
 from models.question_model import Question
 
 # import service functions
-from services.auth_service import access_token_required
+from services.auth_service import token_required
 from services.quiz_service import store_questions, create_quiz_questions
 
 custom_quiz_bp = Blueprint('custom_quiz_bp', __name__)
@@ -24,7 +24,7 @@ def cors_header(response):
     return response
 
 @custom_quiz_bp.route("/save-custom-quiz", methods=["POST"])
-@access_token_required 
+@token_required("access") 
 def save_custom_quiz(user_data):
     questions = request.json.get('questions', [])
     title = request.json.get('title', "")
@@ -48,7 +48,7 @@ def save_custom_quiz(user_data):
     return make_response(jsonify(quiz_questions), 200)
 
 @custom_quiz_bp.route("/get-custom-quizzes", methods=["GET"])
-@access_token_required
+@token_required("access")
 def get_custom_quizzes(user_data):
     quizzes = Quiz.objects(user_created=True)
 
@@ -71,7 +71,7 @@ def get_custom_quizzes(user_data):
     return make_response(jsonify(response_data), 200)
 
 @custom_quiz_bp.route("/delete-custom-quiz", methods=["DELETE"])
-@access_token_required
+@token_required("access")
 def delete_custom_quiz(user_data):    
     quiz_id = request.json.get('quiz_id', "")
 
@@ -87,7 +87,7 @@ def delete_custom_quiz(user_data):
     
 # put request to update quiz title and questions
 @custom_quiz_bp.route("/edit-custom-quiz", methods=["PUT"])
-@access_token_required
+@token_required("access")
 def edit_custom_quiz(user_data):
     quiz_id = request.json.get('quiz_id', "")
     title = request.json.get('title', "")
@@ -117,7 +117,7 @@ def edit_custom_quiz(user_data):
 
 # put request to update quiz title and send back questions
 @custom_quiz_bp.route("/edit-custom-quiz-title", methods=["PUT"])
-@access_token_required
+@token_required("access")
 def edit_custom_quiz_title(user_data):
     quiz_id = request.json.get('quiz_id', "")
     title = request.json.get('title', "")
@@ -147,7 +147,7 @@ def edit_custom_quiz_title(user_data):
     return make_response(jsonify({"questions": new_questions}), 200)
 
 @custom_quiz_bp.route("/begin-quiz", methods=["POST"])
-@access_token_required
+@token_required("access")
 def begin_quiz(user_data):
     quiz_id = request.json.get('quiz_id', "")
 

@@ -1,9 +1,7 @@
 from flask import request, Blueprint, make_response, jsonify
-from datetime import datetime, timedelta, timezone
 import os
-from services.auth_service import create_jwt, access_token_required, refresh_token_required, hash_password, verify_password
+from services.auth_service import token_required
 
-from models.user_model import User
 from services.user_service import register_user, RegisterUserResult, login_user, LoginUserResult, refresh_tokens, get_user_history, get_user_creations
 
 users_bp = Blueprint('users_bp', __name__)
@@ -76,7 +74,7 @@ def login():
 # Requested if the user did not log out the last time they visited the site.
 # Requested if the user is currently using the site and the access token expires.
 @users_bp.route("/auth/refresh", methods=["GET"])
-@refresh_token_required
+@token_required("refresh")
 def refresh(user_data):
     # user's email and refresh token expiration time
     email = user_data.get('email')
@@ -105,7 +103,7 @@ def refresh(user_data):
     return response
 
 @users_bp.route("/logout", methods=["POST"])
-@access_token_required
+@token_required("access")
 def logout(_):
     response = make_response({"message": "Logout successful."}, 200)
 
@@ -136,7 +134,7 @@ def format_quizzes(quizzes):
 
 # get previously played quizzes for profile page
 @users_bp.route("/profile/history", methods=["GET"])
-@access_token_required
+@token_required("access")
 def get_history(user_data):
     id = user_data['sub']
 
@@ -146,7 +144,7 @@ def get_history(user_data):
 
 # get quizzes that this user has created
 @users_bp.route("/profile/creations", methods=["GET"])
-@access_token_required
+@token_required("access")
 def get_creations(user_data):
     id = user_data['sub']
     

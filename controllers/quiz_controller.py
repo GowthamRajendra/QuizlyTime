@@ -11,7 +11,7 @@ from models.question_model import Question
 from models.quiz_model import AnsweredQuestion
 
 # import service functions
-from services.auth_service import access_token_required
+from services.auth_service import token_required
 from services.quiz_service import store_questions, create_quiz_questions
 
 from socket_manager import socketio 
@@ -58,7 +58,7 @@ def cors_header(response):
 
 # get quiz questions from the API
 @quiz_bp.route("/quiz", methods=["POST"])
-@access_token_required 
+@token_required("access") 
 def create_random_quiz(user_data):
     amount = request.json.get('amount', 10)
     type = request.json.get('type', "")
