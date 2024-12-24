@@ -4,6 +4,7 @@ import os
 from services.auth_service import create_jwt, access_token_required, refresh_token_required, hash_password, verify_password
 
 from models.user_model import User
+from services.user_service import register_user, RegisterUserResult
 
 users_bp = Blueprint('users_bp', __name__)
 
@@ -22,28 +23,21 @@ def register():
     email = data.get('email')
     password = data.get('password')
 
-    if not username or not email or not password:
-        return {"message": "Username, email and password are required."}, 401
-    
-    # email must be unique
-    if User.objects(email=email).first():
-        return {"message": "Email already registered."}, 401
-    
-    if len(username) > 20:
-        return {"message": "Username must be less than 20 characters long."}, 401
-    
-    if len(password) < 8:
-        return {"message": "Password must be at least 8 characters long."}, 401
-    
-    # bcrypt only supports inputs up to 72 bytes long
-    # so limit to 70 to be safe.
-    if len(password) > 70:
-        return {"message": "Password must be less than 70 characters long."}, 401
+    result = register_user(username=username, email=email, password=password)
 
-    new_user = User(username=username, email=email, password=hash_password(password))
-    new_user.save()
-
-    return {"message": "User created successfully."}, 201
+    match result:
+        case RegisterUserResult.SUCCESS:
+            return {"message": "User created successfully."}, 201
+        case RegisterUserResult.MISSING_FIELDS:
+            return {"message": "Username, Email and Password are required."}, 400
+        case RegisterUserResult.EMAIL_EXISTS:
+            return {"message": "Email already registered."}, 403
+        case RegisterUserResult.USERNAME_TOO_LONG:
+            return {"message": "Username must be 20 characters or less."}, 401
+        case RegisterUserResult.PASSWORD_TOO_SHORT:
+            return {"message": "Password must be at least 8 characters."}, 401
+        case RegisterUserResult.PASSWORD_TOO_LONG:
+            return {"message": "Password must be 70 characters or less."}, 401
 
 
 @users_bp.route("/login", methods=["POST"])
