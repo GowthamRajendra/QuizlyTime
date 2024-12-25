@@ -49,9 +49,9 @@ app = create_app()
 
 if __name__ == '__main__':
     debug = True
-    if os.environ.get('ENV') == 'production':
+    if os.environ.get('FLASK_ENV') == 'production':
         debug = False
 
     port = os.getenv('PORT', 5000)
 
-    socketio.run(app, host="0.0.0.0", port=port , debug=debug)
+    socketio.run(app, host="0.0.0.0", port=int(port) , debug=debug)

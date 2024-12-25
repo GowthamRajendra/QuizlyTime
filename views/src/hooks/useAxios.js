@@ -23,18 +23,18 @@ const useAxios = () => {
                 // only try to refresh if the access token is missing/invalid/expired and the request has not already been retried.
                 // log the user out if the refresh token is missing/invalid/expired.
                 if (error?.response?.status === 401 && !prevRequest._retry) {
-                    if (error.response.data.message === 'Access token is expired.' ||
-                        error.response.data.message === 'Access token is missing.' ||
-                        error.response.data.message === 'Access token is invalid.'
+                    if (error.response.data.message === 'access token is expired.' ||
+                        error.response.data.message === 'access token is missing.' ||
+                        error.response.data.message === 'access token is invalid.'
                     ) {
                         prevRequest._retry = true
                         console.log(`Request failed because ${error.response.data.message}. Attempting refresh...`)
                         setAuth(await refresh())
                         return axios(prevRequest)
                     }
-                    else if (error.response.data.message === 'Refresh token is expired.' ||
-                        error.response.data.message === 'Refresh token is missing.' ||
-                        error.response.data.message === 'Refresh token is invalid.'
+                    else if (error.response.data.message === 'refresh token is expired.' ||
+                        error.response.data.message === 'refresh token is missing.' ||
+                        error.response.data.message === 'refresh token is invalid.'
                     ) {
                         console.log(`${error.response.data.message} Logging out...`)
                         setAuth(null)
