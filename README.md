@@ -1,8 +1,35 @@
-# QuizlyTime - Online Quiz App
+# QuizlyTime - Online Quiz App using React and Flask
 
 ## Live App Hosted on render.com
 https://quizlytime.onrender.com/quiz
 The backend will slow down with inactivity so give it 20-30 seconds to boot up again when you first use the website.
+
+## Creators: 
+- [Gowtham Rajendra](https://github.com/GowthamRajendra)
+- [Ravi Pogaku](https://github.com/Ravi-Pogaku)
+
+## Table of Contents
+- [How to setup with Docker](#how-to-setup-with-docker)
+- [How to setup without Docker](#how-to-setup-without-docker)
+- [Website Demos](#registerlogin)
+
+## Register/Login
+![Login/Signup](demo-gifs/register-login.gif)<br>
+[Back to Top](#quizlytime---online-quiz-app-using-react-and-flask)
+
+## Play Quiz
+![Play Quiz](demo-gifs/random-quiz.gif)<br>
+
+## User Created Quizzes
+![User Created Quizzes](demo-gifs/user-created-quizzes.gif)<br>
+
+## Create Quiz
+![Create Quiz](demo-gifs/create-quiz.gif)<br>
+
+## Profile
+![Profile](demo-gifs/profile-page.gif)<br>
+
+
 
 ## Page Speed Insights
 https://pagespeed.web.dev/analysis/https-quizlytime-onrender-com/6ctswqeanh?form_factor=mobile
