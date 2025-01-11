@@ -28,8 +28,8 @@ def test_register_user_missing_data(client):
         json=data
         )
     
-    assert response.status_code == 401
-    assert response.json["message"] == "Username, email and password are required."
+    assert response.status_code == 400
+    assert response.json["message"] == "Username, Email and Password are required."
 
 def test_register_user_existing_email(client):
     data = {
@@ -51,7 +51,7 @@ def test_register_user_existing_email(client):
         json=data
         )
     
-    assert response.status_code == 401
+    assert response.status_code == 403
     assert response.json["message"] == "Email already registered."
 
 def test_register_user_long_username(client):
@@ -166,8 +166,8 @@ def test_login_user_missing_data(client):
         json=data
         )
     
-    assert response.status_code == 401
-    assert response.json["message"] == "Incorrect email or password."
+    assert response.status_code == 400
+    assert response.json["message"] == "Email and Password are required."
 
 def test_login_user_not_existing(client):
     data = {
