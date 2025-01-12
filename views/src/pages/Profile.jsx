@@ -229,8 +229,8 @@ function Profile() {
                     onSelect={(k) => setActiveTab(k)}
                     className="w-100"
                 >
-                    <Tab eventKey={"History"} title="History">
-                        <Row className="w-100">
+                    <Tab eventKey={"History"} title="History" className="justify-content-center">
+                        <Row className="w-100 m-0 p-0">
                             <Col>
                                 <h2 className="my-3">Quizzes Played</h2>
                                 <ListGroup>
@@ -244,7 +244,7 @@ function Profile() {
                                         />
                                     ))}
                                 </ListGroup>
-                                <Pagination>
+                                <Pagination className="mt-2" hidden={history.length <= 5}>
                                     <Pagination.Prev 
                                         disabled={indexOfFirstHistory === 0}
                                         onClick={() => {
@@ -268,7 +268,7 @@ function Profile() {
                         </Row>
                     </Tab>
                     <Tab eventKey={"Your Creations"} title="Your Creations">
-                        <Row className="w-100">
+                        <Row className="w-100 m-0 p-0">
                             <Col>
                                 <h2 className="my-3">Created Quizzes</h2>
                                 <ListGroup>
@@ -296,7 +296,7 @@ function Profile() {
                                         </Row>
                                     ))}
                                 </ListGroup>
-                                <Pagination>
+                                <Pagination hidden={creations.length <= 5}>
                                     <Pagination.Prev 
                                         disabled={indexOfFirstCreation === 0}
                                         onClick={() => {

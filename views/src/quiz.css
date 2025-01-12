@@ -3,6 +3,6 @@
     transition: transform 0.2s;
   }
   
-  .clickable-card:hover {
-    transform: scale(1.05); /* Adjust the scale value as needed */
-  }
+.clickable-card:hover {
+  transform: scale(1.05);
+}

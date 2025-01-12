@@ -33,8 +33,8 @@ export default function CreateQuizSetup() {
     }
 
     return  (
-        <Card className='d-flex flex-row justify-content-center w-50 shadow-sm mt-3'>
-            <Form className='pt-3 pb-3 w-75' onSubmit={handleContinue}>
+        <Card className='d-flex flex-row justify-content-center w-75 shadow-sm mt-3'>
+            <Form className='p-3 w-100' onSubmit={handleContinue}>
                 <Form.Group className='mb-3' controlId='title'>
                     <Form.Label>Choose a title for your quiz</Form.Label>
                     <Form.Control type="text" placeholder='My Quiz' required maxLength={37}/>

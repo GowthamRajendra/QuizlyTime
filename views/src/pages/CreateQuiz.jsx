@@ -151,7 +151,7 @@ export default function CreateQuiz() {
         // if no questions, redirect to setup page
         (questions.length === 0) 
         ? <Navigate to='/quiz/create/setup' /> 
-        : <Card className='d-flex flex-column justify-content-center w-50 shadow-sm mt-3'>
+        : <Card className='d-flex flex-column justify-content-center w-75 shadow-sm mt-3'>
             <Card.Header className='mb-1'> 
                 <Row className='d-flex flex-row justify-content-between'>
                     <Col className='d-flex flex-row justify-content-start align-items-center'>
