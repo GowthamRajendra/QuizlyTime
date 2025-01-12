@@ -17,7 +17,7 @@ function QuizComplete() {
         // if no score, redirect to quiz setup (because something went wrong)
         (score === null)
         ? <Navigate to='/quiz/setup' replace />
-        : <Card className="d-flex flex-row w-50 shadow-sm mt-3 bg-dark">
+        : <Card className="d-flex flex-row w-75 shadow-sm mt-3">
             <Container>
                 <Row className="d-flex flex-row m-3">
                     <Col className="text-center">

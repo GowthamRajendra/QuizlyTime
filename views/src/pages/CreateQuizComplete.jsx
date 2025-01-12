@@ -15,7 +15,7 @@ export default function CreateQuizComplete() {
             // if there is no questions array, redirect to setup
             (questions.length === 0)
             ? <Navigate to='/quiz/create/setup' replace />
-            : <Card className="d-flex flex-row w-50 shadow-sm mt-3 bg-dark">
+            : <Card className="d-flex flex-row w-75 shadow-sm mt-3">
                 <Container>
                     <Row className="d-flex flex-row m-3">
                         <Col className="text-center">

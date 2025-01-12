@@ -9,8 +9,8 @@ function MyNavbar() {
     const { logout } = useLogout()
 
     return (
-        <Navbar className='ms-3'>
-            <Link to='/' className='navbar-brand' key={0}>Home</Link>
+        <Navbar className='mb-4' style={{backgroundColor: '#000000'}}>
+            <Link to='/' className='navbar-brand mx-3' key={0}>Quizly Time</Link>
             <Nav>
                 {
                     !auth   
