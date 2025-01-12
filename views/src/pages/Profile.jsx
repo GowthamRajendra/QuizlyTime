@@ -7,6 +7,8 @@ import useAxios from "../hooks/useAxios";
 import QuizTab from "../components/QuizTab";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
+import ListGroup from "react-bootstrap/ListGroup";
+import Pagination from "react-bootstrap/Pagination";
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -26,9 +28,13 @@ function Profile() {
 
     // Quizzes played history
     const [ history, setHistory ] = useState([]);
+    const [indexOfLastHistory, setIndexOfLastHistory] = useState(0);
+    const [indexOfFirstHistory, setIndexOfFirstHistory] = useState(0);
 
     // Quizzes created by this user
     const [ creations, setCreations ] = useState([]);
+    const [indexOfLastCreation, setIndexOfLastCreation] = useState(0);
+    const [indexOfFirstCreation, setIndexOfFirstCreation] = useState(0);
 
     // Player stats
     const [ gamesPlayed, setGamesPlayed ] = useState(0);
@@ -62,7 +68,8 @@ function Profile() {
                 if (response.data.quizzes.length !== 0) {
                     setAvgScore(Math.round(100*totalScore / response.data.quizzes.length));
                 }
-                
+                setIndexOfFirstHistory(0);
+                setIndexOfLastHistory(5);
             } catch (error) {
                 console.error(error);
             }
@@ -73,6 +80,9 @@ function Profile() {
                 const response = await axios.get('/profile/creations');
                 console.log(`Retrieved: ${JSON.stringify(response.data)}`);
                 setCreations(response.data.quizzes.reverse());
+
+                setIndexOfFirstCreation(0);
+                setIndexOfLastCreation(5);
             } catch (error) {
                 console.error(error);
             }
@@ -222,53 +232,90 @@ function Profile() {
                     <Tab eventKey={"History"} title="History">
                         <Row className="w-100">
                             <Col>
-                                <h2 className="mx-5 mt-3">Quizzes Played</h2>
-                                <ul>
-                                    {history.map((quiz, index) => (
-                                        <li key={index} className="mb-1 w-75">
-                                            <QuizTab
-                                                title={quiz.title}
-                                                score={quiz.score}
-                                                total_questions={quiz.total_questions}
-                                                timestamp={quiz.timestamp}
-                                            />
-                                        </li>
+                                <h2 className="my-3">Quizzes Played</h2>
+                                <ListGroup>
+                                    {history.slice(indexOfFirstHistory, indexOfLastHistory).map((quiz, index) => (
+                                        <QuizTab
+                                            key={index}
+                                            title={quiz.title}
+                                            score={quiz.score}
+                                            total_questions={quiz.total_questions}
+                                            timestamp={quiz.timestamp}
+                                        />
                                     ))}
-                                </ul>
+                                </ListGroup>
+                                <Pagination>
+                                    <Pagination.Prev 
+                                        disabled={indexOfFirstHistory === 0}
+                                        onClick={() => {
+                                            if (indexOfFirstHistory > 0) {
+                                                setIndexOfFirstHistory(indexOfFirstHistory - 5);
+                                                setIndexOfLastHistory(indexOfLastHistory - 5);
+                                            }
+                                        }} 
+                                    />
+                                    <Pagination.Next 
+                                        disabled={indexOfLastHistory >= history.length}
+                                        onClick={() => {
+                                            if (indexOfLastHistory < history.length) {
+                                                setIndexOfFirstHistory(indexOfFirstHistory + 5);
+                                                setIndexOfLastHistory(indexOfLastHistory + 5);
+                                            }
+                                        }} 
+                                    />
+                                </Pagination>
                             </Col>
                         </Row>
                     </Tab>
                     <Tab eventKey={"Your Creations"} title="Your Creations">
                         <Row className="w-100">
                             <Col>
-                                <h2 className="mx-5 mt-3">Created Quizzes</h2>
-                                <ul>
-                                    {creations.map((quiz, index) => (
-                                        <li key={index} className="mb-1 w-75">
-                                            <Row>
-                                                <Col>
-                                                    <div style={{ position: 'relative' }}>
-                                                        <QuizTab
-                                                            title={quiz.title}
-                                                            total_questions={quiz.total_questions}
-                                                            timestamp={quiz.timestamp}
-                                                        />
-                                                        <div style={{ position: 'absolute', top: '15px', right: '70px', zIndex: 10 }}>
-                                                            <Button variant="dark" onClick={() => {handleShow(); setIndex(index); setNewTitle(quiz.title)}}>
-                                                                <i className="bi bi-pencil-square h3"></i>
-                                                            </Button>
-                                                        </div>
-                                                        <div style={{ position: 'absolute', top: '15px', right: '10px', zIndex: 10 }}>
-                                                            <Button variant="dark" onClick={() => deleteQuiz(index)}>
-                                                                <i className="bi bi-trash h3"></i>
-                                                            </Button>
-                                                        </div>
+                                <h2 className="my-3">Created Quizzes</h2>
+                                <ListGroup>
+                                    {creations.slice(indexOfFirstCreation, indexOfLastCreation).map((quiz, index) => (
+                                        <Row key={index}>
+                                            <Col>
+                                                <div style={{ position: 'relative' }}>
+                                                    <QuizTab
+                                                        title={quiz.title}
+                                                        total_questions={quiz.total_questions}
+                                                        timestamp={quiz.timestamp}
+                                                    />
+                                                    <div style={{ position: 'absolute', top: '15px', right: '70px', zIndex: 10 }}>
+                                                        <Button variant="dark" onClick={() => {handleShow(); setIndex(index); setNewTitle(quiz.title)}}>
+                                                            <i className="bi bi-pencil-square h3"></i>
+                                                        </Button>
                                                     </div>
-                                                </Col>
-                                            </Row>
-                                        </li>
+                                                    <div style={{ position: 'absolute', top: '15px', right: '10px', zIndex: 10 }}>
+                                                        <Button variant="dark" onClick={() => deleteQuiz(index)}>
+                                                            <i className="bi bi-trash h3"></i>
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </Col>
+                                        </Row>
                                     ))}
-                                </ul>
+                                </ListGroup>
+                                <Pagination>
+                                    <Pagination.Prev 
+                                        disabled={indexOfFirstCreation === 0}
+                                        onClick={() => {
+                                            if (indexOfFirstCreation > 0) {
+                                                setIndexOfFirstCreation(indexOfFirstCreation - 5);
+                                                setIndexOfLastCreation(indexOfLastCreation - 5);
+                                            }
+                                        }} 
+                                    />
+                                    <Pagination.Next 
+                                        disabled={indexOfLastCreation >= creations.length}
+                                        onClick={() => {
+                                            if (indexOfLastCreation < creations.length) {
+                                                setIndexOfFirstCreation(indexOfFirstCreation + 5);
+                                                setIndexOfLastCreation(indexOfLastCreation + 5);
+                                            }
+                                        }} 
+                                    />
+                                </Pagination>
                             </Col>
                         </Row>
                     </Tab>
