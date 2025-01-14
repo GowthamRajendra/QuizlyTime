@@ -11,6 +11,7 @@ from models.question_model import Question
 # import service functions
 from services.auth_service import token_required
 from services.quiz_service import store_questions, create_quiz_questions
+from services.custom_quiz_service import store_custom_quiz, get_stored_custom_quizzes, delete_stored_custom_quiz, edit_stored_custom_quiz, edit_stored_custom_quiz_title, begin_stored_quiz
 
 custom_quiz_bp = Blueprint('custom_quiz_bp', __name__)
 
@@ -32,15 +33,8 @@ def save_custom_quiz(user_data):
     # store questions in the database (can use same function as random quiz)
     questions = store_questions(questions)
 
-    # create quiz
-    quiz = Quiz(title=title, score=0, timestamp=datetime.now(), total_questions=len(questions), questions=questions, user_created=True)
-    quiz.save()
-
-    # add quiz to user's created_quizzes
-    user = User.objects(pk=user_data['sub']).first()
-    user.created_quizzes.append(quiz)
-    user.active_quiz = quiz
-    user.save()
+    # save custom quiz to database and link it to the user
+    store_custom_quiz(title, questions, user_data)
 
     # create quiz questions (same function as random quiz)
     quiz_questions = create_quiz_questions(questions)
@@ -50,23 +44,8 @@ def save_custom_quiz(user_data):
 @custom_quiz_bp.route("/get-custom-quizzes", methods=["GET"])
 @token_required("access")
 def get_custom_quizzes(user_data):
-    quizzes = Quiz.objects(user_created=True)
-
-    print(quizzes)
-
-    results = [
-        {
-            "id": str(quiz.id),
-            "title": quiz.title,
-            "timestamp": quiz.timestamp,
-            "total_questions": quiz.total_questions,
-            "questions": create_quiz_questions(quiz.questions)
-        } for quiz in quizzes
-    ]
-
-    response_data = {
-        "quizzes": results
-    }
+    
+    response_data = get_stored_custom_quizzes()
 
     return make_response(jsonify(response_data), 200)
 
@@ -75,13 +54,7 @@ def get_custom_quizzes(user_data):
 def delete_custom_quiz(user_data):    
     quiz_id = request.json.get('quiz_id', "")
 
-    user = User.objects(pk=user_data['sub']).first()
-    quiz = Quiz.objects(pk=quiz_id).first()
-
-    user.created_quizzes.remove(quiz)
-    user.save()
-
-    quiz.delete()
+    delete_stored_custom_quiz(quiz_id, user_data)    
 
     return make_response(jsonify({"message": "Quiz deleted"}), 200)
     
@@ -92,27 +65,11 @@ def edit_custom_quiz(user_data):
     quiz_id = request.json.get('quiz_id', "")
     title = request.json.get('title', "")
 
-    quiz = Quiz.objects(pk=quiz_id).first()
-    quiz.title = title
-
     new_questions = request.json.get('questions', [])
+    
+    quiz_questions = edit_stored_custom_quiz(quiz_id, title, new_questions)
 
-    for question in new_questions:
-        question_id = question.get('id', "")
-
-        question_old = Question.objects(pk=question_id).first()
-
-        question_old.prompt = question.get('question', "")
-        question_old.category = question.get('category', "")
-        question_old.difficulty = question.get('difficulty', "")
-        question_old.type = question.get('type', "")
-        question_old.correct_answer = question.get('correct_answer', "")
-        question_old.incorrect_answers = question.get('incorrect_answers', [])
-        question_old.save()
-
-    quiz.save()
-
-    return make_response(jsonify({"questions": create_quiz_questions(quiz.questions)}), 200)
+    return make_response(jsonify({"questions": quiz_questions}), 200)
 
 
 # put request to update quiz title and send back questions
@@ -122,28 +79,8 @@ def edit_custom_quiz_title(user_data):
     quiz_id = request.json.get('quiz_id', "")
     title = request.json.get('title', "")
 
-    quiz = Quiz.objects(pk=quiz_id).first()
-    quiz.title = title
-    quiz.save()
-
-    new_questions = []
-
-    for question in quiz.questions:
-        question_id = str(question.id)
-
-        question_old = Question.objects(pk=question_id).first()
-
-        new_questions.append({
-            "question_id": question_id,
-            "prompt": question_old.prompt,
-            "category": question_old.category,
-            "difficulty": question_old.difficulty,
-            "type": question_old.type,
-            "correct_answer": question_old.correct_answer,
-            "incorrect_answers": question_old.incorrect_answers
-        })
+    new_questions = edit_stored_custom_quiz_title(quiz_id, title)
     
-
     return make_response(jsonify({"questions": new_questions}), 200)
 
 @custom_quiz_bp.route("/begin-quiz", methods=["POST"])
@@ -151,10 +88,6 @@ def edit_custom_quiz_title(user_data):
 def begin_quiz(user_data):
     quiz_id = request.json.get('quiz_id', "")
 
-    # setting user's active quiz
-    quiz = Quiz.objects(pk=quiz_id).first()
-    user = User.objects(pk=user_data['sub']).first()
-    user.active_quiz = quiz
-    user.save()
+    begin_stored_quiz(quiz_id, user_data)
 
     return make_response(jsonify({"message": "Quiz started"}), 200)
