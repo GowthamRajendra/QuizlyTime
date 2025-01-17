@@ -9,6 +9,7 @@ import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
 import ListGroup from "react-bootstrap/ListGroup";
 import Pagination from "react-bootstrap/Pagination";
+import Loading from "../components/Loading";
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -47,6 +48,8 @@ function Profile() {
     // modal
     const [show, setShow] = useState(false);
 
+    const [loading, setLoading] = useState(true);
+
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
@@ -54,7 +57,9 @@ function Profile() {
     useEffect(() => {
         const getHistory = async () => {
             try {
+                setLoading(true);
                 const response = await axios.get('/profile/history');
+                setLoading(false);
                 console.log(`Retrieved: ${JSON.stringify(response.data)}`);
                 setHistory(response.data.quizzes.reverse());
                 
@@ -71,19 +76,23 @@ function Profile() {
                 setIndexOfFirstHistory(0);
                 setIndexOfLastHistory(5);
             } catch (error) {
+                setLoading(false);
                 console.error(error);
             }
         }
 
         const getCreations = async () => {
             try {
+                setLoading(true);
                 const response = await axios.get('/profile/creations');
+                setLoading(false);
                 console.log(`Retrieved: ${JSON.stringify(response.data)}`);
                 setCreations(response.data.quizzes.reverse());
 
                 setIndexOfFirstCreation(0);
                 setIndexOfLastCreation(5);
             } catch (error) {
+                setLoading(false);
                 console.error(error);
             }
         }
@@ -159,6 +168,10 @@ function Profile() {
         } catch (error) {
             console.error(error);
         }
+    }
+
+    if (loading) {
+        return <Loading />
     }
 
     return (

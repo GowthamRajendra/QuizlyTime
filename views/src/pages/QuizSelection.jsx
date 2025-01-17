@@ -1,14 +1,12 @@
-import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
 import Pagination from "react-bootstrap/Pagination";
 import ListGroup from "react-bootstrap/ListGroup";
+import Loading from "../components/Loading";
 
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom'
 
 import useAxios from "../hooks/useAxios";
-import useAuth from "../hooks/useAuth";
 
 import QuizTab from "../components/QuizTab";
 
@@ -22,17 +20,21 @@ export default function QuizSelection (){
     const [ indexOfFirstQuiz, setIndexOfFirstQuiz ] = useState(0);
     const [ indexOfLastQuiz, setIndexOfLastQuiz ] = useState(5);
 
+    const [ loading, setLoading ] = useState(true);
+
 
     useEffect(() => {
         const getCustomQuizzes = async () => {
             try {
                 const response = await axios.get('/get-custom-quizzes');
+                setLoading(false);
                 // console.log(`Retrieved: ${JSON.stringify(response.data)}`);
                 setQuizzes(response.data.quizzes.reverse());
 
                 setIndexOfFirstQuiz(0);
                 setIndexOfLastQuiz(5);
             } catch (error) {
+                setLoading(false);
                 console.error(error);
             }
         }
@@ -46,12 +48,18 @@ export default function QuizSelection (){
 
     const playQuiz = async (index) => {
         try {
+            setLoading(true);
             const response = await axios.post('/begin-quiz', {quiz_id: quizzes[index].id});
             console.log(`Retrieved: ${JSON.stringify(response.data)}`);
             navigate('/quiz/play', {state: {questions: quizzes[index].questions}});
         } catch (error) {
+            setLoading(false);
             console.error(error);
         }
+    }
+
+    if (loading) {
+        return <Loading />
     }
 
     return (

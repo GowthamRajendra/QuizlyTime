@@ -8,6 +8,7 @@ html, body {
 
 html[data-bs-theme="dark"] {
   --bs-body-bg: #000000;
+  --bs-body-font-family: 'Lato';
 }
 
 body {

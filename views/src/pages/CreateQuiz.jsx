@@ -3,6 +3,7 @@ import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Loading from '../components/Loading';
 
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, Navigate } from 'react-router-dom'
@@ -37,6 +38,8 @@ export default function CreateQuiz() {
     const [currentDifficulty, setCurrentDifficulty] = useState('easy')
     const [currentCategory, setCurrentCategory] = useState('9')
     const [currentTrueFalse, setCurrentTrueFalse] = useState('True')
+
+    const [loading, setLoading] = useState(false)
     
     const handleNext = (e) => {
         e.preventDefault()
@@ -90,27 +93,33 @@ export default function CreateQuiz() {
 
     const saveNewCustomQuiz = async (questionsFormatted) => {
         try {
+            setLoading(true)
             const response = await axios.post('/save-custom-quiz', {
                 title: quizDetails.title,
                 questions: questionsFormatted
             })
+            setLoading(false)
             console.log(response.data)
             navigate('/quiz/create/complete', {state: {questions: response.data}})
         } catch (error) {
+            setLoading(false)
             console.error(error)
         }
     }
 
     const saveEdittedCustomQuiz = async (questionsFormatted) => {
         try {
+            setLoading(true)
             const response = await axios.put(`/edit-custom-quiz`, {
                 title: quizDetails.title,
                 questions: questionsFormatted,
                 quiz_id: quizDetails.quiz_id
             })
+            setLoading(false)
             console.log(response.data)
             navigate('/quiz/create/complete', {state: {questions: response.data}})
         } catch (error) {
+            setLoading(false)
             console.error(error)
         }
     }
@@ -146,6 +155,10 @@ export default function CreateQuiz() {
         setCurrentTrueFalse(questions[questionIndex].answer)
 
     }, [questionIndex, questions, isSubmited])
+
+    if (loading) {
+        return <Loading />
+    }
 
     return (
         // if no questions, redirect to setup page

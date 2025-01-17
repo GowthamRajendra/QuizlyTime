@@ -2,6 +2,7 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import Alert from 'react-bootstrap/Alert'
+import Loading from '../components/Loading'
 
 import { useState } from 'react'
 import useAxios from '../hooks/useAxios'
@@ -19,6 +20,8 @@ function Register() {
     const [message, setMessage] = useState('') // e.g. "Email already in use"
     const [variant, setVariant] = useState('') // e.g. "danger"
 
+    const [loading, setLoading] = useState(false)
+
     const axios = useAxios()
 
     const { auth } = useAuth()
@@ -27,10 +30,12 @@ function Register() {
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
+            setLoading(true)
             const response = await axios.post(
                 '/register',
                 {"email": email, "username": username, "password": password},
             )
+            setLoading(false)
 
             console.log(JSON.stringify(response?.data))
             setEmail('')
@@ -39,6 +44,7 @@ function Register() {
 
             navigate('/login', {state: {message: 'Registration successful. Please login.', variant: 'success'}})
         } catch (err) {
+            setLoading(false)
             if (!err?.response) {
                 console.error("No response")
                 setMessage('Network error. Try again later.')
@@ -55,6 +61,10 @@ function Register() {
                 setVariant('danger')
             }
         }
+    }
+
+    if (loading) {
+        return <Loading />  
     }
 
     return (

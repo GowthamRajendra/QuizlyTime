@@ -7,6 +7,7 @@ import useAxios from '../hooks/useAxios'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
 import { Link } from 'react-router-dom'
+import Loading from '../components/Loading'
 
 function Login() {
     // user inputs
@@ -24,20 +25,31 @@ function Login() {
     const [message, setMessage] = useState(location.state?.message ?? '') // e.g. "Invalid email or password"
     const [variant, setVariant] = useState(location.state?.variant ?? '') // e.g. "danger"
 
+    // for displaying loading spinner when submitting form
+    const [loading, setLoading] = useState(false)
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
+
+            setLoading(true)
+
             const response = await axios.post(
                 '/login',
                 {"email": email, "password": password},
             )
+
+            setLoading(false)
             
 
             console.log(JSON.stringify(response?.data))
             const email2 = response?.data?.email
             const username = response?.data?.username
-
+            
+            // set auth state for auth provider
             setAuth({email: email2, username: username})
+
+            // reset local form variables
             setEmail('')
             setPassword('')
             
@@ -46,6 +58,7 @@ function Login() {
             console.log(`Navigating to ${to}`)
             navigate(to, {replace: true})
         } catch (err) {
+            setLoading(false)
             if (!err?.response) {
                 console.error("No error response")
                 setMessage('Network error. Try again later.')
@@ -62,6 +75,10 @@ function Login() {
                 setVariant('danger')
             }
         }
+    }
+
+    if (loading) {
+        return <Loading />
     }
 
     return (
