@@ -94,6 +94,7 @@ export default function QuizSelection (){
                                         title={quiz.title}
                                         total_questions={quiz.total_questions}
                                         timestamp={quiz.timestamp}
+                                        animOrder={index % 5}
                                     />
                             </div>
                         ))}

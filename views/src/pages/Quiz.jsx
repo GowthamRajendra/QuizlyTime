@@ -18,7 +18,9 @@ export default function Quiz() {
 
     // Get questions from setup page
     const location = useLocation()
-    const questions = location.state.questions ?? []
+    const questions = location.state?.questions ?? []
+
+    console.log("QUIZ QUESTIONS: ", questions);
 
     // server connection
     const [socket, setSocket] = useState(null)
@@ -35,7 +37,7 @@ export default function Quiz() {
     const [correct, setCorrect] = useState(null)
 
     // Timer for question
-    const [timer, setTimer] = useState(currQuestion.timer)
+    const [timer, setTimer] = useState(currQuestion?.timer ?? 0)
     const [maxTime, setMaxTime] = useState(timer)
 
     const navigate = useNavigate()
@@ -190,7 +192,7 @@ export default function Quiz() {
         (questions.length === 0)
         ? <Navigate to='/quiz/setup' replace />
           // Question card, with prompt and choices.
-        : <Card className='d-flex flex-row justify-content-center col-11 col-lg-8 shadow-sm'>
+        : <Card className='d-flex flex-row justify-content-center col-11 col-lg-8'>
             <Container>
                 <Row className='d-flex flex-row justify-content-end align-items-center mx-3 mt-3'>
                     <Col xs="auto">Time: {timer > 0 ? timer : 0}s</Col>

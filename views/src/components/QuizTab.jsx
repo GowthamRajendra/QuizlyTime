@@ -5,9 +5,9 @@ import Col from 'react-bootstrap/Col';
 // Display a quiz tab with the title, score, total questions, and timestamp
 // Used in profile page to display play history
 // Used in play page to display user created quizzes
-function QuizTab({title, score=null, total_questions, timestamp}) {
+function QuizTab({title, score=null, total_questions, timestamp, animOrder}) {
     return (
-        <Card>
+        <Card className='fade-in' style={{"--animation-order": animOrder}}>
             <Card.Body>
                 <Row className="align-items-center justify-content-between">
                     <Col className='col-12 text-center col-sm-4 text-sm-start'>

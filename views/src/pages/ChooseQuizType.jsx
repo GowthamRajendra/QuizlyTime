@@ -12,8 +12,8 @@ export default function ChooseQuizType() {
 
     return (
         <Container className="d-flex justify-content-center align-items-start">
-            <Row className='w-100'>
-                <Col className="d-flex justify-content-center col-12 col-lg-6">
+            <Row className='col-12 col-lg-6'>
+                <Col className="d-flex justify-content-center col-12 col-lg-6 fade-in">
                     <Card className="text-center clickable-card col-12" onClick={() => navigate('/quiz/setup')}>
                         <Card.Body>
                             <i className="bi bi-dice-5-fill" style={{fontSize:"7.5em"}}></i>
@@ -21,7 +21,7 @@ export default function ChooseQuizType() {
                         </Card.Body>
                     </Card>
                 </Col>
-                <Col className="d-flex justify-content-center col-12 col-lg-6">
+                <Col className="d-flex justify-content-center col-12 col-lg-6 fade-in">
                     <Card className="text-center clickable-card col-12" onClick={() => navigate('/quiz/select')}>
                         <Card.Body>
                             <i className="bi bi-archive-fill" style={{fontSize:"7.5em"}}></i>

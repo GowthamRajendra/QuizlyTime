@@ -241,8 +241,10 @@ function Profile() {
                     className="w-100"
                     justify={true}
                 >
+                    {/* History Tab */}
                     <Tab eventKey={"History"} title="History" className="justify-content-center">
                         <Row className="w-100 m-0 p-0">
+                            {/* Structure: Title, pagination, content, pagination */}
                             <Col className="d-flex flex-column align-items-center">
                                 <h2 className="my-3">Quizzes Played</h2>
                                 <Pagination className="mt-2" hidden={history.length <= 5}>
@@ -263,7 +265,7 @@ function Profile() {
                                                 setIndexOfLastHistory(indexOfLastHistory + 5);
                                             }
                                         }} 
-                                    />
+                                    />  
                                 </Pagination>
                                 <ListGroup className="w-100">
                                     {history.slice(indexOfFirstHistory, indexOfLastHistory).map((quiz, index) => (
@@ -273,6 +275,7 @@ function Profile() {
                                             score={quiz.score}
                                             total_questions={quiz.total_questions}
                                             timestamp={quiz.timestamp}
+                                            animOrder={index % 5}
                                         />
                                     ))}
                                 </ListGroup>
@@ -299,9 +302,10 @@ function Profile() {
                             </Col>
                         </Row>
                     </Tab>
-                    {/* Creations */}
+                    {/* Creations Tab */}
                     <Tab eventKey={"Your Creations"} title="Your Creations">
                         <Row className="w-100 m-0 p-0">
+                            {/* Structure: Title, pagination, content, pagination */}
                             <Col className="d-flex flex-column align-items-center">
                                 <h2 className="my-3">Created Quizzes</h2>
                                 <Pagination hidden={creations.length <= 5}>
@@ -333,6 +337,7 @@ function Profile() {
                                                         title={quiz.title}
                                                         total_questions={quiz.total_questions}
                                                         timestamp={quiz.timestamp}
+                                                        animOrder={index % 5}
                                                     />
                                                     <div style={{ position: 'absolute', top: '15px', right: '70px', zIndex: 10 }}>
                                                         <Button variant="dark" onClick={() => {handleShow(); setIndex(index); setNewTitle(quiz.title)}}>

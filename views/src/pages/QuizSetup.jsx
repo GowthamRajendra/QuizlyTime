@@ -93,8 +93,8 @@ export default function QuizSetup() {
                 <Form.Group className='mb-3' controlId='category'>
                     <Form.Label>Choose the category</Form.Label>
                     <Form.Select>
-                        {categories.map((category) => {
-                            return <option value={category[0]}>{category[1]}</option>
+                        {categories.map(([value, label]) => {
+                            return <option key={label} value={value}>{label}</option>
                         })}
                     </Form.Select>
                 </Form.Group>

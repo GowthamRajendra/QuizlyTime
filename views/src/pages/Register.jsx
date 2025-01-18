@@ -79,17 +79,32 @@ function Register() {
                 }
                 <Form.Group className='mb-3' controlId='formEmail'>
                     <Form.Label>Email address</Form.Label>
-                    <Form.Control type="email" placeholder='abc@email.com' onChange={(e) => setEmail(e.target.value)} value={email}/>
+                    <Form.Control 
+                        type="email" 
+                        placeholder='abc@email.com, use a fake email!' 
+                        onChange={(e) => setEmail(e.target.value)} 
+                        value={email}
+                    />
                 </Form.Group>
 
                 <Form.Group className='mb-3' controlId='formUsername'>
                     <Form.Label>Username</Form.Label>
-                    <Form.Control type="username" placeholder='Username' onChange={(e) => setUsername(e.target.value)} value={username}/>
+                    <Form.Control 
+                        type="username" 
+                        placeholder='Username' 
+                        onChange={(e) => setUsername(e.target.value)} 
+                        value={username}
+                    />
                 </Form.Group>
 
                 <Form.Group className='mb-3' controlId='formPassword'>
                     <Form.Label>Password</Form.Label>
-                    <Form.Control type="password" placeholder='Password' onChange={(e) => setPassword(e.target.value)} value={password}/>
+                    <Form.Control 
+                        type="password" 
+                        placeholder='Password' 
+                        onChange={(e) => setPassword(e.target.value)} 
+                        value={password}
+                    />
                 </Form.Group>
                 
                 <Button id="registerButton" variant="primary" type="submit">Register</Button>
