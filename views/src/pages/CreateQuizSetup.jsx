@@ -33,7 +33,7 @@ export default function CreateQuizSetup() {
     }
 
     return  (
-        <Card className='d-flex flex-row justify-content-center col-11 col-lg-4 shadow-sm mt-3'>
+        <Card className='d-flex flex-row justify-content-center col-11 col-lg-4 shadow-sm mt-3 slide-down'>
             <Form className='p-3 w-100' onSubmit={handleContinue}>
                 <Form.Group className='mb-3' controlId='title'>
                     <Form.Label>Choose a title for your quiz</Form.Label>

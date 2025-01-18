@@ -330,14 +330,13 @@ function Profile() {
                                 </Pagination>
                                 <ListGroup className="w-100">
                                     {creations.slice(indexOfFirstCreation, indexOfLastCreation).map((quiz, index) => (
-                                        <Row key={index}>
+                                        <Row key={index} className="fade-in" style={{"--animation-order": index % 5}}>
                                             <Col>
                                                 <div style={{ position: 'relative' }}>
                                                     <QuizTab
                                                         title={quiz.title}
                                                         total_questions={quiz.total_questions}
                                                         timestamp={quiz.timestamp}
-                                                        animOrder={index % 5}
                                                     />
                                                     <div style={{ position: 'absolute', top: '15px', right: '70px', zIndex: 10 }}>
                                                         <Button variant="dark" onClick={() => {handleShow(); setIndex(index); setNewTitle(quiz.title)}}>

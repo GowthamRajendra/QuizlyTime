@@ -6,7 +6,7 @@ import Col from 'react-bootstrap/Col';
 import ProgressBar from 'react-bootstrap/ProgressBar'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate, Navigate } from 'react-router-dom'
+import { useLocation, useNavigate, Navigate, replace } from 'react-router-dom'
 import useAuth from '../hooks/useAuth';
 
 import io from 'socket.io-client'
@@ -74,7 +74,7 @@ export default function Quiz() {
             // to show result of final question
             setTimeout(() => {
                 console.log('navigating to results', score);
-                navigate('/quiz/results', {state: {score: score, total: questions.length*10}})
+                navigate('/quiz/results', {replace: true, state: {score: score, total: questions.length*10}})
             }, 2000)
         });
 
@@ -192,7 +192,7 @@ export default function Quiz() {
         (questions.length === 0)
         ? <Navigate to='/quiz/setup' replace />
           // Question card, with prompt and choices.
-        : <Card className='d-flex flex-row justify-content-center col-11 col-lg-8'>
+        : <Card className='d-flex flex-row justify-content-center col-11 col-lg-8 slide-down'>
             <Container>
                 <Row className='d-flex flex-row justify-content-end align-items-center mx-3 mt-3'>
                     <Col xs="auto">Time: {timer > 0 ? timer : 0}s</Col>
