@@ -210,7 +210,7 @@ function Profile() {
         <div className="w-100 d-flex flex-column align-items-center" style={{ maxWidth: '1200px', margin: '0 auto' }}>
             {/* Profile header */}
             <Row className="w-100 d-flex align-items-center">
-                <Col xs="auto" className="d-flex align-items-center">
+                <Col className="d-flex justify-content-center align-items-center col-12 col-sm-6 gap-3">
                     <div
                         className="d-flex justify-content-center align-items-center bg-primary text-white rounded-circle"
                         style={{
@@ -222,11 +222,9 @@ function Profile() {
                     >
                         <h1>{initial}</h1>
                     </div>
-                </Col>
-                <Col className="d-flex align-items-center">
                     <h1 className="m-0">{auth.username}</h1>
                 </Col>
-                <Col className="d-flex justify-content-start">
+                <Col className="d-flex justify-content-center col-12 col-sm-6">
                     <div>
                         <h3>Games played: {gamesPlayed}</h3>
                         <h3>Avg score: {avgScore}%</h3>
@@ -241,12 +239,33 @@ function Profile() {
                     activeKey={activeTab}
                     onSelect={(k) => setActiveTab(k)}
                     className="w-100"
+                    justify={true}
                 >
                     <Tab eventKey={"History"} title="History" className="justify-content-center">
                         <Row className="w-100 m-0 p-0">
-                            <Col>
+                            <Col className="d-flex flex-column align-items-center">
                                 <h2 className="my-3">Quizzes Played</h2>
-                                <ListGroup>
+                                <Pagination className="mt-2" hidden={history.length <= 5}>
+                                    <Pagination.Prev 
+                                        disabled={indexOfFirstHistory === 0}
+                                        onClick={() => {
+                                            if (indexOfFirstHistory > 0) {
+                                                setIndexOfFirstHistory(indexOfFirstHistory - 5);
+                                                setIndexOfLastHistory(indexOfLastHistory - 5);
+                                            }
+                                        }} 
+                                    />
+                                    <Pagination.Next 
+                                        disabled={indexOfLastHistory >= history.length}
+                                        onClick={() => {
+                                            if (indexOfLastHistory < history.length) {
+                                                setIndexOfFirstHistory(indexOfFirstHistory + 5);
+                                                setIndexOfLastHistory(indexOfLastHistory + 5);
+                                            }
+                                        }} 
+                                    />
+                                </Pagination>
+                                <ListGroup className="w-100">
                                     {history.slice(indexOfFirstHistory, indexOfLastHistory).map((quiz, index) => (
                                         <QuizTab
                                             key={index}
@@ -280,11 +299,32 @@ function Profile() {
                             </Col>
                         </Row>
                     </Tab>
+                    {/* Creations */}
                     <Tab eventKey={"Your Creations"} title="Your Creations">
                         <Row className="w-100 m-0 p-0">
-                            <Col>
+                            <Col className="d-flex flex-column align-items-center">
                                 <h2 className="my-3">Created Quizzes</h2>
-                                <ListGroup>
+                                <Pagination hidden={creations.length <= 5}>
+                                    <Pagination.Prev 
+                                        disabled={indexOfFirstCreation === 0}
+                                        onClick={() => {
+                                            if (indexOfFirstCreation > 0) {
+                                                setIndexOfFirstCreation(indexOfFirstCreation - 5);
+                                                setIndexOfLastCreation(indexOfLastCreation - 5);
+                                            }
+                                        }} 
+                                    />
+                                    <Pagination.Next 
+                                        disabled={indexOfLastCreation >= creations.length}
+                                        onClick={() => {
+                                            if (indexOfLastCreation < creations.length) {
+                                                setIndexOfFirstCreation(indexOfFirstCreation + 5);
+                                                setIndexOfLastCreation(indexOfLastCreation + 5);
+                                            }
+                                        }} 
+                                    />
+                                </Pagination>
+                                <ListGroup className="w-100">
                                     {creations.slice(indexOfFirstCreation, indexOfLastCreation).map((quiz, index) => (
                                         <Row key={index}>
                                             <Col>

@@ -164,7 +164,7 @@ export default function CreateQuiz() {
         // if no questions, redirect to setup page
         (questions.length === 0) 
         ? <Navigate to='/quiz/create/setup' /> 
-        : <Card className='d-flex flex-column justify-content-center w-75 shadow-sm mt-3'>
+        : <Card className='d-flex flex-column justify-content-center col-11 col-lg-8'>
             <Card.Header className='mb-1'> 
                 <Row className='d-flex flex-row justify-content-between'>
                     <Col className='d-flex flex-row justify-content-start align-items-center'>
@@ -176,15 +176,17 @@ export default function CreateQuiz() {
                     </Col>
                 </Row>
             </Card.Header>
-            <Card.Body style={{marginLeft: '1rem', marginRight: '1rem'}}>
+            <Card.Body>
                 <Form onSubmit={handleNext} id='question-form'>
+                    {/* Question Row */}    
                     <Form.Group className='mb-3' controlId='prompt'>
                         <Form.Label>Enter Question</Form.Label>
                         <Form.Control type="text" placeholder='What is 1+1?' required defaultValue={currQuestion.prompt}/>
                     </Form.Group>
-
+                    
+                    {/* Category Row */}
                     <Row className='d-flex flex-row justify-content-between'>
-                        <Col>
+                        <Col className='col-12 col-md-6'>
                             <Form.Group className="mb-3">
                                 <Form.Label>Choose or Create a Category</Form.Label>
                                 <br />
@@ -208,7 +210,7 @@ export default function CreateQuiz() {
                                 />
                             </Form.Group>
                         </Col>
-                        <Col>
+                        <Col className='col-12 col-md-6'>
                         {isCategorySelect ? 
                             <Form.Group className='mb-3' controlId='category'>
                                 <Form.Label>Choose Category</Form.Label>
@@ -250,6 +252,7 @@ export default function CreateQuiz() {
                         </Col>
                     </Row>
                     
+                    {/* Difficulty Row */}
                     <Form.Group className='mb-3' controlId='difficulty'>
                         <Form.Label>Choose The Difficulty</Form.Label>
                         <Form.Select value={currentDifficulty} onChange={(e) => setCurrentDifficulty(e.target.value)}>
@@ -259,8 +262,9 @@ export default function CreateQuiz() {
                         </Form.Select>
                     </Form.Group>
                     
+                    {/* Answer Row */}
                     <Row className='d-flex flex-row justify-content-between'>
-                        <Col>
+                        <Col className='col-12 col-md-6'>
                             <Form.Group className="mb-3">
                                 <Form.Label>Multiple Choice or True/False</Form.Label>
                                 <br />
@@ -284,7 +288,7 @@ export default function CreateQuiz() {
                                 />
                             </Form.Group>
                         </Col>  
-                        <Col>
+                        <Col className='col-12 col-md-6'>
                             {isMultiple ?
                                 <Form.Group className='mb-3' controlId='answer'>
                                     <Form.Label>Enter Correct Answer</Form.Label>
@@ -292,7 +296,7 @@ export default function CreateQuiz() {
                                 </Form.Group> 
                                 : 
                                 <Form.Group className='mb-3' controlId='answer'>
-                                        <Form.Label>Choose the Correct Answer</Form.Label>
+                                        <Form.Label>Choose the Correct Choice</Form.Label>
                                         <Form.Select value={currentTrueFalse} onChange={(e) => setCurrentTrueFalse(e.target.value)}>
                                             <option value='True'>True</option>
                                             <option value='False'>False</option>

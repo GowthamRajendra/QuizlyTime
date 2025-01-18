@@ -82,7 +82,7 @@ export default function QuizSetup() {
 
     return (
         // Form to select the number of questions, category, difficulty, and type of questions
-        <Card className='d-flex flex-row justify-content-center w-75 shadow-sm mt-3'>
+        <Card className='d-flex flex-row justify-content-center col-11 col-lg-4 shadow-sm mt-3'>
             <Form className='p-3 w-100' onSubmit={handleSubmit}>
 
                 <Form.Group className='mb-3' controlId='amount'>

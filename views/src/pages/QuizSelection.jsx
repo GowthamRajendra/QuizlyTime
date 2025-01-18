@@ -66,6 +66,26 @@ export default function QuizSelection (){
         <div className="w-100">
             <Col className="w-100 m-0 p-0 d-flex flex-column align-items-center">
                 <h2>Select Quiz To Play</h2>
+                    <Pagination className="mt-2" hidden={history.length <= 5}>
+                        <Pagination.Prev 
+                            disabled={indexOfFirstQuiz === 0}
+                            onClick={() => {
+                                if (indexOfFirstQuiz > 0) {
+                                    setIndexOfFirstQuiz(indexOfFirstQuiz - 5);
+                                    setIndexOfLastQuiz(indexOfLastQuiz - 5);
+                                }
+                            }} 
+                        />
+                        <Pagination.Next 
+                            disabled={indexOfLastQuiz >= history.length}
+                            onClick={() => {
+                                if (indexOfLastQuiz < history.length) {
+                                    setIndexOfFirstQuiz(indexOfFirstQuiz + 5);
+                                    setIndexOfLastQuiz(indexOfLastQuiz + 5);
+                                }
+                            }} 
+                        />
+                    </Pagination>
                     <ListGroup className="w-100 d-flex flex-column align-items-center">
                         {quizzes.slice(indexOfFirstQuiz, indexOfLastQuiz).map((quiz, index) => (
                             <div key={index} className="mb-1 clickable-card w-75"

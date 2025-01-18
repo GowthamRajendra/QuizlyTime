@@ -70,8 +70,8 @@ function Register() {
     return (
         auth
         ? <Navigate to='/' replace />
-        : <Card className='d-flex flex-row justify-content-center w-50 shadow-sm mt-3'>
-            <Form className='pt-3 pb-3 w-75' onSubmit={handleSubmit}>
+        : <Card className='d-flex flex-row justify-content-center col-11 col-lg-4 shadow-sm mt-3'>
+            <Form className='w-100 p-3' onSubmit={handleSubmit}>
                 {
                     (message == '')
                     ? null

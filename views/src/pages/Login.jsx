@@ -84,8 +84,8 @@ function Login() {
     return (
         auth
         ? <Navigate to={to} replace />
-        : <Card className='d-flex flex-row justify-content-center w-50 shadow-sm mt-3'>
-            <Form className='pt-3 pb-3 w-75' onSubmit={handleSubmit}>
+        : <Card className='d-flex flex-row justify-content-center col-11 col-lg-4 mt-3'>
+            <Form className='p-3 w-100' onSubmit={handleSubmit}>
                 {
                     (message == '')
                     ? null

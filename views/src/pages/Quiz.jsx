@@ -190,7 +190,7 @@ export default function Quiz() {
         (questions.length === 0)
         ? <Navigate to='/quiz/setup' replace />
           // Question card, with prompt and choices.
-        : <Card className='d-flex flex-row justify-content-center w-75 shadow-sm mt-3'>
+        : <Card className='d-flex flex-row justify-content-center col-11 col-lg-8 shadow-sm'>
             <Container>
                 <Row className='d-flex flex-row justify-content-end align-items-center mx-3 mt-3'>
                     <Col xs="auto">Time: {timer > 0 ? timer : 0}s</Col>
