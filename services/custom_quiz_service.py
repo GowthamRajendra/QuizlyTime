@@ -49,7 +49,7 @@ def delete_stored_custom_quiz(quiz_id, user_data):
 
     quiz.delete()
 
-def edit_stored_custom_quiz(quiz_id, title, new_questions):
+def edit_stored_custom_quiz(quiz_id, title, new_questions, user_data):
     quiz = Quiz.objects(pk=quiz_id).first()
     quiz.title = title
 
@@ -67,6 +67,11 @@ def edit_stored_custom_quiz(quiz_id, title, new_questions):
         question_old.save()
 
     quiz.save()
+
+    # if user wants to take quiz after editing it
+    user = User.objects(pk=user_data['sub']).first()
+    user.active_quiz = Quiz.objects(pk=quiz_id).first()
+    user.save()
 
     return create_quiz_questions(quiz.questions)
 

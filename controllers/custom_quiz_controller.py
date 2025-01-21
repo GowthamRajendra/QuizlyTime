@@ -67,9 +67,9 @@ def edit_custom_quiz(user_data):
 
     new_questions = request.json.get('questions', [])
     
-    quiz_questions = edit_stored_custom_quiz(quiz_id, title, new_questions)
+    quiz_questions = edit_stored_custom_quiz(quiz_id, title, new_questions, user_data)
 
-    return make_response(jsonify({"questions": quiz_questions}), 200)
+    return make_response(jsonify(quiz_questions), 200)
 
 
 # put request to update quiz title and send back questions
