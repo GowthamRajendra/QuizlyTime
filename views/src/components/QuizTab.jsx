@@ -5,18 +5,18 @@ import Col from 'react-bootstrap/Col';
 // Display a quiz tab with the title, score, total questions, and timestamp
 // Used in profile page to display play history
 // Used in play page to display user created quizzes
-function QuizTab({title, score=null, total_questions, timestamp}) {
+function QuizTab({title, score=null, total_questions, timestamp, animOrder}) {
     return (
-        <Card className='w-100'>
+        <Card className='fade-in' style={{"--animation-order": animOrder}}>
             <Card.Body>
                 <Row className="align-items-center justify-content-between">
-                    <Col>
+                    <Col className='col-12 text-center col-sm-4 text-sm-start'>
                         <Card.Title>{title}</Card.Title>
                         <Card.Subtitle className='text-muted'>
-                            {timestamp}
+                            {timestamp} 
                         </Card.Subtitle>
                     </Col>
-                    <Col>
+                    <Col className='col-12 text-center col-sm-4 text-sm-center'>
                         <Card.Title>
                             {total_questions} Questions
                         </Card.Title>
@@ -24,7 +24,7 @@ function QuizTab({title, score=null, total_questions, timestamp}) {
                     { // score is null for quizzes in play page
                     (score == null)
                     ? null
-                    :<Col xs="auto">
+                    : <Col className='col-12 text-center col-sm-4 text-sm-end'>
                         <Card.Title>
                             {Math.round(score / (total_questions * 10) * 100)}%
                         </Card.Title>

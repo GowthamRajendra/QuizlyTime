@@ -1,21 +1,58 @@
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
+import Loading from '../components/Loading'
 
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 
 import useAxios from '../hooks/useAxios'
 
-// Page for user to select settings for the quiz
+/*
+    The QuizSetup component is a form that allows the user to select the 
+    number of questions, the category, the difficulty, and the type of questions they want to answer.
+    The form is submitted to the server to get the questions and then the user is navigated to Quiz.jsx page.
+*/
+
+const categories = [
+    ['', "Any Category"],
+    ['9', "General Knowledge"],
+    ['10', "Books"],
+    ['11', "Film"],
+    ['12', "Music"],
+    ['13', "Musicals & Theatres"],
+    ['14', "Television"],
+    ['15', "Video Games"],
+    ['16', "Board Games"],
+    ['17', "Science & Nature"],
+    ['18', "Computers"],
+    ['19', "Mathematics"],
+    ['20', "Mythology"],
+    ['21', "Sports"],
+    ['22', "Geography"],
+    ['23', "History"],
+    ['24', "Politics"],
+    ['25', "Art"],
+    ['26', "Celebrities"],
+    ['27', "Animals"],
+    ['28', "Vehicles"],
+    ['29', "Comics"],
+    ['30', "Gadgets"],
+    ['31', "Japanese Anime & Manga"],
+    ['32', "Cartoon & Animations"]
+];
 
 export default function QuizSetup() {
     const axios = useAxios()
     const navigate = useNavigate()
 
+    const [loading, setLoading] = useState(false)
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         
         try {
+            setLoading(true)
             const response = await axios.post(
                 '/quiz', 
                 {
@@ -25,6 +62,7 @@ export default function QuizSetup() {
                     "type": e.target.type.value
                 },
             )
+            setLoading(false)
             
             console.log(response.data)
             console.log(response.data.length)    
@@ -32,14 +70,21 @@ export default function QuizSetup() {
             navigate('/quiz/play', {state: {questions: response.data}})
 
         } catch (error) {
+            setLoading(false)
             console.error(error)
         }        
 
     }
 
+    if (loading) {
+        return <Loading />
+    }
+
     return (
-        <Card className='d-flex flex-row justify-content-center w-50 shadow-sm mt-3'>
-            <Form className='pt-3 pb-3 w-75' onSubmit={handleSubmit}>
+        // Form to select the number of questions, category, difficulty, and type of questions
+        <Card className='d-flex flex-row justify-content-center col-11 col-lg-4 shadow-sm mt-3 slide-down'>
+            <Form className='p-3 w-100' onSubmit={handleSubmit}>
+
                 <Form.Group className='mb-3' controlId='amount'>
                     <Form.Label>Choose the number of questions</Form.Label>
                     <Form.Control type="number" placeholder='10' defaultValue={10} min='1' max='50' required/>
@@ -48,31 +93,9 @@ export default function QuizSetup() {
                 <Form.Group className='mb-3' controlId='category'>
                     <Form.Label>Choose the category</Form.Label>
                     <Form.Select>
-                        <option value=''>Any Category</option>
-                        <option value='9'>General Knowledge</option>
-                        <option value='10'>Books</option>
-                        <option value='11'>Film</option>
-                        <option value='12'>Music</option>
-                        <option value='13'>Musicals & Theatres</option>
-                        <option value='14'>Television</option>
-                        <option value='15'>Video Games</option>
-                        <option value='16'>Board Games</option>
-                        <option value='17'>Science & Nature</option>
-                        <option value='18'>Computers</option>
-                        <option value='19'>Mathematics</option>
-                        <option value='20'>Mythology</option>
-                        <option value='21'>Sports</option>
-                        <option value='22'>Geography</option>
-                        <option value='23'>History</option>
-                        <option value='24'>Politics</option>
-                        <option value='25'>Art</option>
-                        <option value='26'>Celebrities</option>
-                        <option value='27'>Animals</option>
-                        <option value='28'>Vehicles</option>
-                        <option value='29'>Comics</option>
-                        <option value='30'>Gadgets</option>
-                        <option value='31'>Japanese Anime & Manga</option>
-                        <option value='32'>Cartoon & Animations</option>
+                        {categories.map(([value, label]) => {
+                            return <option key={label} value={value}>{label}</option>
+                        })}
                     </Form.Select>
                 </Form.Group>
 

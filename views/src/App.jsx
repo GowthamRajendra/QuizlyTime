@@ -15,6 +15,7 @@ import QuizSelection from './pages/QuizSelection'
 import Protected from './components/Protected'
 import { Routes, Route } from 'react-router-dom'
 import useAuth from './hooks/useAuth'
+import Loading from './components/Loading'
 
 function App() {
   const { auth } = useAuth()
@@ -22,7 +23,7 @@ function App() {
   return (
     <>
       <MyNavbar />
-      <div className='d-flex justify-content-center'>
+      <div className='container d-flex justify-content-center align-items-center'>
         <Routes>
           <Route path='/' element={!auth ? <Home /> : <Profile /> } />
           <Route path='/login' element={<Login />} />

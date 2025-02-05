@@ -1,11 +1,44 @@
-# QuizlyTime - Online Quiz App
+# QuizlyTime - Online Quiz App using React and Flask
 
 ## Live App Hosted on render.com
 https://quizlytime.onrender.com/quiz
 The backend will slow down with inactivity so give it 20-30 seconds to boot up again when you first use the website.
 
+## Creators: 
+- [Gowtham Rajendra](https://github.com/GowthamRajendra)
+- [Ravi Pogaku](https://github.com/Ravi-Pogaku)
+
+## Table of Contents
+- [How to setup with Docker](#how-to-setup-with-docker)
+- [How to setup without Docker](#how-to-setup-without-docker)
+- [Website Demos](#registerlogin)
+- [Project Structure](#mvc-architecture-uml-diagram)
+
+## Register/Login
+![Login/Signup](demo-gifs/register-login.gif)<br>
+[Back to Top](#quizlytime---online-quiz-app-using-react-and-flask)
+
+## Play Quiz
+![Play Quiz](demo-gifs/random-quiz.gif)<br>
+[Back to Top](#quizlytime---online-quiz-app-using-react-and-flask)
+
+## User Created Quizzes
+![User Created Quizzes](demo-gifs/user-created-quizzes.gif)<br>
+[Back to Top](#quizlytime---online-quiz-app-using-react-and-flask)
+
+## Create Quiz
+![Create Quiz](demo-gifs/create-quiz.gif)<br>
+[Back to Top](#quizlytime---online-quiz-app-using-react-and-flask)
+
+## Profile
+![Profile](demo-gifs/profile-page.gif)<br>
+[Back to Top](#quizlytime---online-quiz-app-using-react-and-flask)
+
+
+
 ## Page Speed Insights
-https://pagespeed.web.dev/analysis/https-quizlytime-onrender-com/6ctswqeanh?form_factor=mobile
+https://pagespeed.web.dev/analysis/https-quizlytime-onrender-com/6ctswqeanh?form_factor=mobile <br>
+[Back to Top](#quizlytime---online-quiz-app-using-react-and-flask)
 
 ## How to setup with Docker
 1. Pull the main branch
@@ -21,7 +54,8 @@ docker-compose build
 ```
 docker-compose up
 ```
-5. The frontend and backend should be up and running. The frontend will be accessible on http://localhost:5173
+5. The frontend and backend should be up and running. The frontend will be accessible on http://localhost:5173 <br>
+[Back to Top](#quizlytime---online-quiz-app-using-react-and-flask)
 
 ## How to setup without Docker
 1. Pull the main branch
@@ -64,19 +98,20 @@ npm run dev
 ```
 python app.py
 ```
-13. Both the frontend and backend should now be running. The frontend will be accessible on http://localhost:5173
+13. Both the frontend and backend should now be running. The frontend will be accessible on http://localhost:5173 <br>
+[Back to Top](#quizlytime---online-quiz-app-using-react-and-flask)
 
 ## How to set up cloud database (MongoDB Atlas)
 1. Register/Login for a Mongo account
 2. Create a cluster with a name of your choice (free tier offers one cluster for free)
 3. Click connect, select 'Drivers' and choose the correct Python version to get your URI
 4. After copying the URI, go to the "Clusters" tab on the left side of the page
-5. Go to "Browse Collections" to inspect the collections that will be created once the app is ran
+5. Go to "Browse Collections" to inspect the collections that will be created once the app is ran <br>
+[Back to Top](#quizlytime---online-quiz-app-using-react-and-flask)
 
-## UML Diagram
+## MVC Architecture UML Diagram
 ![uml](https://github.com/user-attachments/assets/c555ad1f-d6ef-4581-80d8-5bddc960127d)
 
-## MVC Architecture
 - Models (./models):
     - User model: Schema for how user documents are structured.
     - Question model: Schema for how quiz question documents are structured.
@@ -103,4 +138,5 @@ python app.py
 - Services (./services):
     - auth_service: responsible for creating and validating jwts and hashing and validating passwords.
     - quiz_service: responsible for mapping retrieved questions from api into questions stored in our db.
-  
+    - user_service: responsible for all business logic of user_controller <br>
+[Back to Top](#quizlytime---online-quiz-app-using-react-and-flask)

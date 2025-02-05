@@ -3,6 +3,47 @@
     transition: transform 0.2s;
   }
   
-  .clickable-card:hover {
-    transform: scale(1.05); /* Adjust the scale value as needed */
+.clickable-card:hover {
+  transform: scale(1.05);
+}
+
+/* 
+  Fade in animation.
+  animation-order is defined for lists of elements so the fade in is staggered.
+*/
+.fade-in {
+  opacity: 0;
+  animation-name: fadeInOpacity;
+  animation-delay: calc(var(--animation-order) * 100ms);
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in-out;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fadeInOpacity {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
   }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Slide down animation for the navbar */
+.slide-down {
+  animation-name: slideDown;
+  animation-timing-function: ease-in-out;
+  animation-duration: 0.5s;
+}
+
+@keyframes slideDown {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+

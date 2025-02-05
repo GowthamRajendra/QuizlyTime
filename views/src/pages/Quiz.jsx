@@ -6,7 +6,7 @@ import Col from 'react-bootstrap/Col';
 import ProgressBar from 'react-bootstrap/ProgressBar'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate, Navigate } from 'react-router-dom'
+import { useLocation, useNavigate, Navigate, replace } from 'react-router-dom'
 import useAuth from '../hooks/useAuth';
 
 import io from 'socket.io-client'
@@ -18,7 +18,9 @@ export default function Quiz() {
 
     // Get questions from setup page
     const location = useLocation()
-    const questions = location.state.questions ?? []
+    const questions = location.state?.questions ?? []
+
+    console.log("QUIZ QUESTIONS: ", questions);
 
     // server connection
     const [socket, setSocket] = useState(null)
@@ -35,10 +37,53 @@ export default function Quiz() {
     const [correct, setCorrect] = useState(null)
 
     // Timer for question
-    const [timer, setTimer] = useState(currQuestion.timer)
+    const [timer, setTimer] = useState(currQuestion?.timer ?? 0)
     const [maxTime, setMaxTime] = useState(timer)
 
     const navigate = useNavigate()
+
+    // Set up socket connection and events
+    useEffect(() => {
+        // Connect to the server
+        const newSocket = io(import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')
+        setSocket(newSocket)
+
+        console.log(`${auth.email}, ${auth.username} connected to quiz`);
+        
+        newSocket.on('answer_checked', ({correct_answer, question_index}) => {
+            console.log('answer checked');
+            console.log(`correct: ${correct_answer}, ${question_index}`);
+            console.log(questions[question_index].choices)
+            setCorrect(questions[question_index].choices.indexOf(correct_answer))
+
+            // crude way of ensuring timer starts after questions show on screen
+            setTimeout(() => {
+                setTimer(questions[question_index].timer)
+                setMaxTime(questions[question_index].timer)
+            }, 2000)
+        })        
+        
+        // Event listener for when quiz is completed
+        // get score and navigate to results page
+        newSocket.on('quiz_completed', ({score}) => {
+            console.log(`quiz completed: ${score}`);
+            console.log(`total questions: ${questions.length}`);
+            // setTimer(-1)
+
+            // wait 2 seconds before navigating to results page
+            // to show result of final question
+            setTimeout(() => {
+                console.log('navigating to results', score);
+                navigate('/quiz/results', {replace: true, state: {score: score, total: questions.length*10}})
+            }, 2000)
+        });
+
+        // Clean up. Remove the event listener when the component is unmounted
+        return () => {
+            console.log('cleaning up');
+            newSocket.disconnect()
+        }
+    }, [])
 
     // Handle answer submission
     const handleSubmit = () => {
@@ -110,49 +155,6 @@ export default function Quiz() {
         }
     }
 
-    // Set up socket connection and events
-    useEffect(() => {
-        // Connect to the server
-        const newSocket = io(import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')
-        setSocket(newSocket)
-
-        console.log(`${auth.email}, ${auth.username} connected to quiz`);
-        
-        newSocket.on('answer_checked', ({correct_answer, question_index}) => {
-            console.log('answer checked');
-            console.log(`correct: ${correct_answer}, ${question_index}`);
-            console.log(questions[question_index].choices)
-            setCorrect(questions[question_index].choices.indexOf(correct_answer))
-
-            // crude way of ensuring timer starts after questions show on screen
-            setTimeout(() => {
-                setTimer(questions[question_index].timer)
-                setMaxTime(questions[question_index].timer)
-            }, 2000)
-        })        
-        
-        // Event listener for when quiz is completed
-        // get score and navigate to results page
-        newSocket.on('quiz_completed', ({score}) => {
-            console.log(`quiz completed: ${score}`);
-            console.log(`total questions: ${questions.length}`);
-            // setTimer(-1)
-
-            // wait 2 seconds before navigating to results page
-            // to show result of final question
-            setTimeout(() => {
-                console.log('navigating to results', score);
-                navigate('/quiz/results', {state: {score: score, total: questions.length*10}})
-            }, 2000)
-        });
-
-        // Clean up. Remove the event listener when the component is unmounted
-        return () => {
-            console.log('cleaning up');
-            newSocket.disconnect()
-        }
-    }, [])
-
     // useEffect to handle question timer
     useEffect(() => {
         const interval = setInterval(() => {
@@ -190,7 +192,7 @@ export default function Quiz() {
         (questions.length === 0)
         ? <Navigate to='/quiz/setup' replace />
           // Question card, with prompt and choices.
-        : <Card className='d-flex flex-row justify-content-center w-50 shadow-sm mt-3 bg-dark'>
+        : <Card className='d-flex flex-row justify-content-center col-11 col-lg-8 slide-down'>
             <Container>
                 <Row className='d-flex flex-row justify-content-end align-items-center mx-3 mt-3'>
                     <Col xs="auto">Time: {timer > 0 ? timer : 0}s</Col>
