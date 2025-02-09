@@ -31,7 +31,7 @@ def save_custom_quiz(user_data):
     title = request.json.get('title', "")
 
     # store questions in the database (can use same function as random quiz)
-    questions = store_questions(questions)
+    questions = store_questions(questions, True)
 
     # save custom quiz to database and link it to the user
     store_custom_quiz(title, questions, user_data)

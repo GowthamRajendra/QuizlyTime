@@ -2,6 +2,7 @@ from flask import request, Blueprint, jsonify, make_response
 import requests
 from flask_socketio import emit
 import os
+# import json
 
 # import service functions
 from services.auth_service import token_required
@@ -33,10 +34,32 @@ def create_random_quiz(user_data):
 
     response = requests.get(API_URL).json()
 
+    # with open('original.json', 'w') as f:
+    #     ques_dicts = []
+    #     for question in response.get('results'):
+    #         question_dict = {}
+    #         question_dict["question"] = question.get('question')
+    #         question_dict["correct_answer"] = question.get('correct_answer')
+    #         question_dict["incorrect_answers"] = question.get('incorrect_answers')
+    #         ques_dicts.append(question_dict)
+
+    #     json.dump(ques_dicts, f, indent=4)
+
     print(response)
 
     # store the questions in the database, and return the question objects as a list
-    questions = store_questions(response['results'])
+    questions = store_questions(response['results'], False)
+
+    # with open('reworded.json', 'w') as f:
+    #     ques_dicts = []
+    #     for question in questions:
+    #         question_dict = {}
+    #         question_dict["question"] = question.prompt
+    #         question_dict["correct_answer"] = question.correct_answer
+    #         question_dict["incorrect_answers"] = question.incorrect_answers
+    #         ques_dicts.append(question_dict)
+
+    #     json.dump(ques_dicts, f, indent=4)
     
     # create and store random quiz
     quiz_questions = store_random_quiz(questions, category, user_data, amount)

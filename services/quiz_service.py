@@ -6,6 +6,8 @@ from models.question_model import Question
 from models.quiz_model import Quiz, AnsweredQuestion
 from models.user_model import User
 
+from llm_manager import reword_question
+
 # dictionary to map category id to category name
 # needed for title of random quizzes
 category_dict = {
@@ -159,16 +161,29 @@ def create_quiz_questions(questions_list):
     return quiz_questions
 
 
-def store_questions(questions):
+def store_questions(questions, custom):
     questions_list = []
 
-    for ques in questions:
+    for i, ques in enumerate(questions):
         # unescape html entities. removes &quot;, &amp;, etc.
         ques["question"] = unescape(ques["question"])
         ques["correct_answer"] = unescape(ques["correct_answer"])
         ques["category"] = unescape(ques["category"])
         for i in range(len(ques["incorrect_answers"])):
             ques["incorrect_answers"][i] = unescape(ques["incorrect_answers"][i])
+
+        # reword if less than 5 ques or every 5th question 
+        # because LLM is very slow
+        if not custom and ques["type"] != "boolean" and (i % 5 == 0 or len(questions) <= 5):
+            reworded_question = reword_question(
+                                    ques["question"], 
+                                    ques["correct_answer"], 
+                                    ques["incorrect_answers"]
+                                )
+            if reworded_question:
+                ques["question"] = reworded_question["question"]
+                ques["correct_answer"] = reworded_question["correct_answer"]
+                ques["incorrect_answers"] = reworded_question["incorrect_answers"]
 
         question = Question(category=ques["category"], 
                     #  category_id=category_dict[ques["category"]],
