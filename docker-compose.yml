@@ -17,6 +17,7 @@ services:
       - FLASK_ENV=development
       - DB_URI=${DB_URI}
       - JWT_SECRET=${JWT_SECRET}
+      - LLM_API_KEY=${LLM_API_KEY}
   
   frontend:
     build:
