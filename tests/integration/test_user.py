@@ -239,6 +239,10 @@ def test_logout_user(client):
     assert response.status_code == 200
     assert response.json["message"] == "Login successful."
 
+    access_token = response.json.get('access_token')
+
+    client.environ_base['HTTP_AUTHORIZATION'] = f'Bearer {access_token}'
+
     response = client.post(
         "/logout"
     )

@@ -66,6 +66,9 @@ def test_get_custom_quizzes(client, mock_user_created_quizzes):
     assert response.status_code == 200
     assert response.json["message"] == "Login successful."
 
+    access_token = response.json.get('access_token')
+    client.environ_base['HTTP_AUTHORIZATION'] = f'Bearer {access_token}'
+
     quiz = {
         "title": "Test Custom Quiz 3",
         "questions": [

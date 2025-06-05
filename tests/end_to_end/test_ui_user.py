@@ -7,17 +7,18 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 unique_email = f"user-{time.time()}@test.com"
+WEBSITE_URL = "http://localhost:5173"
 
 def pause(seconds=2):
     time.sleep(seconds)
 
 def test_register(driver):
-    driver.get("https://quizlytime.onrender.com")
+    driver.get(WEBSITE_URL)
     pause(5)
     driver.find_element(By.LINK_TEXT, "Register").click()
     pause(5)
     driver.find_element(By.ID, "formUsername").send_keys("testUser")
-    driver.find_element(By.ID, "formEmail").send_keys("test@gmail.com")
+    driver.find_element(By.ID, "formEmail").send_keys(unique_email)
     driver.find_element(By.ID, "formPassword").send_keys("password")
     pause(2)
     driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
@@ -33,10 +34,10 @@ def test_register(driver):
 
 def test_login(driver):
     pause(5)
-    driver.get("https://quizlytime.onrender.com")
+    driver.get(WEBSITE_URL)
     pause(5)
     driver.find_element(By.LINK_TEXT, "Login").click()
-    driver.find_element(By.ID, "formEmail").send_keys("test@gmail.com")
+    driver.find_element(By.ID, "formEmail").send_keys(unique_email)
     driver.find_element(By.ID, "formPassword").send_keys("password")
     pause(2)
     driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
@@ -54,7 +55,7 @@ def test_login(driver):
 
 def test_logout(driver):
     pause(5)
-    driver.get("https://quizlytime.onrender.com")
+    driver.get(WEBSITE_URL)
     pause(5)
     driver.find_element(By.LINK_TEXT, "Logout").click()
     pause(2)

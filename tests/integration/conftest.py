@@ -53,12 +53,14 @@ def authenticated_client(client):
     cookies = login_response.headers.getlist("Set-Cookie")
     
     # Extract both access and refresh tokens
-    access_token_cookie = next((cookie for cookie in cookies if "access_token" in cookie), None)
+    access_token = login_response.json.get('access_token')
     refresh_token_cookie = next((cookie for cookie in cookies if "refresh_token" in cookie), None)
     
     # Assert that both cookies are set
-    assert access_token_cookie, "Access token cookie not set"
+    assert access_token, "Access token not issued"
     assert refresh_token_cookie, "Refresh token cookie not set"
+
+    client.environ_base['HTTP_AUTHORIZATION'] = f'Bearer {access_token}'
 
     return client
 
