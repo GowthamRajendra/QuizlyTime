@@ -9,7 +9,7 @@ function MyNavbar() {
     const { logout } = useLogout()
 
     return (
-        <Navbar className='mb-4' style={{backgroundColor: '#000000'}}>
+        <Navbar className='mb-4 slide-down z-1' style={{backgroundColor: '#000000'}}>
             <Link to='/' className='navbar-brand mx-3' key={0}>Quizly Time</Link>
             <Nav>
                 {

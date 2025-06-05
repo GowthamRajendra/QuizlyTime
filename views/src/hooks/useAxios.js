@@ -36,9 +36,10 @@ const useAxios = () => {
                         error.response.data.message === 'refresh token is missing.' ||
                         error.response.data.message === 'refresh token is invalid.'
                     ) {
+                        // If they don't have a valid refresh token, log them out and return to landing page.
                         console.log(`${error.response.data.message} Logging out...`)
                         setAuth(null)
-                        navigate('/login')
+                        navigate('/')
                     }
                 }
                 return Promise.reject(error)

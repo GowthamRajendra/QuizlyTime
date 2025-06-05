@@ -1,8 +1,10 @@
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
+import Loading from '../components/Loading'
 
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 
 import useAxios from '../hooks/useAxios'
 
@@ -44,10 +46,13 @@ export default function QuizSetup() {
     const axios = useAxios()
     const navigate = useNavigate()
 
+    const [loading, setLoading] = useState(false)
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         
         try {
+            setLoading(true)
             const response = await axios.post(
                 '/quiz', 
                 {
@@ -57,6 +62,7 @@ export default function QuizSetup() {
                     "type": e.target.type.value
                 },
             )
+            setLoading(false)
             
             console.log(response.data)
             console.log(response.data.length)    
@@ -64,14 +70,19 @@ export default function QuizSetup() {
             navigate('/quiz/play', {state: {questions: response.data}})
 
         } catch (error) {
+            setLoading(false)
             console.error(error)
         }        
 
     }
 
+    if (loading) {
+        return <Loading />
+    }
+
     return (
         // Form to select the number of questions, category, difficulty, and type of questions
-        <Card className='d-flex flex-row justify-content-center w-75 shadow-sm mt-3'>
+        <Card className='d-flex flex-row justify-content-center col-11 col-lg-4 shadow-sm mt-3 slide-down'>
             <Form className='p-3 w-100' onSubmit={handleSubmit}>
 
                 <Form.Group className='mb-3' controlId='amount'>
@@ -82,8 +93,8 @@ export default function QuizSetup() {
                 <Form.Group className='mb-3' controlId='category'>
                     <Form.Label>Choose the category</Form.Label>
                     <Form.Select>
-                        {categories.map((category) => {
-                            return <option value={category[0]}>{category[1]}</option>
+                        {categories.map(([value, label]) => {
+                            return <option key={label} value={value}>{label}</option>
                         })}
                     </Form.Select>
                 </Form.Group>

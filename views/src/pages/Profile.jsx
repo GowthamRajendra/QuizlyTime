@@ -9,6 +9,7 @@ import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
 import ListGroup from "react-bootstrap/ListGroup";
 import Pagination from "react-bootstrap/Pagination";
+import Loading from "../components/Loading";
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -47,6 +48,8 @@ function Profile() {
     // modal
     const [show, setShow] = useState(false);
 
+    const [loading, setLoading] = useState(true);
+
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
@@ -54,7 +57,9 @@ function Profile() {
     useEffect(() => {
         const getHistory = async () => {
             try {
+                setLoading(true);
                 const response = await axios.get('/profile/history');
+                setLoading(false);
                 console.log(`Retrieved: ${JSON.stringify(response.data)}`);
                 setHistory(response.data.quizzes.reverse());
                 
@@ -71,19 +76,23 @@ function Profile() {
                 setIndexOfFirstHistory(0);
                 setIndexOfLastHistory(5);
             } catch (error) {
+                setLoading(false);
                 console.error(error);
             }
         }
 
         const getCreations = async () => {
             try {
+                setLoading(true);
                 const response = await axios.get('/profile/creations');
+                setLoading(false);
                 console.log(`Retrieved: ${JSON.stringify(response.data)}`);
                 setCreations(response.data.quizzes.reverse());
 
                 setIndexOfFirstCreation(0);
                 setIndexOfLastCreation(5);
             } catch (error) {
+                setLoading(false);
                 console.error(error);
             }
         }
@@ -161,6 +170,10 @@ function Profile() {
         }
     }
 
+    if (loading) {
+        return <Loading />
+    }
+
     return (
 
         <>
@@ -197,7 +210,7 @@ function Profile() {
         <div className="w-100 d-flex flex-column align-items-center" style={{ maxWidth: '1200px', margin: '0 auto' }}>
             {/* Profile header */}
             <Row className="w-100 d-flex align-items-center">
-                <Col xs="auto" className="d-flex align-items-center">
+                <Col className="d-flex justify-content-center align-items-center col-12 col-sm-6 gap-3">
                     <div
                         className="d-flex justify-content-center align-items-center bg-primary text-white rounded-circle"
                         style={{
@@ -209,11 +222,9 @@ function Profile() {
                     >
                         <h1>{initial}</h1>
                     </div>
-                </Col>
-                <Col className="d-flex align-items-center">
                     <h1 className="m-0">{auth.username}</h1>
                 </Col>
-                <Col className="d-flex justify-content-start">
+                <Col className="d-flex justify-content-center col-12 col-sm-6">
                     <div>
                         <h3>Games played: {gamesPlayed}</h3>
                         <h3>Avg score: {avgScore}%</h3>
@@ -228,12 +239,35 @@ function Profile() {
                     activeKey={activeTab}
                     onSelect={(k) => setActiveTab(k)}
                     className="w-100"
+                    justify={true}
                 >
+                    {/* History Tab */}
                     <Tab eventKey={"History"} title="History" className="justify-content-center">
                         <Row className="w-100 m-0 p-0">
-                            <Col>
+                            {/* Structure: Title, pagination, content, pagination */}
+                            <Col className="d-flex flex-column align-items-center">
                                 <h2 className="my-3">Quizzes Played</h2>
-                                <ListGroup>
+                                <Pagination className="mt-2" hidden={history.length <= 5}>
+                                    <Pagination.Prev 
+                                        disabled={indexOfFirstHistory === 0}
+                                        onClick={() => {
+                                            if (indexOfFirstHistory > 0) {
+                                                setIndexOfFirstHistory(indexOfFirstHistory - 5);
+                                                setIndexOfLastHistory(indexOfLastHistory - 5);
+                                            }
+                                        }} 
+                                    />
+                                    <Pagination.Next 
+                                        disabled={indexOfLastHistory >= history.length}
+                                        onClick={() => {
+                                            if (indexOfLastHistory < history.length) {
+                                                setIndexOfFirstHistory(indexOfFirstHistory + 5);
+                                                setIndexOfLastHistory(indexOfLastHistory + 5);
+                                            }
+                                        }} 
+                                    />  
+                                </Pagination>
+                                <ListGroup className="w-100">
                                     {history.slice(indexOfFirstHistory, indexOfLastHistory).map((quiz, index) => (
                                         <QuizTab
                                             key={index}
@@ -241,6 +275,7 @@ function Profile() {
                                             score={quiz.score}
                                             total_questions={quiz.total_questions}
                                             timestamp={quiz.timestamp}
+                                            animOrder={index % 5}
                                         />
                                     ))}
                                 </ListGroup>
@@ -267,13 +302,35 @@ function Profile() {
                             </Col>
                         </Row>
                     </Tab>
+                    {/* Creations Tab */}
                     <Tab eventKey={"Your Creations"} title="Your Creations">
                         <Row className="w-100 m-0 p-0">
-                            <Col>
+                            {/* Structure: Title, pagination, content, pagination */}
+                            <Col className="d-flex flex-column align-items-center">
                                 <h2 className="my-3">Created Quizzes</h2>
-                                <ListGroup>
+                                <Pagination hidden={creations.length <= 5}>
+                                    <Pagination.Prev 
+                                        disabled={indexOfFirstCreation === 0}
+                                        onClick={() => {
+                                            if (indexOfFirstCreation > 0) {
+                                                setIndexOfFirstCreation(indexOfFirstCreation - 5);
+                                                setIndexOfLastCreation(indexOfLastCreation - 5);
+                                            }
+                                        }} 
+                                    />
+                                    <Pagination.Next 
+                                        disabled={indexOfLastCreation >= creations.length}
+                                        onClick={() => {
+                                            if (indexOfLastCreation < creations.length) {
+                                                setIndexOfFirstCreation(indexOfFirstCreation + 5);
+                                                setIndexOfLastCreation(indexOfLastCreation + 5);
+                                            }
+                                        }} 
+                                    />
+                                </Pagination>
+                                <ListGroup className="w-100">
                                     {creations.slice(indexOfFirstCreation, indexOfLastCreation).map((quiz, index) => (
-                                        <Row key={index}>
+                                        <Row key={index} className="fade-in" style={{"--animation-order": index % 5}}>
                                             <Col>
                                                 <div style={{ position: 'relative' }}>
                                                     <QuizTab
