@@ -3,6 +3,7 @@ import random
 
 from models.question_model import Question
 
+# prepare questions into format for frontend quiz game play and return them
 def create_quiz_questions(questions_list):
     quiz_questions = []
 
@@ -35,7 +36,7 @@ def create_quiz_questions(questions_list):
 
     return quiz_questions
 
-
+# transform and store questions in the db and return list of question objects
 def store_questions(questions):
     questions_list = []
 
