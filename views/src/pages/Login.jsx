@@ -46,6 +46,9 @@ function Login() {
             const email2 = response?.data?.email
             const username = response?.data?.username
             
+            // set the auth header bearer token
+            axios.defaults.headers.common['Authorization'] = `Bearer ${response?.data?.access_token}`
+            
             // set auth state for auth provider
             setAuth({email: email2, username: username})
 

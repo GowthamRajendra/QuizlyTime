@@ -16,6 +16,8 @@ const useRefresh = () => {
             const username = response?.data?.username
 
             console.log(`refreshed: email: ${email}, username: ${username}`)
+
+            axios.defaults.headers.common['Authorization'] = `Bearer ${response?.data?.access_token}`
     
             return {email: email, username: username}
     
@@ -29,7 +31,8 @@ const useRefresh = () => {
             else {
                 console.error(err)
             }
-    
+            
+            axios.defaults.headers.common['Authorization'] = ''
             return null
         }
     }

@@ -61,9 +61,14 @@ def token_required(token_type):
         @wraps(f)
         def decorated(*args, **kwargs):
             token = None
+            
+            # validate the access token
+            if token_type == 'access' and 'Authorization' in request.headers:
+                token = request.headers.get('Authorization').split(' ')[1]
 
-            if f'{token_type}_token' in request.cookies:
-                token = request.cookies.get(f'{token_type}_token')
+            # validate the refresh token
+            elif token_type == 'refresh' and 'refresh_token' in request.cookies:
+                token = request.cookies.get('refresh_token')
             
             result, user_data = validate_token(token, token_type)
 

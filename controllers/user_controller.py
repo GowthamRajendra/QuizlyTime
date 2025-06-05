@@ -50,19 +50,20 @@ def login():
         # on successful login, return the user's email and username 
         # and set the access and refresh tokens as httpOnly cookies
         case LoginUserResult.SUCCESS:
-            response_data = {
-                "message": "Login successful.",
-                "email": data.get('email'),
-                "username": data.get('username')
-            }
-            response = make_response(jsonify(response_data), 200)
-
             access_token = data.get('access_token')
             refresh_token = data.get('refresh_token')
 
-            # set the tokens as httponly cookies guards against XSS attacks
-            response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=900;')
-            response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=1209600;')
+            # send the access token to the front end.
+            response_data = {
+                "message": "Login successful.",
+                "email": data.get('email'),
+                "username": data.get('username'),
+                "access_token": access_token
+            }
+            response = make_response(jsonify(response_data), 200)
+
+            # set refresh token as httponly to prevent xss, token is alive for 14 days
+            response.set_cookie(key='refresh_token', value=refresh_token, path='/auth/refresh', max_age=60*60*24*14, secure=True, httponly=True, samesite="None")
             
             return response
         case LoginUserResult.MISSING_FIELDS:
@@ -82,24 +83,22 @@ def refresh(user_data):
     
     data = refresh_tokens(email, ref_exp)
 
-    response_data = {
-            "message": "Refresh successful.", 
-            "email": data.get('email'), 
-            "username": data.get('username') 
-            }
-    
-    response = make_response(jsonify(response_data), 200)
-
     access_token = data.get('access_token')
     refresh_token = data.get('refresh_token')
+    
+    response_data = {
+        "message": "Refresh successful.", 
+        "email": data.get('email'), 
+        "username": data.get('username'),
+        "access_token": access_token 
+    }
 
+    response = make_response(jsonify(response_data), 200)
+
+    # if refresh token is close to expiration, a new one will be issued.
+    # httponly to prevent xss
     if refresh_token:
-        response.headers.add('Set-Cookie', f'refresh_token={refresh_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=1209600;')
-
-    # set the tokens as httponly cookies guards against XSS attacks
-    response.headers.add('Set-Cookie', f'access_token={access_token}; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=900;')
-
-
+        response.set_cookie(key='refresh_token', value=refresh_token, path='/auth/refresh', max_age=60*60*24*14, secure=True, httponly=True, samesite="None")
     return response
 
 @users_bp.route("/logout", methods=["POST"])
@@ -107,10 +106,9 @@ def refresh(user_data):
 def logout(_):
     response = make_response({"message": "Logout successful."}, 200)
 
-    # delete the tokens by setting their max-age to 0
-    response.headers.add('Set-Cookie', 'access_token=; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=0;')
-    response.headers.add('Set-Cookie', 'refresh_token=; Secure; HttpOnly; SameSite=None; Path=/; Partitioned; Max-Age=0;')
-
+    # delete the refresh token by setting their max-age to 0
+    # access token deletion is handled on the front-end
+    response.set_cookie(key='refresh_token', value='', max_age=0, path='/auth/refresh')
     return response
 
 

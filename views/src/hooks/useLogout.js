@@ -12,8 +12,11 @@ const useLogout = () => {
             )
 
             console.log(JSON.stringify(response?.data))
-
+            
+            // remove the access_token, email and username
+            axios.defaults.headers.common['Authorization'] = ''
             setAuth(null)
+
         } catch (err) {
             if (!err?.response) {
                 console.error("No response")
@@ -24,6 +27,9 @@ const useLogout = () => {
             else {
                 console.error(err)
             }
+
+            axios.defaults.headers.common['Authorization'] = ''
+            setAuth(null)
         }
     }
 

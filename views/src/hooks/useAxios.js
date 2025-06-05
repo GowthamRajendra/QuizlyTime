@@ -38,6 +38,8 @@ const useAxios = () => {
                     ) {
                         // If they don't have a valid refresh token, log them out and return to landing page.
                         console.log(`${error.response.data.message} Logging out...`)
+
+                        axios.defaults.headers.common['Authorization'] = ''
                         setAuth(null)
                         navigate('/')
                     }
