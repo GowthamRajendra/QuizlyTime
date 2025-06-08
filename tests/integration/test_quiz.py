@@ -78,13 +78,13 @@ def test_check_answer_correct(socketio_client, mock_user, mock_quiz, mock_questi
     }
 
     # Emit the 'check_answer' event with the test data
-    socketio_client.emit('check_answer', data)
+    socketio_client.emit('check_answer', data, namespace='/singleplayer')
 
     # # Wait for server response to ensure it's processed
     time.sleep(1)
 
     # Get the emitted events
-    received = socketio_client.get_received()
+    received = socketio_client.get_received(namespace='/singleplayer')
 
     # Check if the correct event was emitted (answer_checked)
     answer_checked_event = next(
@@ -134,13 +134,13 @@ def test_check_answer_incorrect(socketio_client, mock_user, mock_quiz, mock_ques
     }
 
     # Emit the 'check_answer' event with the test data
-    socketio_client.emit('check_answer', data)
+    socketio_client.emit('check_answer', data, namespace='/singleplayer')
 
     # # Wait for server response to ensure it's processed
     time.sleep(1)
 
     # Get the emitted events
-    received = socketio_client.get_received()
+    received = socketio_client.get_received(namespace='/singleplayer')
 
     # Check if the correct event was emitted (answer_checked)
     answer_checked_event = next(

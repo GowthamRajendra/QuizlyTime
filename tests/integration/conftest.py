@@ -67,9 +67,9 @@ def authenticated_client(client):
 @pytest.fixture
 def socketio_client(app):
     # Create a test client for socket.io
-    client = socketio.test_client(app, flask_test_client=app.test_client())
+    client = socketio.test_client(app, flask_test_client=app.test_client(), namespace='/singleplayer')
     yield client
-    client.disconnect()
+    client.disconnect(namespace='/singleplayer')
 
 @pytest.fixture
 def mock_user(mocker):
