@@ -13,9 +13,11 @@ import CreateQuiz from './pages/CreateQuiz'
 import CreateQuizComplete from './pages/CreateQuizComplete'
 import QuizSelection from './pages/QuizSelection'
 import Protected from './components/Protected'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Outlet } from 'react-router-dom'
 import useAuth from './hooks/useAuth'
 import Loading from './components/Loading'
+import Multiplayer from './pages/MPtesting'
+import Lobby from './pages/Lobby'
 
 function App() {
   const { auth } = useAuth()
@@ -38,6 +40,9 @@ function App() {
             <Route path='/quiz/create/setup' element={<CreateQuizSetup/>}/>
             <Route path='/quiz/create/questions' element={<CreateQuiz/>}/>
             <Route path='/quiz/create/complete' element={<CreateQuizComplete/>}/>
+            <Route path='/multiplayer' element={<Multiplayer/>}/> 
+            <Route path='/multiplayer/lobby' element={<Lobby/>}/>
+            {/* More page will be here that need the socket connection uninterrupted */}
           </Route>
         </Routes>
       </div>

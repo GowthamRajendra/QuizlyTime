@@ -1,6 +1,6 @@
 from flask import request, Blueprint, jsonify, make_response
 import requests
-from flask_socketio import emit
+from flask_socketio import emit, Namespace
 import os
 from datetime import datetime 
 
@@ -94,96 +94,93 @@ def create_random_quiz(user_data):
     # return the quiz
     return make_response(jsonify(quiz_questions), 200)
 
+class SinglePlayerNamespace(Namespace):
+    def on_connect(self):
+        print('connected')
 
-@socketio.on('connect')
-def test_connect():
-    print('connected')
+    def on_disconnect(self):
+        print('disconnected')
 
-@socketio.on('disconnect')
-def test_disconnect():
-    print('disconnected')
+    # check the user's answer and send result back to the client
+    def on_check_answer(self, data):
+        # using the user's email from the client side 
+        # while fixing the token issues
+        # user = User.objects(pk=user_data['sub']).first()
+        user = User.objects(email=data['email']).first()
+        quiz = user.active_quiz
+        question_index = data['question_index']
 
-# check the user's answer and send result back to the client
-@socketio.on('check_answer')
-def check_answer(data):
-    # using the user's email from the client side 
-    # while fixing the token issues
-    # user = User.objects(pk=user_data['sub']).first()
-    user = User.objects(email=data['email']).first()
-    quiz = user.active_quiz
-    question_index = data['question_index']
+        # print(data)
+        # print('quiz', quiz.id, 'for user', user.username)
+        # print("active quiz", user.active_quiz)
+        # print(f"Type of quiz: {type(quiz)}")
+        # print(f"Quiz before the if check: {quiz}")
+        # print(f"Is quiz falsy? {not quiz}")
 
-    # print(data)
-    # print('quiz', quiz.id, 'for user', user.username)
-    # print("active quiz", user.active_quiz)
-    # print(f"Type of quiz: {type(quiz)}")
-    # print(f"Quiz before the if check: {quiz}")
-    # print(f"Is quiz falsy? {not quiz}")
+        # dont check the answer if the user doesn't have an active quiz
+        if quiz is None:
+            print("no active quiz")
+            return
 
-    # dont check the answer if the user doesn't have an active quiz
-    if quiz is None:
-        print("no active quiz")
-        return
+        # get the question object from the question id
+        question = Question.objects(pk=data['question_id']).first()
+        print(question.category)
 
-    # get the question object from the question id
-    question = Question.objects(pk=data['question_id']).first()
-    print(question.category)
+        # check if the answer is correct
+        if data['user_answer'] == question.correct_answer:
+            print(question.correct_answer)
+            
+            # scale points to time left
+            if data["time_left"] / data["max_time"] > 0.75:
+                quiz.score += 10
+            else:
+                quiz.score += 10 * (data["time_left"] / data["max_time"])
 
-    # check if the answer is correct
-    if data['user_answer'] == question.correct_answer:
-        print(question.correct_answer)
-        
-        # scale points to time left
-        if data["time_left"] / data["max_time"] > 0.75:
-            quiz.score += 10
-        else:
-            quiz.score += 10 * (data["time_left"] / data["max_time"])
+        # store the question and user's answer in the answered_questions list
+        quiz.answered_questions.append(
+            AnsweredQuestion(question=question, user_answer=data['user_answer'])
+        )
 
-    # store the question and user's answer in the answered_questions list
-    quiz.answered_questions.append(
-        AnsweredQuestion(question=question, user_answer=data['user_answer'])
-    )
+        quiz.save() 
 
-    quiz.save() 
+        results = {
+            "correct_answer": question.correct_answer,
+            "question_index": question_index,
+        }
 
-    results = {
-        "correct_answer": question.correct_answer,
-        "question_index": question_index,
-    }
+        # print("results", results)
 
-    # print("results", results)
+        self.emit('answer_checked', results)
 
-    emit('answer_checked', results)
+        # check if the quiz is completed
+        # send the score back to the client and store results in the database
+        print("in controller", len(quiz.answered_questions), quiz.total_questions)
+        if len(quiz.answered_questions) == quiz.total_questions:
+            print('quiz completed', quiz.score)
+            self.emit('quiz_completed', {"score": quiz.score})
 
-    # check if the quiz is completed
-    # send the score back to the client and store results in the database
-    print("in controller", len(quiz.answered_questions), quiz.total_questions)
-    if len(quiz.answered_questions) == quiz.total_questions:
-        print('quiz completed', quiz.score)
-        emit('quiz_completed', {"score": quiz.score})
+            if quiz.user_created:
+                # create copy of quiz for user
+                quiz_history = Quiz(
+                    title=quiz.title, 
+                    score=quiz.score, 
+                    timestamp=datetime.now(), 
+                    total_questions=quiz.total_questions, 
+                    questions=quiz.questions,
+                    answered_questions=quiz.answered_questions
+                )
+                quiz_history.save()
+                user.completed_quizzes.append(quiz_history)
+            
+                # reset original quiz
+                quiz.answered_questions = []
+                quiz.score = 0
+                quiz.save()
 
-        if quiz.user_created:
-            # create copy of quiz for user
-            quiz_history = Quiz(
-                title=quiz.title, 
-                score=quiz.score, 
-                timestamp=datetime.now(), 
-                total_questions=quiz.total_questions, 
-                questions=quiz.questions,
-                answered_questions=quiz.answered_questions
-            )
-            quiz_history.save()
-            user.completed_quizzes.append(quiz_history)
-        
-            # reset original quiz
-            quiz.answered_questions = []
-            quiz.score = 0
-            quiz.save()
+            else:
+                # add quiz to user's completed quizzes
+                user.completed_quizzes.append(quiz)
 
-        else:
-            # add quiz to user's completed quizzes
-            user.completed_quizzes.append(quiz)
-
-        user.active_quiz = None
-        user.save()
+            user.active_quiz = None
+            user.save()
 

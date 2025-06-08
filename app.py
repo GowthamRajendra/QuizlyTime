@@ -9,6 +9,8 @@ from flask import Flask
 from mongoengine import connect
 from dotenv import load_dotenv
 from socket_manager import socketio
+from controllers.quiz_controller import SinglePlayerNamespace
+from controllers.multiplayer import MultiplayerNamespace
 
 # load environment variables from the .env file
 load_dotenv()
@@ -37,6 +39,10 @@ def create_app():
     # change cors_allowed_origins later
     socketio.init_app(app, cors_allowed_origins='*')
 
+    # register singleplayer and multiplayer namespaces
+    socketio.on_namespace(SinglePlayerNamespace('/singleplayer'))
+    socketio.on_namespace(MultiplayerNamespace('/multiplayer'))
+
     # @socketio.on('check_answer')
     # def test(data):
     #     print('checking answer')
@@ -54,4 +60,4 @@ if __name__ == '__main__':
 
     port = os.getenv('PORT', 5000)
 
-    socketio.run(app, host="0.0.0.0", port=int(port) , debug=True)
+    socketio.run(app, host="0.0.0.0", port=int(port) , debug=debug)
