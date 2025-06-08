@@ -3,10 +3,14 @@ from flask import request
 import random
 import string
 '''
-multiplayer rooms, for now is an in-memory dict, later will be redis because docker backends.
-
-player's game state is stored in their respective rooms, but other information about the player
-like what room they are in or what their name are located in sid_to_player and sid_to_room
+TODO:
+- Game settings
+- Gameplay loop
+  - Question retrieval and distribution
+  - Syncing timers
+  - Incrementing questions for all players at the same time
+  - Player results leaderboard
+- Wayyy later, redis + multiple docker backend + load balancer
 '''
 rooms = {
     # roomCode: {players:{sid1: {player state}, ...}, status:"waiting, started or ended"}
@@ -41,12 +45,7 @@ class MultiplayerNamespace(Namespace):
         print(request.sid)
 
     # clean up dictionary entries on disconnection of any kind.
-    # # TODO, reconnecting
     def on_disconnect(self):
-        print("BEFFFFFFFFOOOOOOOOOOOREEEEEEEE")
-        print('multiplayer connection terminated')
-        print(sid_to_player, sid_to_room, rooms)
-        
         name = sid_to_player.get(request.sid, {}).get('name')
         room = sid_to_room.get(request.sid)
 
@@ -68,14 +67,14 @@ class MultiplayerNamespace(Namespace):
         sid_to_player.pop(request.sid, None)
         sid_to_room.pop(request.sid, None)
 
-        print(sid_to_player, sid_to_room, rooms)
-        print("AAAAAFFFFFFFFTTTTTTTEEEEEEEEEEERRRRRRRRR")
-
-
     # storing user information after successful connection.
     # client side only needs to send info once, convinient to get info
     # with request sid.
     def on_register_user(self, data):
+        # no need to store the same info again
+        if request.sid in sid_to_player:
+            return
+
         email = data.get('email')
         name = data.get('name')
 
@@ -87,7 +86,6 @@ class MultiplayerNamespace(Namespace):
         print('User registered', request.sid, sid_to_player[request.sid])
 
     # generate room and create a multiplayer room.
-    # TODO, browse lobby screen?
     def on_create_room(self):
         # if user info wasn't successfully registered.
         if request.sid not in sid_to_player:
@@ -139,20 +137,17 @@ class MultiplayerNamespace(Namespace):
         self.emit('room_created', {'code': room}, room=room)
         self.emit('player_joined', {'names': getPlayersInRoom(room)}, room=room)
     
-    # get current players in the room.
     def on_current_players(self):
         if request.sid not in sid_to_room:
             return
         
         room = sid_to_room[request.sid]
 
+        # reusing the player_joined endpoint because all the times we return name
+        # is just for updating client side player list.
         self.emit('player_joined', {'names': getPlayersInRoom(room)}, room=room)
     
     def on_leave_room(self):
-        print("BEFFFFFFFFOOOOOOOOOOOREEEEEEEE")
-        print('Leaving room...')
-        print(sid_to_player, sid_to_room, rooms)
-
         name = sid_to_player.get(request.sid, {}).get('name')
         room = sid_to_room.get(request.sid)
 
@@ -172,13 +167,8 @@ class MultiplayerNamespace(Namespace):
         
         sid_to_room.pop(request.sid, None)
         self.emit('leave_room_successful', room=request.sid)
-
-        print(sid_to_player, sid_to_room, rooms)
-        print("AAAAAFFFFFFFFTTTTTTTEEEEEEEEEEERRRRRRRRR")
-
-
     
-    # testing room functionality. working so far. perhaps add a full chat feature later.
+    # chat for testing room functionality. may because a feature later
     def on_player_message(self, data):
         message = data.get("message")
 

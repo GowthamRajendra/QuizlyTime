@@ -10,7 +10,7 @@ from mongoengine import connect
 from dotenv import load_dotenv
 from socket_manager import socketio
 from controllers.quiz_controller import SinglePlayerNamespace
-from controllers.multiplayer import MultiplayerNamespace
+from controllers.multiplayer_controller import MultiplayerNamespace
 
 # load environment variables from the .env file
 load_dotenv()

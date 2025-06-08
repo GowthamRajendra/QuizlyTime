@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import io from 'socket.io-client'
-import useAuth from '../hooks/useAuth'
-import useMultiplayerSocket from '../hooks/useMultiplayerSocket'
+import useAuth from '../../hooks/useAuth'
+import useMultiplayerSocket from '../../hooks/useMultiplayerSocket'
 import { useNavigate } from 'react-router-dom'
 
 function Multiplayer() {
@@ -11,9 +11,8 @@ function Multiplayer() {
     const [codeVal, setCodeVal] = useState('')
 
     useEffect(() => {
-        socket.on('connect', () => {
-            socket.emit('register_user', {'email': auth.email, 'name': auth.username})
-        })
+        // store some user information on server side for easier user handling
+        socket.emit('register_user', {'email': auth.email, 'name': auth.username})
 
         socket.on('room_created', ({code}) => {
             navigate('/multiplayer/lobby', {state: {code: code}})

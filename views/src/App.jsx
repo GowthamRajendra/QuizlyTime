@@ -15,9 +15,9 @@ import QuizSelection from './pages/QuizSelection'
 import Protected from './components/Protected'
 import { Routes, Route, Outlet } from 'react-router-dom'
 import useAuth from './hooks/useAuth'
-import Loading from './components/Loading'
-import Multiplayer from './pages/MPtesting'
-import Lobby from './pages/Lobby'
+// import Loading from './components/Loading'
+import Multiplayer from './pages/multiplayer/MPtesting'
+import Lobby from './pages/multiplayer/Lobby'
 
 function App() {
   const { auth } = useAuth()
