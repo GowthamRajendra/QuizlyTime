@@ -4,7 +4,7 @@ import useAuth from '../../hooks/useAuth'
 import useMultiplayerSocket from '../../hooks/useMultiplayerSocket'
 import { useNavigate } from 'react-router-dom'
 
-function Multiplayer() {
+function CreateJoinRoom() {
     const { auth } = useAuth()
     const navigate = useNavigate()
     const socket = useMultiplayerSocket()
@@ -14,9 +14,15 @@ function Multiplayer() {
         // store some user information on server side for easier user handling
         socket.emit('register_user', {'email': auth.email, 'name': auth.username})
 
-        socket.on('room_created', ({code}) => {
+        const handleRoomCreated = ({code}) => {
             navigate('/multiplayer/lobby', {state: {code: code}})
-        })
+        }
+
+        socket.on('room_created', handleRoomCreated)
+
+        return () => {
+            socket.off('room_created', handleRoomCreated)
+        }
     }, [])
 
     const createRoom = () => {
@@ -34,4 +40,4 @@ function Multiplayer() {
     </div>
 }
 
-export default Multiplayer
+export default CreateJoinRoom

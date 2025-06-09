@@ -2,10 +2,9 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import Loading from '../components/Loading'
-
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-
+import { categories } from '../constants'
 import useAxios from '../hooks/useAxios'
 
 /*
@@ -13,34 +12,6 @@ import useAxios from '../hooks/useAxios'
     number of questions, the category, the difficulty, and the type of questions they want to answer.
     The form is submitted to the server to get the questions and then the user is navigated to Quiz.jsx page.
 */
-
-const categories = [
-    ['', "Any Category"],
-    ['9', "General Knowledge"],
-    ['10', "Books"],
-    ['11', "Film"],
-    ['12', "Music"],
-    ['13', "Musicals & Theatres"],
-    ['14', "Television"],
-    ['15', "Video Games"],
-    ['16', "Board Games"],
-    ['17', "Science & Nature"],
-    ['18', "Computers"],
-    ['19', "Mathematics"],
-    ['20', "Mythology"],
-    ['21', "Sports"],
-    ['22', "Geography"],
-    ['23', "History"],
-    ['24', "Politics"],
-    ['25', "Art"],
-    ['26', "Celebrities"],
-    ['27', "Animals"],
-    ['28', "Vehicles"],
-    ['29', "Comics"],
-    ['30', "Gadgets"],
-    ['31', "Japanese Anime & Manga"],
-    ['32', "Cartoon & Animations"]
-];
 
 export default function QuizSetup() {
     const axios = useAxios()

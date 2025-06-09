@@ -16,8 +16,9 @@ import Protected from './components/Protected'
 import { Routes, Route, Outlet } from 'react-router-dom'
 import useAuth from './hooks/useAuth'
 // import Loading from './components/Loading'
-import Multiplayer from './pages/multiplayer/MPtesting'
+import CreateJoinRoom from './pages/multiplayer/CreateJoinRoom'
 import Lobby from './pages/multiplayer/Lobby'
+import MultiplayerGame from './pages/multiplayer/MultiplayerGame'
 
 function App() {
   const { auth } = useAuth()
@@ -40,8 +41,9 @@ function App() {
             <Route path='/quiz/create/setup' element={<CreateQuizSetup/>}/>
             <Route path='/quiz/create/questions' element={<CreateQuiz/>}/>
             <Route path='/quiz/create/complete' element={<CreateQuizComplete/>}/>
-            <Route path='/multiplayer' element={<Multiplayer/>}/> 
+            <Route path='/multiplayer' element={<CreateJoinRoom/>}/> 
             <Route path='/multiplayer/lobby' element={<Lobby/>}/>
+            <Route path='/multiplayer/play' element={<MultiplayerGame/>}></Route>
             {/* More page will be here that need the socket connection uninterrupted */}
           </Route>
         </Routes>

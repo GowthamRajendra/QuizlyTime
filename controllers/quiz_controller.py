@@ -65,6 +65,8 @@ def create_random_quiz(user_data):
     difficulty = request.json.get('difficulty', "")
     category = request.json.get('category', "")
 
+    print(request.json)
+
     # empty string for the query param are handled by the API, treats them as if they weren't included
     API_URL = f'https://opentdb.com/api.php?amount={amount}&type={type}&difficulty={difficulty}&category={category}'
 
