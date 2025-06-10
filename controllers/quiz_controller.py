@@ -196,7 +196,7 @@ class SinglePlayerNamespace(Namespace):
         # if next_question: just tell clients to increment to next q
         # if quiz_completed: send the score back to the client and store results in the database
         # in thread so sleep() doesnt block everything.
-        if os.getenv('IS_TESTING') != '1': # threading breaks some tests.
-            Thread(target=sleepThenContinueQuiz, kwargs={"self": self, "user": user, "quiz": quiz}).start()
-        else:
-            sleepThenContinueQuiz(self=self, user=user, quiz=quiz)
+        # if os.getenv('IS_TESTING') != '1': # threading breaks some tests.
+        Thread(target=sleepThenContinueQuiz, kwargs={"self": self, "user": user, "quiz": quiz}).start()
+        # else:
+            # sleepThenContinueQuiz(self=self, user=user, quiz=quiz)

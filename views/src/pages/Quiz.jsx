@@ -61,7 +61,8 @@ export default function Quiz() {
             console.log('displaying correct answer...');
             setSubmitted(false)
             setSelected(null)
-            setQuestionIndex(questionIndex + 1)
+            console.log(`CURRENT INDEX: ${questionIndex}`)
+            setQuestionIndex((prevQIndex) => prevQIndex+1)
             setCorrect(null)
             
             // reset timer
