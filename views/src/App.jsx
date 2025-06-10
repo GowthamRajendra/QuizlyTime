@@ -19,6 +19,7 @@ import useAuth from './hooks/useAuth'
 import CreateJoinRoom from './pages/multiplayer/CreateJoinRoom'
 import Lobby from './pages/multiplayer/Lobby'
 import MultiplayerGame from './pages/multiplayer/MultiplayerGame'
+import MultiplayerResults from './pages/multiplayer/MultiplayerResults'
 
 function App() {
   const { auth } = useAuth()
@@ -44,6 +45,7 @@ function App() {
             <Route path='/multiplayer' element={<CreateJoinRoom/>}/> 
             <Route path='/multiplayer/lobby' element={<Lobby/>}/>
             <Route path='/multiplayer/play' element={<MultiplayerGame/>}></Route>
+            <Route path='/multiplayer/results' element={<MultiplayerResults/>}></Route>
             {/* More page will be here that need the socket connection uninterrupted */}
           </Route>
         </Routes>

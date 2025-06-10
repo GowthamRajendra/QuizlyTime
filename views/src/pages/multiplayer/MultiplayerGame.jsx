@@ -46,32 +46,35 @@ function MultiplayerGame() {
             console.log(`everyone's answers: ${JSON.stringify(answers)}`)
             console.log(questions[question_index].choices)
             setCorrect(questions[question_index].choices.indexOf(correct_answer))
-
-            // crude way of ensuring timer starts after questions show on screen
-            setTimeout(() => {
-                setTimer(questions[question_index].timer)
-                setMaxTime(questions[question_index].timer)
-            }, 2000)
         }
-        const handleQuizCompleted = ({score}) => {
-            console.log(`quiz completed: ${score}`);
+        const handleNextQuestion = () => {
+            console.log('displaying correct answer...');
+            setSubmitted(false)
+            setSelected(null)
+            console.log(`CURRENT INDEX: ${questionIndex}`)
+            setQuestionIndex((prevQIndex) => prevQIndex+1)
+            setCorrect(null)
+            
+            // reset timer
+            setTimer(questions[questionIndex].timer)
+            setMaxTime(questions[questionIndex].timer)
+        }
+        const handleQuizCompleted = ({scores}) => {
+            console.log(`quiz completed: ${JSON.stringify(scores)}`);
             console.log(`total questions: ${questions.length}`);
 
-            // wait 2 seconds before navigating to results page
-            // to show result of final question
-            setTimeout(() => {
-                console.log('navigating to results', score);
-                navigate('/multiplayer/results', {replace: true, state: {score: score, total: questions.length*10}})
-            }, 2000)
+            navigate('/multiplayer/results', {state: {results: scores}})
         }
         
         socket.on('answer_checked', handleAnswerChecked)
+        socket.on('next_question', handleNextQuestion)
         socket.on('quiz_completed', handleQuizCompleted)
 
         // Clean up. Remove the event listener when the component is unmounted
         return () => {
             console.log('cleaning up');
             socket.off('answer_checked', handleAnswerChecked)
+            socket.off('next_question', handleNextQuestion)
             socket.off('quiz_completed', handleQuizCompleted)
         }
     }, [])
@@ -103,20 +106,6 @@ function MultiplayerGame() {
             "max_time": maxTime
         })
         console.log('emitted');
-        
-        // crude way of waiting some time so player can see the correct/wrong answer
-        setTimeout(() => {
-            console.log('displaying correct answer...');
-            setSubmitted(false)
-            setSelected(null)
-
-            // Move to next question
-            // If last question, move to results page
-            if (questionIndex < questions.length - 1) {
-                setQuestionIndex(questionIndex + 1)
-            }
-            setCorrect(null)
-        }, 2000)
     }
 
     function buttonColor(index) {

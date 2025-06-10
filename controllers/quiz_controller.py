@@ -98,43 +98,6 @@ def create_random_quiz(user_data):
     # return the quiz
     return make_response(jsonify(quiz_questions), 200)
 
-# sleep after answer_checked so client can see their answers displayed
-def sleepThenContinueQuiz(self, user, quiz, seconds=2):
-    sleep(seconds)
-
-    if len(quiz.answered_questions) != quiz.total_questions:
-        self.emit('next_question')
-        return
-
-    # Quiz completed, store results.
-    print('quiz completed', quiz.score)
-    self.emit('quiz_completed', {"score": quiz.score})
-
-    if quiz.user_created:
-        # create copy of quiz for user
-        quiz_history = Quiz(
-            title=quiz.title, 
-            score=quiz.score, 
-            timestamp=datetime.now(), 
-            total_questions=quiz.total_questions, 
-            questions=quiz.questions,
-            answered_questions=quiz.answered_questions
-        )
-        quiz_history.save()
-        user.completed_quizzes.append(quiz_history)
-    
-        # reset original quiz
-        quiz.answered_questions = []
-        quiz.score = 0
-        quiz.save()
-
-    # else its an randomly created quiz and just append it
-    else:
-        user.completed_quizzes.append(quiz)
-
-    user.active_quiz = None
-    user.save()
-
 class SinglePlayerNamespace(Namespace):
     def on_connect(self):
         print('connected')
@@ -144,19 +107,9 @@ class SinglePlayerNamespace(Namespace):
 
     # check the user's answer and send result back to the client
     def on_check_answer(self, data):
-        # using the user's email from the client side 
-        # while fixing the token issues
-        # user = User.objects(pk=user_data['sub']).first()
         user = User.objects(email=data['email']).first()
         quiz = user.active_quiz
         question_index = data['question_index']
-
-        # print(data)
-        # print('quiz', quiz.id, 'for user', user.username)
-        # print("active quiz", user.active_quiz)
-        # print(f"Type of quiz: {type(quiz)}")
-        # print(f"Quiz before the if check: {quiz}")
-        # print(f"Is quiz falsy? {not quiz}")
 
         # dont check the answer if the user doesn't have an active quiz
         if quiz is None:
@@ -197,6 +150,44 @@ class SinglePlayerNamespace(Namespace):
         # if quiz_completed: send the score back to the client and store results in the database
         # in thread so sleep() doesnt block everything.
         if os.getenv('IS_TESTING') != '1': # threading breaks some tests.
-            Thread(target=sleepThenContinueQuiz, kwargs={"self": self, "user": user, "quiz": quiz}).start()
+            Thread(target=self.sleepThenContinueQuiz, kwargs={"user": user, "quiz": quiz}).start()
         else:
-            sleepThenContinueQuiz(self=self, user=user, quiz=quiz)
+            self.sleepThenContinueQuiz(user=user, quiz=quiz)
+    
+    # HELPER FUNCTIONS
+    # sleep after answer_checked so client can see their answers displayed
+    def sleepThenContinueQuiz(self, user: User, quiz: Quiz, seconds: int=2):
+        sleep(seconds)
+
+        if len(quiz.answered_questions) != quiz.total_questions:
+            self.emit('next_question')
+            return
+
+        # Quiz completed, store results.
+        print('quiz completed', quiz.score)
+        self.emit('quiz_completed', {"score": quiz.score})
+
+        if quiz.user_created:
+            # create copy of quiz for user
+            quiz_history = Quiz(
+                title=quiz.title, 
+                score=quiz.score, 
+                timestamp=datetime.now(), 
+                total_questions=quiz.total_questions, 
+                questions=quiz.questions,
+                answered_questions=quiz.answered_questions
+            )
+            quiz_history.save()
+            user.completed_quizzes.append(quiz_history)
+        
+            # reset original quiz
+            quiz.answered_questions = []
+            quiz.score = 0
+            quiz.save()
+
+        # else its an randomly created quiz and just append it
+        else:
+            user.completed_quizzes.append(quiz)
+
+        user.active_quiz = None
+        user.save()
