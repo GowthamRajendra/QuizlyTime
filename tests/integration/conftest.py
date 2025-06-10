@@ -65,7 +65,10 @@ def authenticated_client(client):
     return client
 
 @pytest.fixture
-def socketio_client(app):
+def socketio_client(app, monkeypatch):
+    # need this to stop threading in the quiz_controller while testing.
+    monkeypatch.setenv('IS_TESTING', '1')
+
     # Create a test client for socket.io
     client = socketio.test_client(app, flask_test_client=app.test_client(), namespace='/singleplayer')
     yield client
