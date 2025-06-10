@@ -49,34 +49,36 @@ export default function Quiz() {
         setSocket(newSocket)
 
         console.log(`${auth.email}, ${auth.username} connected to quiz`);
-        
-        newSocket.on('answer_checked', ({correct_answer, question_index}) => {
+
+        const handleAnswerChecked = ({correct_answer, question_index}) => {
             console.log('answer checked');
             console.log(`correct: ${correct_answer}, ${question_index}`);
             console.log(questions[question_index].choices)
             setCorrect(questions[question_index].choices.indexOf(correct_answer))
-
-            // crude way of ensuring timer starts after questions show on screen
-            setTimeout(() => {
-                setTimer(questions[question_index].timer)
-                setMaxTime(questions[question_index].timer)
-            }, 2000)
-        })        
+        }
         
-        // Event listener for when quiz is completed
-        // get score and navigate to results page
-        newSocket.on('quiz_completed', ({score}) => {
+        const handleNextQuestion = () => {
+            console.log('displaying correct answer...');
+            setSubmitted(false)
+            setSelected(null)
+            setQuestionIndex(questionIndex + 1)
+            setCorrect(null)
+            
+            // reset timer
+            setTimer(questions[questionIndex].timer)
+            setMaxTime(questions[questionIndex].timer)
+        }
+        
+        const handleQuizCompleted = ({score}) => {
             console.log(`quiz completed: ${score}`);
             console.log(`total questions: ${questions.length}`);
-            // setTimer(-1)
 
-            // wait 2 seconds before navigating to results page
-            // to show result of final question
-            setTimeout(() => {
-                console.log('navigating to results', score);
-                navigate('/quiz/results', {replace: true, state: {score: score, total: questions.length*10}})
-            }, 2000)
-        });
+            navigate('/quiz/results', {replace: true, state: {score: score, total: questions.length*10}})
+        }
+        
+        newSocket.on('answer_checked', handleAnswerChecked)        
+        newSocket.on('next_question', handleNextQuestion)
+        newSocket.on('quiz_completed', handleQuizCompleted)
 
         // Clean up. Remove the event listener when the component is unmounted
         return () => {
@@ -113,19 +115,6 @@ export default function Quiz() {
             "max_time": maxTime
         })
         console.log('emitted');
-
-        setTimeout(() => {
-            console.log('displaying correct answer...');
-            setSubmitted(false)
-            setSelected(null)
-
-            // Move to next question
-            // If last question, move to results page
-            if (questionIndex < questions.length - 1) {
-                setQuestionIndex(questionIndex + 1)
-            }
-            setCorrect(null)
-        }, 2000)
     }
 
     function buttonColor(index) {

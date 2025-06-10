@@ -103,7 +103,8 @@ function MultiplayerGame() {
             "max_time": maxTime
         })
         console.log('emitted');
-
+        
+        // crude way of waiting some time so player can see the correct/wrong answer
         setTimeout(() => {
             console.log('displaying correct answer...');
             setSubmitted(false)

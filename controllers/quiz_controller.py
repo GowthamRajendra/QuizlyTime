@@ -3,6 +3,8 @@ import requests
 from flask_socketio import emit, Namespace
 import os
 from datetime import datetime 
+from time import sleep
+from threading import Thread
 
 # import models
 from models.user_model import User
@@ -96,6 +98,43 @@ def create_random_quiz(user_data):
     # return the quiz
     return make_response(jsonify(quiz_questions), 200)
 
+# sleep after answer_checked so client can see their answers displayed
+def sleepThenContinueQuiz(self, user, quiz, seconds=2):
+    sleep(seconds)
+
+    if len(quiz.answered_questions) != quiz.total_questions:
+        self.emit('next_question')
+        return
+
+    # Quiz completed, store results.
+    print('quiz completed', quiz.score)
+    self.emit('quiz_completed', {"score": quiz.score})
+
+    if quiz.user_created:
+        # create copy of quiz for user
+        quiz_history = Quiz(
+            title=quiz.title, 
+            score=quiz.score, 
+            timestamp=datetime.now(), 
+            total_questions=quiz.total_questions, 
+            questions=quiz.questions,
+            answered_questions=quiz.answered_questions
+        )
+        quiz_history.save()
+        user.completed_quizzes.append(quiz_history)
+    
+        # reset original quiz
+        quiz.answered_questions = []
+        quiz.score = 0
+        quiz.save()
+
+    # else its an randomly created quiz and just append it
+    else:
+        user.completed_quizzes.append(quiz)
+
+    user.active_quiz = None
+    user.save()
+
 class SinglePlayerNamespace(Namespace):
     def on_connect(self):
         print('connected')
@@ -150,39 +189,11 @@ class SinglePlayerNamespace(Namespace):
             "question_index": question_index,
         }
 
-        # print("results", results)
-
         self.emit('answer_checked', results)
 
-        # check if the quiz is completed
-        # send the score back to the client and store results in the database
-        print("in controller", len(quiz.answered_questions), quiz.total_questions)
-        if len(quiz.answered_questions) == quiz.total_questions:
-            print('quiz completed', quiz.score)
-            self.emit('quiz_completed', {"score": quiz.score})
-
-            if quiz.user_created:
-                # create copy of quiz for user
-                quiz_history = Quiz(
-                    title=quiz.title, 
-                    score=quiz.score, 
-                    timestamp=datetime.now(), 
-                    total_questions=quiz.total_questions, 
-                    questions=quiz.questions,
-                    answered_questions=quiz.answered_questions
-                )
-                quiz_history.save()
-                user.completed_quizzes.append(quiz_history)
-            
-                # reset original quiz
-                quiz.answered_questions = []
-                quiz.score = 0
-                quiz.save()
-
-            else:
-                # add quiz to user's completed quizzes
-                user.completed_quizzes.append(quiz)
-
-            user.active_quiz = None
-            user.save()
-
+        # sleep some time so client can display correct/wrong
+        # emit next_question or quiz_completed based on quiz progress
+        # if next_question: just tell clients to increment to next q
+        # if quiz_completed: send the score back to the client and store results in the database
+        # in thread so sleep() doesnt block everything.
+        Thread(target=sleepThenContinueQuiz, kwargs={"self": self, "user": user, "quiz": quiz}).start()
