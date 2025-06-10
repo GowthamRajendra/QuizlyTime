@@ -391,7 +391,8 @@ class MultiplayerNamespace(Namespace):
 
         if len(quiz.answered_questions) != quiz.total_questions:
             print('NEXT QUESTION')
-            self.emit('next_question')
+            rooms[room]['questionIndex'] += 1
+            self.emit('next_question', {"newQuestionIndex": rooms[room]['questionIndex']})
             return
 
         # Quiz completed, store results.
@@ -399,6 +400,9 @@ class MultiplayerNamespace(Namespace):
         self.emit('quiz_completed', {"scores": getScoresInRoom(room)}, room=room)
 
         # TODO: storing results, commented out is the singleplayer version
+        # problem with current approach is that only the last user to answer has their
+        # AnsweredQuestion saved to the Quiz document. Need to figure out a way to store
+        # everyone's results. Also need to discard users who dont actually finish the quiz?
         # if quiz.user_created:
         #     # create copy of quiz for user
         #     quiz_history = Quiz(

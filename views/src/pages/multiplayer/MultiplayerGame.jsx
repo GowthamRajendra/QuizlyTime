@@ -47,12 +47,12 @@ function MultiplayerGame() {
             console.log(questions[question_index].choices)
             setCorrect(questions[question_index].choices.indexOf(correct_answer))
         }
-        const handleNextQuestion = () => {
+        const handleNextQuestion = ({newQuestionIndex}) => {
             console.log('displaying correct answer...');
             setSubmitted(false)
             setSelected(null)
             console.log(`CURRENT INDEX: ${questionIndex}`)
-            setQuestionIndex((prevQIndex) => prevQIndex+1)
+            setQuestionIndex(newQuestionIndex)
             setCorrect(null)
             
             // reset timer
