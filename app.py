@@ -13,7 +13,7 @@ from controllers.quiz_controller import SinglePlayerNamespace
 from controllers.multiplayer_controller import MultiplayerNamespace
 
 # load environment variables from the .env file
-load_dotenv()
+load_dotenv(override=True)
 
 def create_app():
     app = Flask(__name__)

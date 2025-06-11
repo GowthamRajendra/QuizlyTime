@@ -101,7 +101,10 @@ def refresh_tokens(email, ref_exp):
 # get user's game play history
 def get_user_history(id):
     user = User.objects(pk=id).first()
-    return user.completed_quizzes
+    # mix and sort the quizzes by timestamp, newest first.
+    history = sorted(user.completed_multi_quizzes + user.completed_single_quizzes, key=lambda q: q.timestamp, reverse=True)
+    
+    return history
 
 # get user's created quizzes
 def get_user_creations(id):

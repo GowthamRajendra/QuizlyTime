@@ -1,9 +1,12 @@
+from typing import List
 from flask import request, Blueprint, make_response, jsonify
 import os
+from models.user_model import User
 from services.auth_service import token_required
 
 from services.user_service import register_user, RegisterUserResult, login_user, LoginUserResult, refresh_tokens, get_user_history, get_user_creations
-
+from models.quiz_model import Quiz
+from models.multiplayer_quiz_model import MultiplayerQuiz
 users_bp = Blueprint('users_bp', __name__)
 
 # set CORS headers to allow json and cookies to be sent cross-origin
@@ -113,15 +116,24 @@ def logout(_):
 
 
 # format quizzes for profile page history/creations and quiz selection page
-def format_quizzes(quizzes):
+def format_quizzes(quizzes: List[Quiz | MultiplayerQuiz], user_id):
+    print("HISTORY USERID", user_id)
     results = [
+        # Need to structure Singleplayer and Multiplayer quiz data differently
         {
-            "id": str(quiz.id),
             "title": quiz.title,
             "score": quiz.score,
             "timestamp": quiz.timestamp,
-            "total_questions": quiz.total_questions
-        } for quiz in quizzes
+            "total_questions": quiz.total_questions,
+
+        } if isinstance(quiz, Quiz) else {
+            "title": quiz.title,
+            "timestamp": quiz.timestamp,
+            "is_multiplayer": True,
+            "total_questions": quiz.total_questions,
+            "score": quiz.getParticipant(user_id).score
+        }
+        for quiz in quizzes
     ]
 
     response_data = {
@@ -138,7 +150,7 @@ def get_history(user_data):
 
     history = get_user_history(id)
 
-    return make_response(jsonify(format_quizzes(history)), 200)
+    return make_response(jsonify(format_quizzes(history, id)), 200)
 
 # get quizzes that this user has created
 @users_bp.route("/profile/creations", methods=["GET"])
@@ -148,4 +160,4 @@ def get_creations(user_data):
     
     creations = get_user_creations(id)
 
-    return make_response(jsonify(format_quizzes(creations)), 200)
+    return make_response(jsonify(format_quizzes(creations, id)), 200)

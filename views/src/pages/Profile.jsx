@@ -61,7 +61,7 @@ function Profile() {
                 const response = await axios.get('/profile/history');
                 setLoading(false);
                 console.log(`Retrieved: ${JSON.stringify(response.data)}`);
-                setHistory(response.data.quizzes.reverse());
+                setHistory(response.data.quizzes);
                 
                 // Calculate player stats
                 setGamesPlayed(response.data.quizzes.length);

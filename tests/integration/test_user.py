@@ -257,12 +257,12 @@ def test_get_history(authenticated_client, mock_user_history):
     assert "quizzes" in response.json
     assert len(response.json["quizzes"]) == 6
     assert response.json.get("quizzes") == [
-        {"id": "quiz_id", "title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
-        {"id": "quiz_id", "title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
-        {"id": "quiz_id", "title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
-        {"id": "quiz_id", "title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
-        {"id": "quiz_id", "title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
-        {"id": "quiz_id", "title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1}
+        {"title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
+        {"title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
+        {"title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
+        {"title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
+        {"title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
+        {"title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1}
         ]
 
 def test_get_creations(authenticated_client, mock_user_creations):
@@ -272,7 +272,7 @@ def test_get_creations(authenticated_client, mock_user_creations):
     assert "quizzes" in response.json
     assert len(response.json["quizzes"]) == 3
     assert response.json.get("quizzes") == [
-        {"id": "quiz_id", "title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
-        {"id": "quiz_id", "title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
-        {"id": "quiz_id", "title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
+        {"title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
+        {"title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
+        {"title": "Test quiz", "score": 0, "timestamp": "2021-01-01T00:00:00", "total_questions": 1},
         ]

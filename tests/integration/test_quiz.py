@@ -63,7 +63,7 @@ def test_create_random_quiz_with_params(authenticated_client):
         assert question["timer"] == 20
 
 def test_check_answer_correct(socketio_client, mock_user, mock_quiz, mock_question):
-    assert len(mock_user.completed_quizzes) == 0 # Ensure that the user has no completed quizzes
+    assert len(mock_user.completed_single_quizzes) == 0 # Ensure that the user has no completed quizzes
 
     mock_user.active_quiz = mock_quiz
 
@@ -114,12 +114,12 @@ def test_check_answer_correct(socketio_client, mock_user, mock_quiz, mock_questi
         assert quiz_completed_event is not None
         assert quiz_completed_event["args"][0]["score"] == mock_quiz.score
     
-    assert len(mock_user.completed_quizzes) == 1 # Ensure that the user has 1 completed quiz
+    assert len(mock_user.completed_single_quizzes) == 1 # Ensure that the user has 1 completed quiz
 
     
 
 def test_check_answer_incorrect(socketio_client, mock_user, mock_quiz, mock_question):
-    assert len(mock_user.completed_quizzes) == 0 # Ensure that the user has no completed quizzes
+    assert len(mock_user.completed_single_quizzes) == 0 # Ensure that the user has no completed quizzes
 
     mock_user.active_quiz = mock_quiz
 
@@ -170,7 +170,7 @@ def test_check_answer_incorrect(socketio_client, mock_user, mock_quiz, mock_ques
         assert quiz_completed_event is not None
         assert quiz_completed_event["args"][0]["score"] == mock_quiz.score
 
-    assert len(mock_user.completed_quizzes) == 1 # Ensure that the user has 1 completed quiz
+    assert len(mock_user.completed_single_quizzes) == 1 # Ensure that the user has 1 completed quiz
     
 
 

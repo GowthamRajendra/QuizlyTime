@@ -83,7 +83,8 @@ def mock_user(mocker):
     mock_user.username = "test_user"
     mock_user.email = "test@test.com"
     mock_user.password = "password123"
-    mock_user.completed_quizzes = []
+    mock_user.completed_single_quizzes = []
+    mock_user.completed_multi_quizzes = []
     mock_user.created_quizzes = []
 
     # Patch the User.objects.get method to return the mock user
@@ -126,7 +127,7 @@ def mock_quiz(mocker, mock_user, mock_question):
 
 @pytest.fixture
 def mock_user_history(mock_user, mock_quiz):
-    mock_user.completed_quizzes = [mock_quiz, mock_quiz, mock_quiz, mock_quiz, mock_quiz, mock_quiz]
+    mock_user.completed_single_quizzes = [mock_quiz, mock_quiz, mock_quiz, mock_quiz, mock_quiz, mock_quiz]
 
 @pytest.fixture
 def mock_user_creations(mock_user, mock_quiz):

@@ -178,7 +178,7 @@ class SinglePlayerNamespace(Namespace):
                 answered_questions=quiz.answered_questions
             )
             quiz_history.save()
-            user.completed_quizzes.append(quiz_history)
+            user.completed_single_quizzes.append(quiz_history)
         
             # reset original quiz
             quiz.answered_questions = []
@@ -187,7 +187,7 @@ class SinglePlayerNamespace(Namespace):
 
         # else its an randomly created quiz and just append it
         else:
-            user.completed_quizzes.append(quiz)
+            user.completed_single_quizzes.append(quiz)
 
         user.active_quiz = None
         user.save()

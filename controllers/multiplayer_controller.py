@@ -3,7 +3,8 @@ from flask import jsonify, make_response, request
 import random
 import string
 import requests
-from models.quiz_model import Quiz, AnsweredQuestion
+from models.quiz_model import AnsweredQuestion
+from models.multiplayer_quiz_model import MultiplayerQuiz, MultiplayerParticipant
 from models.user_model import User
 from models.question_model import Question
 from services.quiz_service import store_questions, create_quiz_questions
@@ -241,19 +242,27 @@ class MultiplayerNamespace(Namespace):
         # store the questions in the database, and return the question objects as a list
         questions = store_questions(response['results'])
         
-        # create a new quiz object and store it in the database
+        # create a new multiplayer quiz object and store it in the database
         # set timestamp to the current time since the quiz is just starting
-        quiz = Quiz(title=category_dict[category], score=0, timestamp=datetime.now(), total_questions=amount, questions=questions)
+        # create multiplayer participants for all connected users to use 
+        # to measure progress
+        quiz = MultiplayerQuiz(title=category_dict[category], timestamp=datetime.now(), total_questions=amount, questions=questions)
         quiz.save()
 
-        # set all the user's active quiz to this one.
         emails = getEmailsInRoom(room)
 
         for email in emails:
+            # set all the user's active quiz to this one
             user = User.objects(email=email).first()
             print(user.email, user.username)
             user.active_quiz = quiz
             user.save()
+
+            # create MultiplayerParticipants to track quiz progress of each player
+            participant = MultiplayerParticipant(user=user)
+            quiz.participants.append(participant)
+        
+        quiz.save()
 
         quiz_questions = create_quiz_questions(questions)
 
@@ -272,8 +281,9 @@ class MultiplayerNamespace(Namespace):
         question_index = data['question_index']
 
         # dont check the answer if the user doesn't have an active quiz
-        if quiz is None:
-            print("no active quiz")
+        # user.active_quiz can be either Quiz or MultiplayerQuiz so check
+        if quiz is None and isinstance(quiz, MultiplayerQuiz):
+            print("no active multiplayer quiz")
             return
         
         # players needs to be in a room
@@ -303,6 +313,12 @@ class MultiplayerNamespace(Namespace):
         else:
             player_game_state['correct'] = False
 
+        # UPDATE MultiplayerQuiz and MultiplayerParticipant for this user
+        participant = quiz.getParticipant(user.id)
+        participant.answered_questions.append(AnsweredQuestion(question=question, user_answer=data['user_answer']))
+        participant.score = player_game_state['score']
+        quiz.save()
+
         # print("results", results)
         # wait until everyone has answered to return results.
         if not getAnsweredInRoom(room):
@@ -310,14 +326,6 @@ class MultiplayerNamespace(Namespace):
             return 
 
         print("EVERYONE ANSWERED, CHECKING AND SENDING RESULTS")
-
-        # store the question and user's answer in the answered_questions list
-        # NEED TO CHANGE THIS LOGIC, KEPT FOR TESTING
-        quiz.answered_questions.append(
-            AnsweredQuestion(question=question, user_answer=data['user_answer'])
-        )
-
-        quiz.save() 
 
         answers = []
 
@@ -343,7 +351,7 @@ class MultiplayerNamespace(Namespace):
         # Need to emit list of player resuls to everyone.
         self.emit('answer_checked', results, room=room)
 
-        Thread(target=self.sleepThenContinueQuiz, kwargs={"user": user, "quiz": quiz, "room": room}).start()
+        Thread(target=self.sleepThenContinueQuiz, kwargs={"quiz": quiz, "room": room}).start()
 
     def on_leave_room(self):
         name = sid_to_player.get(request.sid, {}).get('name')
@@ -386,10 +394,10 @@ class MultiplayerNamespace(Namespace):
     # HELPER FUNCTIONS
     # buffer between sending question results and moving to next question
     # so clients have time to see results
-    def sleepThenContinueQuiz(self, user: User, quiz: Quiz, room: str, seconds: int=2):
+    def sleepThenContinueQuiz(self, quiz: MultiplayerQuiz, room: str, seconds: int=2):
         sleep(seconds)
 
-        if len(quiz.answered_questions) != quiz.total_questions:
+        if rooms[room]['questionIndex'] != (quiz.total_questions - 1):
             print('NEXT QUESTION')
             rooms[room]['questionIndex'] += 1
             self.emit('next_question', {"newQuestionIndex": rooms[room]['questionIndex']})
@@ -398,6 +406,18 @@ class MultiplayerNamespace(Namespace):
         # Quiz completed, store results.
         
         self.emit('quiz_completed', {"scores": getScoresInRoom(room)}, room=room)
+
+        # update participants and store quiz in users that completed the whole thing
+        for participant in quiz.getAllParticipants():
+            if len(participant.answered_questions) == quiz.total_questions:
+                participant.is_finished = True
+                user = participant.user
+                user.completed_multi_quizzes.append(quiz)
+
+                user.save()
+        
+        quiz.save()
+
 
         # TODO: storing results, commented out is the singleplayer version
         # problem with current approach is that only the last user to answer has their
@@ -414,7 +434,7 @@ class MultiplayerNamespace(Namespace):
         #         answered_questions=quiz.answered_questions
         #     )
         #     quiz_history.save()
-        #     user.completed_quizzes.append(quiz_history)
+        #     user.completed_single_quizzes.append(quiz_history)
         
         #     # reset original quiz
         #     quiz.answered_questions = []
@@ -423,7 +443,7 @@ class MultiplayerNamespace(Namespace):
 
         # # else its an randomly created quiz and just append it
         # else:
-        #     user.completed_quizzes.append(quiz)
+        #     user.completed_single_quizzes.append(quiz)
 
         # user.active_quiz = None
         # user.save()
