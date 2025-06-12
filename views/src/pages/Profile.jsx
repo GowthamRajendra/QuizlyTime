@@ -273,6 +273,7 @@ function Profile() {
                                             key={index}
                                             title={quiz.title}
                                             score={quiz.score}
+                                            is_multiplayer={quiz.is_multiplayer}
                                             total_questions={quiz.total_questions}
                                             timestamp={quiz.timestamp}
                                             animOrder={index % 5}

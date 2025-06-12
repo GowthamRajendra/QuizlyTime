@@ -8,6 +8,9 @@ from enum import Enum
 # create a JWT token for a user that has successfully logged in.
 # keep user logged in 
 def create_jwt(user):
+    if not user:
+        return
+
     access_payload = {
         'sub': str(user.id),
         'email': user.email,

@@ -12,4 +12,14 @@ class User(Document):
     created_quizzes = ListField(ReferenceField(Quiz)) # list of quizzes created by user
     
     meta = {'collection': 'users'} # collection name in the database
+
+    def getCreations(id):
+        return User.objects(id=id).first().created_quizzes
+    
+    def getHistory(id):
+        user = User.objects(id=id).first()
+
+        history = sorted(user.completed_multi_quizzes + user.completed_single_quizzes, key=lambda q: q.timestamp, reverse=True)
+    
+        return history
                                                   
