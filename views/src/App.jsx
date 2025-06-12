@@ -13,13 +13,14 @@ import CreateQuiz from './pages/CreateQuiz'
 import CreateQuizComplete from './pages/CreateQuizComplete'
 import QuizSelection from './pages/QuizSelection'
 import Protected from './components/Protected'
-import { Routes, Route, Outlet } from 'react-router-dom'
+import { Routes, Route} from 'react-router-dom'
 import useAuth from './hooks/useAuth'
 // import Loading from './components/Loading'
 import CreateJoinRoom from './pages/multiplayer/CreateJoinRoom'
 import Lobby from './pages/multiplayer/Lobby'
 import MultiplayerGame from './pages/multiplayer/MultiplayerGame'
 import MultiplayerResults from './pages/multiplayer/MultiplayerResults'
+import ChooseGameMode from './pages/ChooseGameMode'
 
 function App() {
   const { auth } = useAuth()
@@ -34,11 +35,12 @@ function App() {
           <Route path='/register' element={<Register />} />
           {/* Protected routes */}
           <Route element={<Protected/>}>
-            <Route path='/quiz' element={<ChooseQuizType/>}/>
-            <Route path='/quiz/select' element={<QuizSelection/>}/>
-            <Route path='/quiz/setup' element={<QuizSetup/>}/>
-            <Route path='/quiz/play' element={<Quiz/>}/>
-            <Route path='/quiz/results' element={<QuizComplete/>}/>
+            <Route path='/play' element={<ChooseGameMode/>} />
+            <Route path='/singleplayer' element={<ChooseQuizType/>}/>
+            <Route path='/singleplayer/select' element={<QuizSelection/>}/>
+            <Route path='/singleplayer/setup' element={<QuizSetup/>}/>
+            <Route path='/singleplayer/play' element={<Quiz/>}/>
+            <Route path='/singleplayer/results' element={<QuizComplete/>}/>
             <Route path='/quiz/create/setup' element={<CreateQuizSetup/>}/>
             <Route path='/quiz/create/questions' element={<CreateQuiz/>}/>
             <Route path='/quiz/create/complete' element={<CreateQuizComplete/>}/>

@@ -51,7 +51,7 @@ export default function QuizSelection (){
             setLoading(true);
             const response = await axios.post('/begin-quiz', {quiz_id: quizzes[index].id});
             console.log(`Retrieved: ${JSON.stringify(response.data)}`);
-            navigate('/quiz/play', {state: {questions: quizzes[index].questions}});
+            navigate('/singleplayer/play', {state: {questions: quizzes[index].questions}});
         } catch (error) {
             setLoading(false);
             console.error(error);

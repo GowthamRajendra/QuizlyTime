@@ -38,7 +38,7 @@ export default function QuizSetup() {
             console.log(response.data)
             console.log(response.data.length)    
             // navigate to the quiz page with the questions
-            navigate('/quiz/play', {state: {questions: response.data}})
+            navigate('/singleplayer/play', {state: {questions: response.data}})
 
         } catch (error) {
             setLoading(false)

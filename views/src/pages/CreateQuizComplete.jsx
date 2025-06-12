@@ -24,7 +24,11 @@ export default function CreateQuizComplete() {
                     </Row>
                     <Row className="d-flex flex-row m-3">
                         <Col className="d-flex flex-row justify-content-center">
-                            <Button onClick={() => navigate('/quiz/play', {state: {questions}})}>Play Quiz</Button>
+                            <Button onClick={() => {
+                                console.log("COMPLETED CREATE/EDIT", questions)
+                                navigate('/singleplayer/play', {state: {questions: questions}})
+                                
+                                }}>Play Quiz</Button>
                         </Col>
                     </Row>
                 </Container>

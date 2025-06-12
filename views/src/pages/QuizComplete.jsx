@@ -16,7 +16,7 @@ function QuizComplete() {
     return (
         // if no score, redirect to quiz setup (because something went wrong)
         (score === null)
-        ? <Navigate to='/quiz/setup' replace />
+        ? <Navigate to='/singleplayer/setup' replace />
         : <Card className="d-flex flex-row col-11 col-lg-4 shadow-sm mt-3 fade-in">
             <Container>
                 <Row className="d-flex flex-row m-3">
@@ -32,7 +32,7 @@ function QuizComplete() {
                 </Row>
                 <Row className="d-flex flex-row m-3">
                     <Col className="d-flex flex-row justify-content-center">
-                        <Button onClick={() => {navigate('/quiz')}}>Play Again</Button>
+                        <Button onClick={() => {navigate('/singleplayer')}}>Play Again</Button>
                     </Col>
                 </Row>
             </Container>

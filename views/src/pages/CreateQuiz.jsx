@@ -99,7 +99,7 @@ export default function CreateQuiz() {
                 questions: questionsFormatted
             })
             setLoading(false)
-            console.log(response.data)
+            console.log("FINISHED EDITTING", response.data)
             navigate('/quiz/create/complete', {state: {questions: response.data}})
         } catch (error) {
             setLoading(false)

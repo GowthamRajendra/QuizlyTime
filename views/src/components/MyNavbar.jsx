@@ -16,10 +16,9 @@ function MyNavbar() {
                     !auth   
                     ? [<Link to="/login" id='loginNav' className='nav-link' key={1}>Login</Link>,
                     <Link to="/register" id='registerNav' className='nav-link' key={2}>Register</Link>]
-                    : [<Link to="/quiz" id='playNav' className='nav-link' key={3}>Play</Link>,
+                    : [<Link to="/play" id='playNav' className='nav-link' key={3}>Play</Link>,
                     <Link to="/quiz/create/setup" id='createNav' className='nav-link' key={4}>Create</Link>,
-                    <Link to="/" id='logoutNav' className='nav-link' onClick={logout} key={5}>Logout</Link>,
-                    <Link to="/multiplayer" id='multiplayerNav' className='nav-link' key={6}>Multiplayer</Link>]
+                    <Link to="/" id='logoutNav' className='nav-link' onClick={logout} key={5}>Logout</Link>,]
                 }
             </Nav>
         </Navbar>

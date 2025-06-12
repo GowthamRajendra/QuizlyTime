@@ -74,7 +74,7 @@ export default function Quiz() {
             console.log(`quiz completed: ${score}`);
             console.log(`total questions: ${questions.length}`);
 
-            navigate('/quiz/results', {replace: true, state: {score: score, total: questions.length*10}})
+            navigate('/singleplayer/results', {replace: true, state: {score: score, total: questions.length*10}})
         }
         
         newSocket.on('answer_checked', handleAnswerChecked)        
@@ -180,7 +180,7 @@ export default function Quiz() {
     return (
         // If no questions, redirect to setup page. Either error or user tried to access quiz page directly.
         (questions.length === 0)
-        ? <Navigate to='/quiz/setup' replace />
+        ? <Navigate to='/singleplayer/setup' replace />
           // Question card, with prompt and choices.
         : <Card className='d-flex flex-row justify-content-center col-11 col-lg-8 slide-down'>
             <Container>

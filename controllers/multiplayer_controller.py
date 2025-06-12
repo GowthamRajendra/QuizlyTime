@@ -130,17 +130,50 @@ class MultiplayerNamespace(Namespace):
             # remove player from room player game state
             rooms[room]['players'].pop(request.sid, None)
 
+            print('PLAYERS LEFT', rooms[room]['players'])
+
             # if no more players, delete room from dictionary
             if rooms[room]['playerCount'] <= 0:
                 print("DELETING ROOM, NO MORE PLAYERS")
                 rooms.pop(room, None)
 
-        # cleanup disconnected players entries in sid dictionaries
+            # if there are still players check if everyone answered to continue quiz
+            elif getAnsweredInRoom(room):
+                print("SOMEONE LEFT BUT EVERYONE ELSE ANSWERED, CHECKING AND SENDING RESULTS")
+
+                answers = []
+
+                # get names, answers and whether they were correct
+                for sid, player_game_state in rooms[room]['players'].items():
+                    username = sid_to_player[sid]['name']
+                    answers.append({
+                        "username": username,
+                        "user_answer": player_game_state['answer'],
+                        "is_correct": player_game_state['correct']
+                    })
+
+                    player_game_state['answered'] = False
+                
+                question = rooms[room]['question']
+                question_index = rooms[room]['questionIndex']
+                # send everyones results to everyone
+                results = {
+                    "correct_answer": question.correct_answer,
+                    "question_index": question_index,
+                    "answers": answers
+                }
+
+                print("EVERYONES RESULTS: ", results)
+                # Need to emit list of player resuls to everyone.
+                self.emit('answer_checked', results, room=room)
+
+                quiz_id = rooms[room]['quiz_id']
+                print('IN QUIZ', quiz_id)
+                Thread(target=self.sleepThenContinueQuiz, kwargs={"quiz_id": quiz_id, "room": room}).start()      
+
+        # cleanup disconnected player's entries in sid dictionaries
         sid_to_player.pop(request.sid, None)
         sid_to_room.pop(request.sid, None)
-
-        # TODO NEED TO HANDLE PLAYERS LEAVING DURING THE MATCH
-        # CHECK IF AFTER SOMEONE LEAVES, EVERYONE LEFT HAS ALREADY ANSWERED
 
     # storing user information after successful connection.
     # client side only needs to send info once, convinient to get info
@@ -175,7 +208,12 @@ class MultiplayerNamespace(Namespace):
 
         # join socket room, add room to dict with initial game state.
         join_room(room)
-        rooms[room] = {'players': {request.sid: {'score': 0, 'active': True, 'answered': False, 'answer': '', 'correct': False}}, 'questionIndex': 0 , 'playerCount': 1, 'status': 'waiting'}
+        rooms[room] = {'players': {request.sid: {'score': 0, 'active': True, 'answered': False, 'answer': '', 'correct': False}}, 
+                       'quiz_id': '',
+                       'questionIndex': 0 ,
+                       'question': None, 
+                       'playerCount': 1, 
+                       'status': 'waiting'}
         
         # easy to get what room a socket is in.
         sid_to_room[request.sid] = room
@@ -249,6 +287,8 @@ class MultiplayerNamespace(Namespace):
         quiz = MultiplayerQuiz(title=category_dict[category], timestamp=datetime.now(), total_questions=amount, questions=questions)
         quiz.save()
 
+        rooms[room]['quiz_id'] = quiz.id
+
         emails = getEmailsInRoom(room)
 
         for email in emails:
@@ -298,6 +338,7 @@ class MultiplayerNamespace(Namespace):
 
         # get the question object from the question id
         question = Question.objects(pk=data['question_id']).first()
+        rooms[room]['question'] = question
         print(question.category)
 
         # check if the answer is correct
@@ -326,6 +367,7 @@ class MultiplayerNamespace(Namespace):
             return 
 
         print("EVERYONE ANSWERED, CHECKING AND SENDING RESULTS")
+        print('IN QUIZ', quiz)
 
         answers = []
 
@@ -343,7 +385,7 @@ class MultiplayerNamespace(Namespace):
         # send everyones results to everyone
         results = {
             "correct_answer": question.correct_answer,
-            "question_index": question_index,
+            "question_index": question_index, # current question index, probably not needed but w/e
             "answers": answers
         }
 
@@ -351,7 +393,7 @@ class MultiplayerNamespace(Namespace):
         # Need to emit list of player resuls to everyone.
         self.emit('answer_checked', results, room=room)
 
-        Thread(target=self.sleepThenContinueQuiz, kwargs={"quiz": quiz, "room": room}).start()
+        Thread(target=self.sleepThenContinueQuiz, kwargs={"quiz_id": rooms[room]['quiz_id'], "room": room}).start()
 
     def on_leave_room(self):
         name = sid_to_player.get(request.sid, {}).get('name')
@@ -394,7 +436,11 @@ class MultiplayerNamespace(Namespace):
     # HELPER FUNCTIONS
     # buffer between sending question results and moving to next question
     # so clients have time to see results
-    def sleepThenContinueQuiz(self, quiz: MultiplayerQuiz, room: str, seconds: int=2):
+    def sleepThenContinueQuiz(self, quiz_id: str, room: str, seconds: int=2):
+        # using quiz_id instead of just sending in the quiz Object itself is because
+        # the quiz Object may be stale. Better to get a fresh reference.
+        quiz = MultiplayerQuiz.objects(id=quiz_id).first()
+
         sleep(seconds)
 
         if rooms[room]['questionIndex'] != (quiz.total_questions - 1):
@@ -404,9 +450,6 @@ class MultiplayerNamespace(Namespace):
             return
 
         # Quiz completed, store results.
-        
-        self.emit('quiz_completed', {"scores": getScoresInRoom(room)}, room=room)
-
         # update participants and store quiz in users that completed the whole thing
         for participant in quiz.getAllParticipants():
             if len(participant.answered_questions) == quiz.total_questions:
@@ -418,36 +461,4 @@ class MultiplayerNamespace(Namespace):
         
         quiz.save()
 
-
-        # TODO: storing results, commented out is the singleplayer version
-        # problem with current approach is that only the last user to answer has their
-        # AnsweredQuestion saved to the Quiz document. Need to figure out a way to store
-        # everyone's results. Also need to discard users who dont actually finish the quiz?
-        # if quiz.user_created:
-        #     # create copy of quiz for user
-        #     quiz_history = Quiz(
-        #         title=quiz.title, 
-        #         score=quiz.score, 
-        #         timestamp=datetime.now(), 
-        #         total_questions=quiz.total_questions, 
-        #         questions=quiz.questions,
-        #         answered_questions=quiz.answered_questions
-        #     )
-        #     quiz_history.save()
-        #     user.completed_single_quizzes.append(quiz_history)
-        
-        #     # reset original quiz
-        #     quiz.answered_questions = []
-        #     quiz.score = 0
-        #     quiz.save()
-
-        # # else its an randomly created quiz and just append it
-        # else:
-        #     user.completed_single_quizzes.append(quiz)
-
-        # user.active_quiz = None
-        # user.save()
-
-
-        
-
+        self.emit('quiz_completed', {"scores": getScoresInRoom(room)}, room=room)

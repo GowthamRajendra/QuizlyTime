@@ -4,7 +4,7 @@ import os
 from models.user_model import User
 from services.auth_service import token_required
 
-from services.user_service import register_user, RegisterUserResult, login_user, LoginUserResult, refresh_tokens, get_user_history, get_user_creations
+from services.user_service import register_user, RegisterUserResult, login_user, LoginUserResult, refresh_tokens
 from models.quiz_model import Quiz
 from models.multiplayer_quiz_model import MultiplayerQuiz
 users_bp = Blueprint('users_bp', __name__)
@@ -121,12 +121,14 @@ def format_quizzes(quizzes: List[Quiz | MultiplayerQuiz], user_id):
     results = [
         # Need to structure Singleplayer and Multiplayer quiz data differently
         {
+            "id": str(quiz.id),
             "title": quiz.title,
             "score": quiz.score,
             "timestamp": quiz.timestamp,
             "total_questions": quiz.total_questions,
 
         } if isinstance(quiz, Quiz) else {
+            "id": str(quiz.id),
             "title": quiz.title,
             "timestamp": quiz.timestamp,
             "is_multiplayer": True,
@@ -148,7 +150,7 @@ def format_quizzes(quizzes: List[Quiz | MultiplayerQuiz], user_id):
 def get_history(user_data):
     id = user_data['sub']
 
-    history = get_user_history(id)
+    history = User.getHistory(id)
 
     return make_response(jsonify(format_quizzes(history, id)), 200)
 
@@ -158,6 +160,6 @@ def get_history(user_data):
 def get_creations(user_data):
     id = user_data['sub']
     
-    creations = get_user_creations(id)
+    creations = User.getCreations(id)
 
     return make_response(jsonify(format_quizzes(creations, id)), 200)
