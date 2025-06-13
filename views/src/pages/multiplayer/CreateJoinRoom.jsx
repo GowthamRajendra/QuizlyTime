@@ -11,6 +11,9 @@ function CreateJoinRoom() {
     const [codeVal, setCodeVal] = useState('')
 
     useEffect(() => {
+        // check if user is already in a room. if so, they will be navigated to the lobby.
+        socket.emit('check_for_room')
+        
         // store some user information on server side for easier user handling
         socket.emit('register_user', {'email': auth.email, 'name': auth.username})
 

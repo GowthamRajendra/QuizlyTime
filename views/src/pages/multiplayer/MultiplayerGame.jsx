@@ -21,7 +21,7 @@ function MultiplayerGame() {
 
     // Display current question
     const [questionIndex, setQuestionIndex] = useState(0)
-    const currQuestion = questions[questionIndex]
+    const currQuestion = () => questions[questionIndex]
 
     // User selected answer
     const [selected, setSelected] = useState(null)
@@ -31,7 +31,7 @@ function MultiplayerGame() {
     const [correct, setCorrect] = useState(null)
 
     // Timer for question
-    const [timer, setTimer] = useState(currQuestion?.timer ?? 0)
+    const [timer, setTimer] = useState(currQuestion()?.timer ?? 0)
     const [maxTime, setMaxTime] = useState(timer)
 
     const navigate = useNavigate()
@@ -90,16 +90,16 @@ function MultiplayerGame() {
         else {
             setSubmitted(true)
             if (selected !== null) {
-                user_answer = currQuestion.choices[selected]
+                user_answer = currQuestion().choices[selected]
             }
         }
 
         // Check if answer is correct
         // Display correct/incorrect
         // socket event to server
-        console.log(`email: ${auth.email}, question_id: ${currQuestion.question_id}, user_answer: ${user_answer}, time left: ${timer}, max time: ${maxTime}`);
+        console.log(`email: ${auth.email}, question_id: ${currQuestion().question_id}, user_answer: ${user_answer}, time left: ${timer}, max time: ${maxTime}`);
         socket.emit('check_answer', { 
-            "question_id": currQuestion.question_id, 
+            "question_id": currQuestion().question_id, 
             "user_answer": user_answer, 
             "question_index": questionIndex,
             "time_left": timer,
@@ -187,10 +187,10 @@ function MultiplayerGame() {
                     </Col>
                 </Row>
                 <Row className='d-flex flex-row justify-content-center mx-3 mt-3'>
-                    <h3>{questionIndex+1}. {currQuestion.prompt}</h3>
+                    <h3>{questionIndex+1}. {currQuestion().prompt}</h3>
                 </Row>
                 <Row className='d-flex flex-row row-gap-3 mx-3 mt-3'>
-                    {currQuestion.choices.map((choice, index) => {
+                    {currQuestion().choices.map((choice, index) => {
                         return <Button key={index} 
                         variant={buttonColor(index)} 
                         onClick={() => setSelected(index)}

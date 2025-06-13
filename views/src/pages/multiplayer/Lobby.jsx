@@ -7,10 +7,6 @@ function Lobby() {
     const socket = useMultiplayerSocket()
     const navigate = useNavigate()
     const location = useLocation()
-    // check if user left page via starting game or main page
-    // important for leaving the room on the server side if it was an
-    // improper leave (leaving page without pressing 'leave game')
-    const improperLeave = useRef(true)
     
     const [showSettings, setShowSettings] = useState(false)
     const [messageVal, setMessageVal] = useState('')
@@ -28,8 +24,13 @@ function Lobby() {
 
     // initialize all relevant socket stuff for this page.
     useEffect(() => {
-        
         // functions for handling the socket endpoints
+        const handleNotInRoom = () => {
+            navigate('/play')
+        }
+        const handleRoomCodeReceived = ({code}) => {
+            setRoomCode(code)
+        } 
         const handlePlayerJoined = ({names}) => {
             setUsers(names)
         }
@@ -53,19 +54,24 @@ function Lobby() {
         
         // get list of players when you enter lobby
         socket.emit('current_players') 
+        // if user came to this page via url, check if they are in a room
+        // and show results if they are.
+        socket.emit('check_for_room')
 
         // setup listeners
+        socket.on('not_in_room', handleNotInRoom)
+        socket.on('room_created', handleRoomCodeReceived)
         socket.on('player_joined', handlePlayerJoined)
         socket.on('player_message', handlePlayerMessage)
         socket.on('player_left', handlePlayerLeft)
         socket.on('start_game', handleStartGame)
         socket.on('leave_room_successful', handleLeaveRoom)
-
-        console.log(socket.listeners('start_game'))
         
         // cleanup endpoints so duplicates dont build up everytime you
         // return to the lobby page.
         return () => {
+            socket.off('not_in_room', handleNotInRoom)
+            socket.off('room_created', handleRoomCodeReceived)
             socket.off('player_joined', handlePlayerJoined)
             socket.off('player_message', handlePlayerMessage)
             socket.off('player_left', handlePlayerLeft)

@@ -219,8 +219,8 @@ class MultiplayerNamespace(Namespace):
         sid_to_room[request.sid] = room
 
         # send initial update to the lobby creator
-        self.emit('room_created', {'code': room}, room=room)
-        self.emit('player_joined', {'names': getNamesInRoom(room)}, room=room)
+        self.emit('room_created', {'code': room}, room=request.sid)
+        self.emit('player_joined', {'names': getNamesInRoom(room)}, room=request.sid)
     
     def on_join_room(self, data):
         # if player info was not successfully recorded
@@ -247,9 +247,21 @@ class MultiplayerNamespace(Namespace):
         print(f"players in room {room}", rooms[room]['players'])
 
         # send room code and list of all players to display on client sides
-        self.emit('room_created', {'code': room}, room=room)
-        self.emit('player_joined', {'names': getNamesInRoom(room)}, room=room)
-    
+        self.emit('room_created', {'code': room}, room=request.sid)
+        self.emit('player_joined', {'names': getNamesInRoom(room)}, room=request.sid)
+
+    # see if a user is already in a room.
+    # if so, send info for room.
+    def on_check_for_room(self):
+        if request.sid not in sid_to_room:
+            self.emit('not_in_room')
+            return
+
+        room = sid_to_room[request.sid]
+
+        self.emit('room_created', {'code': room}, room=request.sid)
+        self.emit('player_joined', {'names': getNamesInRoom(room)}, room=request.sid)
+
     def on_current_players(self):
         if request.sid not in sid_to_room:
             return
