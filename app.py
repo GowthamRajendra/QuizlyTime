@@ -37,7 +37,7 @@ def create_app():
 
     # initialize socketio
     # change cors_allowed_origins later
-    socketio.init_app(app, cors_allowed_origins='*')
+    socketio.init_app(app, cors_allowed_origins=os.getenv('FRONT_END_URL','*'))
 
     # register singleplayer and multiplayer namespaces
     socketio.on_namespace(SinglePlayerNamespace('/singleplayer'))
