@@ -16,6 +16,7 @@ COPY requirements.txt /app/
 
 # Set the PYTHONPATH environment variable to /app
 ENV PYTHONPATH=/app
+ENV FLASK_ENV=production
 
 # Install Python dependencies from requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt

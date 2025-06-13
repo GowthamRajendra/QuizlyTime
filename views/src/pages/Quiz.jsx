@@ -45,7 +45,11 @@ export default function Quiz() {
     // Set up socket connection and events
     useEffect(() => {
         // Connect to the server
-        const newSocket = io(`${import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'}/singleplayer`)
+        const newSocket = io(`${import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'}/singleplayer`,
+            {
+                transports:['websocket'],
+                withCredentials: true
+            })
         setSocket(newSocket)
 
         console.log(`${auth.email}, ${auth.username} connected to quiz`);

@@ -1,7 +1,7 @@
 import os
 
 # only patch in production, pytests wont work when patched
-if os.environ.get('ENV') == 'production':
+if os.environ.get('FLASK_ENV') == 'production':
     from gevent import monkey
     monkey.patch_all()
 
