@@ -82,7 +82,10 @@ export default function Quiz() {
         }
         
         newSocket.on('connect', () => {
-            console.log("CONNECTED TO SINGLEPLAYER")
+            console.log("CONNECTED")
+        })
+        newSocket.on('no_namespace', () => {
+            console.log("TRIED SINGLEPLAYER BUT DID NOT CONNECT TO NAMESPACE")
         })
         newSocket.on('answer_checked', handleAnswerChecked)        
         newSocket.on('next_question', handleNextQuestion)

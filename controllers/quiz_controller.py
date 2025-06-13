@@ -98,6 +98,10 @@ def create_random_quiz(user_data):
     # return the quiz
     return make_response(jsonify(quiz_questions), 200)
 
+@socketio.on('connect')
+def connection():
+    emit('no_namespace')
+
 class SinglePlayerNamespace(Namespace):
     def on_connect(self):
         print('connected')

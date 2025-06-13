@@ -15,6 +15,14 @@ export const MultiplayerSocketProvider = ({children}) => {
         )
         setSocket(newSocket)
         
+        newSocket.on('connect', () => {
+            console.log("CONNECTED")
+        })
+
+        newSocket.on('no_namespace', () => {
+            console.log("TRIED MULTIPLAYER BUT DID NOT CONNECT TO NAMESPACE")
+        })
+        
         return () => {
             newSocket.disconnect()
         }
