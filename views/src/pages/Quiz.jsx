@@ -81,6 +81,9 @@ export default function Quiz() {
             navigate('/singleplayer/results', {replace: true, state: {score: score, total: questions.length*10}})
         }
         
+        newSocket.on('connect', () => {
+            console.log("CONNECTED TO SINGLEPLAYER")
+        })
         newSocket.on('answer_checked', handleAnswerChecked)        
         newSocket.on('next_question', handleNextQuestion)
         newSocket.on('quiz_completed', handleQuizCompleted)
