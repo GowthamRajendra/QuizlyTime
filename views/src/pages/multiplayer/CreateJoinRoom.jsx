@@ -36,7 +36,7 @@ function CreateJoinRoom() {
     return <div>
         <button onClick={() => createRoom()}>Create Room</button>
         <button onClick={() => joinRoom()}>Join Room</button>
-        <input type="text" value={codeVal} onChange={(e) => {setCodeVal(e.target.value)}}/>
+        <input type="text" placeholder='Enter a room code' value={codeVal} onChange={(e) => {setCodeVal(e.target.value)}}/>
     </div>
 }
 
