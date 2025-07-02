@@ -2,7 +2,7 @@ import jwt
 import bcrypt
 from datetime import datetime, timedelta, timezone
 from functools import wraps
-from flask import current_app as app, request
+from flask import current_app, request
 from enum import Enum
 
 # create a JWT token for a user that has successfully logged in.
@@ -26,8 +26,8 @@ def create_jwt(user):
         'iat': datetime.now(timezone.utc),
         'exp': datetime.now(timezone.utc) + timedelta(days=14)
     }
-    access_token = jwt.encode(access_payload, app.config["JWT_SECRET"], algorithm="HS256")
-    refresh_token = jwt.encode(refresh_payload, app.config["JWT_SECRET"], algorithm="HS256")
+    access_token = jwt.encode(access_payload, current_app.config["JWT_SECRET"], algorithm="HS256")
+    refresh_token = jwt.encode(refresh_payload, current_app.config["JWT_SECRET"], algorithm="HS256")
     return access_token, refresh_token
 
 # enum for validate token errors
@@ -44,7 +44,7 @@ def validate_token(token, token_type):
         return ValidateTokenResult.MISSING, None
     
     try:
-        user_data = jwt.decode(token, app.config['JWT_SECRET'], algorithms=["HS256"])
+        user_data = jwt.decode(token, current_app.config['JWT_SECRET'], algorithms=["HS256"])
         
         if user_data['type'] != token_type:
             return ValidateTokenResult.INVALID, None

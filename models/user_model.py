@@ -13,6 +13,9 @@ class User(Document):
     
     meta = {'collection': 'users'} # collection name in the database
 
+    def getUser(email):
+        return User.objects(email=email).first()
+
     def getCreations(id):
         return User.objects(id=id).first().created_quizzes
     

@@ -7,7 +7,7 @@ import { MultiplayerSocketProvider } from './context/MultiplayerSocketProvider.j
 // import './index.css'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
     <AuthProvider>
       <MultiplayerSocketProvider>
         <BrowserRouter>
@@ -15,5 +15,5 @@ createRoot(document.getElementById('root')).render(
         </BrowserRouter>
       </MultiplayerSocketProvider>
     </AuthProvider>
-  </StrictMode>,
+  // </StrictMode>,
 )

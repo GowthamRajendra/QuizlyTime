@@ -10,3 +10,6 @@ class Question(Document):
     incorrect_answers = ListField(StringField(), required=True)
 
     meta = {'collection': 'questions'} # collection name in the database
+
+    def getQuestion(id):
+        return Question.objects(pk=id).first()

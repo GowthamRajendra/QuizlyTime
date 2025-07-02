@@ -21,6 +21,9 @@ class MultiplayerQuiz(Document):
 
     meta = {'collection': 'multiplayer_quizzes'}
 
+    def getQuiz(quiz_id):
+        return MultiplayerQuiz.objects(id=quiz_id).first()
+
     def getParticipant(self, user_id):
         # need to convert because participant.user.id is a 
         obj_user_id = ObjectId(user_id)

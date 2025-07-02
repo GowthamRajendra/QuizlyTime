@@ -1,3 +1,4 @@
+async-timeout==5.0.1
 attrs==24.2.0
 bcrypt==4.2.0
 bidict==0.23.1
@@ -10,7 +11,6 @@ click==8.1.7
 colorama==0.4.6
 cryptography==43.0.3
 dnspython==2.6.1
-eventlet==0.38.0
 exceptiongroup==1.2.2
 Flask==3.0.3
 Flask-Cors==5.0.0
@@ -56,6 +56,7 @@ python-engineio==4.10.1
 python-socketio==5.11.4
 pytz==2024.2
 PyYAML==6.0.2
+redis==6.2.0
 requests==2.32.3
 selenium==4.27.1
 selenium-wire==5.1.0

@@ -1,6 +1,7 @@
 import os
 
 # only patch in production, pytests wont work when patched
+# patching standard lib required for gevent and redis to work properly.
 if os.environ.get('FLASK_ENV') == 'production':
     from gevent import monkey
     monkey.patch_all()
@@ -11,6 +12,7 @@ from dotenv import load_dotenv
 from socket_manager import socketio
 from controllers.quiz_controller import SinglePlayerNamespace
 from controllers.multiplayer_controller import MultiplayerNamespace
+from sys import argv
 
 # load environment variables from the .env file
 load_dotenv(override=True)
@@ -55,9 +57,12 @@ app = create_app()
 
 if __name__ == '__main__':
     debug = True
-    if os.environ.get('FLASK_ENV') == 'production':
-        debug = False
+    # if os.environ.get('FLASK_ENV') == 'production':
+    #     debug = False
 
-    port = os.getenv('PORT', 5000)
+    if len(argv) > 1:
+        port = argv[1]
+    else:
+        port = os.getenv('PORT', 5000)
 
     socketio.run(app, host="0.0.0.0", port=int(port) , debug=debug)
