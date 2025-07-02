@@ -135,8 +135,10 @@ python app.py
     - user_controller: handles requests regarding account creation, authetication and user statistics.
     - quiz_controller: handles requests regarding random quiz creation and quiz gameplay loop via sockets.
     - custom_quiz_controller: handles requests regarding user-created quiz creation, retrieval, editting and deletion.
+    - multiplayer_controller: handles the multiplayer gameplay loop via socket rooms and redis.
 - Services (./services):
     - auth_service: responsible for creating and validating jwts and hashing and validating passwords.
     - quiz_service: responsible for mapping retrieved questions from api into questions stored in our db.
-    - user_service: responsible for all business logic of user_controller <br>
+    - user_service: responsible for all business logic of user_controller
+    - multiplayer_service: responsible for handling all redis interactions for the multiplayer gameplay loop. <br>
 [Back to Top](#quizlytime---online-quiz-app-using-react-and-flask)
