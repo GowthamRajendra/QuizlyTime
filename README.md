@@ -124,19 +124,26 @@ python app.py
     - ChooseQuizType: page to choose to play either randomly created quizzes or user create quizzes.
     - Random Quiz Pages:
         - QuizSetup: handles settings selection for playing random quiz. Sends requests to quiz_controller.py
-        - Quiz: handles the quiz gameplay using sockets. Game is handles via sockets. Socket endpoints in quiz_controller.py
+        - Quiz: handles the quiz gameplay using sockets. Socket endpoints in quiz_controller.py
         - QuizComplete: displays end of game score.
     - User-created Quiz Pages:
         - CreateQuizSetup: handles input for quiz settings (title and # of questions).
         - CreateQuiz: handles input for question creation. Sends requests to custom_quiz_controller.py
         - CreateQuizComplete: Page shown on successful custom quiz creation.
         - QuizSelection: displays all user created quizzes avaliable to play. Sends requests to custom_quiz_controller.py and quiz_controller.py
+    - Multiplayer Quiz Pages:
+        - CreateJoinRoom: handles input for creating/joining a multiplayer room.
+        - Lobby: handles selecting multiplayer quiz settings, the chatroom and starting the multiplayer game.
+        - MultiplayerGame: handles the multiplayer quiz gameplay using sockets. Socket endpoints in multiplayer_controller.py
+        - MultiplayerResults: displays the end game leaderboard with all participating players in descending order of score.
 - Controllers (./controllers):
     - user_controller: handles requests regarding account creation, authetication and user statistics.
     - quiz_controller: handles requests regarding random quiz creation and quiz gameplay loop via sockets.
     - custom_quiz_controller: handles requests regarding user-created quiz creation, retrieval, editting and deletion.
+    - multiplayer_controller: handles the multiplayer gameplay loop via socket rooms and redis.
 - Services (./services):
     - auth_service: responsible for creating and validating jwts and hashing and validating passwords.
     - quiz_service: responsible for mapping retrieved questions from api into questions stored in our db.
-    - user_service: responsible for all business logic of user_controller <br>
+    - user_service: responsible for all business logic of user_controller
+    - multiplayer_service: responsible for handling all redis interactions for the multiplayer gameplay loop. <br>
 [Back to Top](#quizlytime---online-quiz-app-using-react-and-flask)
