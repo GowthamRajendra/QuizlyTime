@@ -50,14 +50,6 @@ category_dict = {
     '32': "Entertainment: Cartoon & Animations"
 }
 
-# CORS headers, needed for jwt to work
-@quiz_bp.after_request
-def cors_header(response):
-    response.headers['Access-Control-Allow-Origin'] = os.getenv("FRONT_END_URL", 'http://localhost:5173')
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
-    return response
-
 # get quiz questions from the API
 @quiz_bp.route("/quiz", methods=["POST"])
 @token_required("access") 

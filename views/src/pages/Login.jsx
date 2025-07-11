@@ -36,7 +36,7 @@ function Login() {
 
             const response = await axios.post(
                 '/login',
-                {"email": email, "password": password},
+                JSON.stringify({"email": email, "password": password}),
             )
 
             setLoading(false)

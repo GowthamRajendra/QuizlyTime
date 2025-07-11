@@ -1,5 +1,3 @@
-
-
 function Home() {
     return (
         <div className="m-5 text-center fade-in">

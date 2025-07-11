@@ -1,21 +1,13 @@
 from typing import List
 from flask import request, Blueprint, make_response, jsonify
-import os
 from models.user_model import User
 from services.auth_service import token_required
+from datetime import datetime
 
 from services.user_service import register_user, RegisterUserResult, login_user, LoginUserResult, refresh_tokens
 from models.quiz_model import Quiz
 from models.multiplayer_quiz_model import MultiplayerQuiz
 users_bp = Blueprint('users_bp', __name__)
-
-# set CORS headers to allow json and cookies to be sent cross-origin
-@users_bp.after_request
-def cors_header(response):
-    response.headers['Access-Control-Allow-Origin'] = os.getenv("FRONT_END_URL", 'http://localhost:5173')
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
-    return response
 
 @users_bp.route("/register", methods=["POST"])
 def register():
@@ -43,11 +35,17 @@ def register():
 
 @users_bp.route("/login", methods=["POST"])
 def login():
+    print("LOGIN BEFORE .get_json()", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]")
+    print("LOGIN RAW DATA", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", request.data)
+
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
 
+    print("LOGIN", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", email, password)
+
     result, data = login_user(email=email, password=password)
+    print("LOGIN RESULTS", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", result, data)
 
     match result:
         # on successful login, return the user's email and username 
@@ -107,7 +105,14 @@ def refresh(user_data):
 @users_bp.route("/logout", methods=["POST"])
 @token_required("access")
 def logout(_):
+    print("LOGGING OUT BEFORE get_json", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", request.headers)
+    print("LOGOUT DATA", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", request.data)
+    data = request.get_json()
+    print("LOGGING OUT AFTER get_json", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", data)
+
     response = make_response({"message": "Logout successful."}, 200)
+
+    print("LOGGING OUT")
 
     # delete the refresh token by setting their max-age to 0
     # access token deletion is handled on the front-end

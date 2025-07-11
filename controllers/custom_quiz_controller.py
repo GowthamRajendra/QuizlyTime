@@ -14,15 +14,6 @@ from services.quiz_service import store_questions, create_quiz_questions
 
 custom_quiz_bp = Blueprint('custom_quiz_bp', __name__)
 
-@custom_quiz_bp.after_request
-def cors_header(response):
-    response.headers['Access-Control-Allow-Origin'] = os.getenv("FRONT_END_URL", 'http://localhost:5173')
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-
-    return response
-
 @custom_quiz_bp.route("/save-custom-quiz", methods=["POST"])
 @token_required("access") 
 def save_custom_quiz(user_data):

@@ -3,22 +3,22 @@
     - user collection
       -  ~~individual user documents have a uid, email, username, hashed password and session questions.~~ (GET) (POST)
       -  ~~session questions collection (get questions from API per session) (replaced when new quiz is started)~~ (DELETE) (GET)
-      -  user created quizzes collection (POST) (DELETE) (PUT) (GET)
+      -  ~~user created quizzes collection (POST) (DELETE) (PUT) (GET)~~
   - authentication
     - ~~implement creation, handling and deletion of jwt access and refresh tokens~~
     - ~~register and login routes (using JWT)~~ (POST)
     - ~~implement persistent login using refresh tokens~~ 
 - client
-  - Home/Profile page
-  - custom quiz creation page
+  - ~~Home/Profile page~~
+  - ~~custom quiz creation page~~
   - ~~registration and login pages~~
-  - quiz selection page (choose parameters of quiz)
-  - quiz page
+  - ~~quiz selection page (choose parameters of quiz)~~
+  - ~~quiz page~~
 - tests
   - unit tests
-  - integration tests?
+  - integration tests
   - selenium tests
 - deployment
-  - docker
-  - cloud server
-  - github workflows, etc.
+  - ~~docker~~
+  - ~~cloud server~~
+  - ~~github workflows, etc.~~

@@ -3,19 +3,20 @@ import os
 # only patch in production, pytests wont work when patched
 # patching standard lib required for gevent and redis to work properly.
 if os.environ.get('FLASK_ENV') == 'production':
-    from gevent import monkey
-    monkey.patch_all()
+    import eventlet
+    eventlet.monkey_patch()
+
+# load environment variables from the .env file
+from dotenv import load_dotenv
+load_dotenv(override=True)
 
 from flask import Flask
+from flask_cors import CORS
 from mongoengine import connect
-from dotenv import load_dotenv
 from socket_manager import socketio
 from controllers.quiz_controller import SinglePlayerNamespace
 from controllers.multiplayer_controller import MultiplayerNamespace
 from sys import argv
-
-# load environment variables from the .env file
-load_dotenv(override=True)
 
 def create_app():
     app = Flask(__name__)
@@ -54,15 +55,18 @@ def create_app():
     return app
 
 app = create_app()
+CORS(
+    app, 
+    supports_credentials=True,
+    origins=[os.getenv("FRONTEND_URL", "http://localhost:5173")],
+    allow_headers=["Content-Type", "Authorization"],
+    methods=["GET", "POST", "DELETE", "PUT", "OPTIONS"]
+)
 
 if __name__ == '__main__':
-    debug = True
-    # if os.environ.get('FLASK_ENV') == 'production':
-    #     debug = False
-
     if len(argv) > 1:
         port = argv[1]
     else:
         port = os.getenv('PORT', 5000)
 
-    socketio.run(app, host="0.0.0.0", port=int(port) , debug=debug)
+    socketio.run(app, host="0.0.0.0", port=int(port) , debug=os.getenv('FLASK_ENV', True))

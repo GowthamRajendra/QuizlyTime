@@ -65,6 +65,8 @@ def token_required(token_type):
         def decorated(*args, **kwargs):
             token = None
             
+            print("INSIDE TOKEN REQUIRED")
+
             # validate the access token
             if token_type == 'access' and 'Authorization' in request.headers:
                 token = request.headers.get('Authorization').split(' ')[1]

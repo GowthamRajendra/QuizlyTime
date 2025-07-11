@@ -12,11 +12,11 @@ COPY models/ /app/models/
 COPY services/ /app/services/
 COPY app.py /app/
 COPY socket_manager.py /app/
+COPY redis_client.py /app/
 COPY requirements.txt /app/
 
 # Set the PYTHONPATH environment variable to /app
 ENV PYTHONPATH=/app
-ENV FLASK_ENV=production
 
 # Install Python dependencies from requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
@@ -29,4 +29,4 @@ WORKDIR /app
 
 # Run the backend on a gunicorn server port 5000. evenlet needed for socketio
 # gevent needed for gunicorn to work with flask-socketio
-CMD ["gunicorn", "-w", "1", "-k", "geventwebsocket.gunicorn.workers.GeventWebSocketWorker", "-b", "0.0.0.0:5000", "app:app"]
+CMD ["gunicorn", "-w", "1", "-k", "eventlet", "-b", "0.0.0.0:5000", "app:app"]
