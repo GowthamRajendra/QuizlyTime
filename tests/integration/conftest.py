@@ -1,15 +1,18 @@
 import pytest
-from mongoengine import connect, disconnect
-from mongomock import MongoClient
-from socket_manager import socketio
-from app import create_app
 from unittest.mock import MagicMock
-from models.question_model import Question
-from models.quiz_model import Quiz
 from models.user_model import User
 
+@pytest.fixture(scope="session", autouse=True)
+def set_testing_config():
+    import os
+    os.environ["TESTING"] = "1" # disables socketio message queue
+
 @pytest.fixture
-def app():
+def app(set_testing_config):
+    from app import create_app
+    from mongoengine import connect, disconnect
+    from mongomock import MongoClient
+
     # Set up the Flask app with mock database
     app = create_app()
 
@@ -69,6 +72,8 @@ def socketio_client(app, monkeypatch):
     # need this to stop threading in the quiz_controller while testing.
     monkeypatch.setenv('IS_TESTING', '1')
 
+    from socket_manager import socketio
+
     # Create a test client for socket.io
     client = socketio.test_client(app, flask_test_client=app.test_client(), namespace='/singleplayer')
     yield client
@@ -94,6 +99,8 @@ def mock_user(mocker):
 
 @pytest.fixture
 def mock_question(mocker):
+    from models.question_model import Question
+
     # Create a mock question object
     mock_question = MagicMock(spec=Question)
     mock_question.pk = "question_id"
@@ -111,6 +118,8 @@ def mock_question(mocker):
 
 @pytest.fixture
 def mock_quiz(mocker, mock_user, mock_question):
+    from models.quiz_model import Quiz
+    
     # Create a mock quiz object
     mock_quiz = MagicMock(spec=Quiz)
     mock_quiz.id = "quiz_id"

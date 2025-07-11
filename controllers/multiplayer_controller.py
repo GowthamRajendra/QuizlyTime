@@ -38,56 +38,6 @@ TODO:
 #     # request.sid: roomcode
 # }
 
-# def generateRoomCode(length=6):
-#     room = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
-
-#     # don't want dupes, even though very very rare.
-#     while room in rooms:
-#         room = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
-
-#     return room
-
-# def getNamesInRoom(room):
-#     players = rooms[room]['players']
-#     names = []
-#     for sid in players:
-#         names.append(sid_to_player[sid]['name'])
-    
-#     return names
-
-# def getEmailsInRoom(room):
-#     players = rooms[room]['players']
-#     names = []
-#     for sid in players:
-#         names.append(sid_to_player[sid]['email'])
-    
-#     return names
-
-# # check if everyone in a room has answered the current questions
-# def getAnsweredInRoom(room):
-#     players = rooms[room]['players']
-#     print("CHECKING IF EVERYONE ANSWERED: ", players)
-#     # print(players.values())
-#     check = all([player['answered'] for player in players.values()])
-    
-#     return check
-
-# # get scores, format em, sort em and return em for the results screen post-game
-# def getScoresInRoom(room):
-#     players = rooms[room]['players']
-
-#     scores = []
-
-#     for sid, game_state in players.items():
-#         scores.append({'name': sid_to_player[sid]['name'], 'score': game_state['score']})
-    
-#     # sort by score, descending
-#     scores.sort(key=lambda x: x['score'], reverse=True)
-
-#     print(scores)
-
-#     return scores
-
 category_dict = {
     '': 'Any Category',
     '9': "General Knowledge",

@@ -35,17 +35,17 @@ def register():
 
 @users_bp.route("/login", methods=["POST"])
 def login():
-    print("LOGIN BEFORE .get_json()", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]")
-    print("LOGIN RAW DATA", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", request.data)
+    # print("LOGIN BEFORE .get_json()", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]")
+    # print("LOGIN RAW DATA", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", request.data)
 
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
 
-    print("LOGIN", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", email, password)
+    # print("LOGIN", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", email, password)
 
     result, data = login_user(email=email, password=password)
-    print("LOGIN RESULTS", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", result, data)
+    # print("LOGIN RESULTS", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", result, data)
 
     match result:
         # on successful login, return the user's email and username 
@@ -105,14 +105,14 @@ def refresh(user_data):
 @users_bp.route("/logout", methods=["POST"])
 @token_required("access")
 def logout(_):
-    print("LOGGING OUT BEFORE get_json", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", request.headers)
-    print("LOGOUT DATA", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", request.data)
-    data = request.get_json()
-    print("LOGGING OUT AFTER get_json", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", data)
+    # print("LOGGING OUT BEFORE get_json", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", request.headers)
+    # print("LOGOUT DATA", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", request.data)
+    # data = request.get_json()
+    # print("LOGGING OUT AFTER get_json", f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", data)
 
     response = make_response({"message": "Logout successful."}, 200)
 
-    print("LOGGING OUT")
+    # print("LOGGING OUT")
 
     # delete the refresh token by setting their max-age to 0
     # access token deletion is handled on the front-end
