@@ -17,6 +17,8 @@ COPY requirements.txt /app/
 
 # Set the PYTHONPATH environment variable to /app
 ENV PYTHONPATH=/app
+# show terminal output immediately
+ENV PYTHONUNBUFFERED=1
 
 # Install Python dependencies from requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt

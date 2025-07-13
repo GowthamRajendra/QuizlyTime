@@ -9,10 +9,9 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - backend1
-      - backend2
+      - backend
 
-  backend1:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
@@ -34,27 +33,27 @@ services:
       - REDIS_URL=redis://redis:6379
       - REDIS_HOST=redis
   
-  backend2:
-    build:
-        context: .
-        dockerfile: Dockerfile
-    ports:
-      - "5001:5000"
-    volumes:
-      - ./controllers:/app/controllers
-      - ./models:/app/models
-      - ./services:/app/services
-      - ./app.py:/app/app.py
-      - ./socket_manager.py:/app/socket_manager.py
-      - ./redis_client.py:/app/redis_client.py
-    environment:
-      - FLASK_APP=app.py
-      - FLASK_ENV=production
-      - FRONTEND_URL=http://localhost:5173
-      - DB_URI=${DB_URI}
-      - JWT_SECRET=${JWT_SECRET}
-      - REDIS_URL=redis://redis:6379
-      - REDIS_HOST=redis
+  # backend2:
+  #   build:
+  #       context: .
+  #       dockerfile: Dockerfile
+  #   ports:
+  #     - "5001:5000"
+  #   volumes:
+  #     - ./controllers:/app/controllers
+  #     - ./models:/app/models
+  #     - ./services:/app/services
+  #     - ./app.py:/app/app.py
+  #     - ./socket_manager.py:/app/socket_manager.py
+  #     - ./redis_client.py:/app/redis_client.py
+  #   environment:
+  #     - FLASK_APP=app.py
+  #     - FLASK_ENV=production
+  #     - FRONTEND_URL=http://localhost:5173
+  #     - DB_URI=${DB_URI}
+  #     - JWT_SECRET=${JWT_SECRET}
+  #     - REDIS_URL=redis://redis:6379
+  #     - REDIS_HOST=redis
   
   frontend:
     build:
