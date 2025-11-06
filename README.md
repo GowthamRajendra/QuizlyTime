@@ -1,6 +1,8 @@
-# QuizlyTime - Online Quiz App using React and Flask
+# QuizlyTime - Online Multiplayer Quiz App using React and Flask
 
-## Live App Hosted on render.com
+## Live App Hosted on render.com and AWS
+Created using ReactJS, Flask, MongoDB and Redis. Containerized with Docker and hosted on Render.com and AWS.
+
 https://quizlytime.onrender.com/quiz
 The backend will slow down with inactivity so give it 20-30 seconds to boot up again when you first use the website.
 
